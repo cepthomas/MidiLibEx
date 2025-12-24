@@ -14,6 +14,7 @@ using System.Diagnostics;
 using NAudio.Midi;
 using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfUis;
+using Ephemera.MidiLib;
 
 
 namespace Ephemera.MidiLibEx.Test
@@ -26,7 +27,7 @@ namespace Ephemera.MidiLibEx.Test
 
         #region Fields - internal
         /// <summary>All the channels - key is user assigned name.</summary>
-        readonly Dictionary<string, Channel> _channels = new();
+        readonly Dictionary<string, OutputChannel> _channels = new();
 
         /// <summary>Midi output.</summary>
         IOutputDevice _outputDevice = new NullOutputDevice();
