@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Version>2.0.0</Version>
+        <UseWindowsForms>true</UseWindowsForms>
+        <RootNamespace>Ephemera.MidiLibEx.Test</RootNamespace>
+        <AssemblyName>Ephemera.MidiLibEx.Test</AssemblyName>
+        <Deterministic>False</Deterministic>
+        <Description>MidiLibEx tester</Description>
+        <Copyright>MIT License</Copyright>
+        <!-- <DefineConstants>DEBUG;TRACE</DefineConstants> -->
+        <OutputPath>bin\</OutputPath>
+        <WarningLevel>4</WarningLevel>
+        <NoWarn>CS1591;CA1822</NoWarn>
+        <Nullable>enable</Nullable>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+        <StartupObject>Ephemera.MidiLibEx.Test.Program</StartupObject>
+        <NoWin32Manifest>true</NoWin32Manifest>
+        <IsPublishable>False</IsPublishable>
+        <!-- en none -->
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NAudio" Version="2.1.0" />
+        <PackageReference Include="NAudio.Midi" Version="2.1.0" />
+        <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\MidiLib\MidiLib.csproj" />
+        <ProjectReference Include="..\MidiLibEx.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Ephemera.NBagOfTricks">
+          <HintPath>..\lib\Ephemera.NBagOfTricks.dll</HintPath>
+        </Reference>
+        <Reference Include="Ephemera.NBagOfUis">
+            <HintPath>..\lib\Ephemera.NBagOfUis.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Properties\Resources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Resources.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Properties\Resources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,953 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Ephemera.NBagOfUis</name>
+    </assembly>
+    <members>
+        <member name="P:Ephemera.NBagOfUis.ChoiceSelector.SelectedChoice">
+            <summary>What the user picked.</summary>
+        </member>
+        <member name="E:Ephemera.NBagOfUis.ChoiceSelector.ChoiceChanged">
+            <summary>Value changed event.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ChoiceSelector.#ctor">
+            <summary>
+            Constructor.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ChoiceSelector.SetOptions(System.Collections.Generic.List{System.String})">
+            <summary>
+            Make selection buttons.
+            </summary>
+            <param name="options"></param>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.ClickGrid">
+            <summary>
+            ClickGrid control.
+            </summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.ClickGrid._stateTypes">
+            <summary>State enumeration.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.ClickGrid._indicators">
+            <summary>All the indicators.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.ClickGrid._cols">
+            <summary>Number of columns.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.ClickGrid._rows">
+            <summary>Number of rows.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.ClickGrid._indWidth">
+            <summary>Indicator geometry.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.ClickGrid._indHeight">
+            <summary>Indicator geometry.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.ClickGrid._defaultForeBrush">
+            <summary>Used for unspecified states.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.ClickGrid._defaultBackBrush">
+            <summary>Used for unspecified states.</summary>
+        </member>
+        <member name="E:Ephemera.NBagOfUis.ClickGrid.IndicatorChanged">
+            <summary>ClickGrid value changed event.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ClickGrid.#ctor">
+            <summary>
+            Creates a new default control.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ClickGrid.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ClickGrid.AddIndicator(System.String,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="text"></param>
+            <param name="id"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ClickGrid.Show(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Normal construction.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ClickGrid.SetIndicator(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="id"></param>
+            <param name="state"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ClickGrid.AddStateType(System.Int32,System.Drawing.Color,System.Drawing.Color)">
+            <summary>
+            
+            </summary>
+            <param name="state"></param>
+            <param name="foreColor"></param>
+            <param name="backColor"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ClickGrid.Clear">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ClickGrid.OnPaint(System.Windows.Forms.PaintEventArgs)">
+            <summary>
+            Draw the control.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ClickGrid.OnResize(System.EventArgs)">
+            <summary>
+            
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ClickGrid.OnMouseClick(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.IndicatorEventArgs">
+            <summary>
+            Click event data.
+            </summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.Indicator">
+            <summary>
+            Everything about one indicator.
+            </summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Indicator.Id">
+            <summary>User tag.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Indicator.Text">
+            <summary>The text.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Indicator.State">
+            <summary>User tag.</summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.IndicatorStateType">
+            <summary>
+            Describes one state.
+            </summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.IndicatorStateType.ForeBrush">
+            <summary>The foreground brush/pen.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.IndicatorStateType.BackBrush">
+            <summary>The background brush.</summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.DropDownButton">
+            <summary>Button with builtin Drop down selector.</summary>
+        </member>
+        <member name="E:Ephemera.NBagOfUis.DropDownButton.Selected">
+            <summary>Drop down selection event.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.DropDownButton._menu">
+            <summary>The menu.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.DropDownButton.#ctor">
+            <summary>
+            Constructor.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.DropDownButton.SetOptions(System.Collections.Generic.List{System.String})">
+            <summary>
+            Populate menu with options.
+            </summary>
+            <param name="options"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.DropDownButton.Menu_Click(System.Object,System.EventArgs)">
+            <summary>
+            Handle drop down selection.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.DropDownButton.OnMouseDown(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handle mouse down.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.DropDownButton.OnPaint(System.Windows.Forms.PaintEventArgs)">
+            <summary>
+            Draw everything including a little arrow.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.FilTree">
+            <summary>
+            Tree control with file type filters.
+            </summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.FilTree.RecentFiles">
+            <summary>Client may supply these.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.FilTree.RootDirs">
+            <summary>Your favorite places.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.FilTree.FilterExts">
+            <summary>Show only these file types. Empty is valid for files without extensions.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.FilTree.IgnoreDirs">
+            <summary>Ignore these noisy directories.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.FilTree.SplitterPosition">
+            <summary>Splitter Position as Percent of width.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.FilTree.SingleClickSelect">
+            <summary>Generate event with single or double click.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.FilTree._lastListIndex">
+            <summary>Tracking UI.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.FilTree._lastNode">
+            <summary>Tracking UI.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.FilTree._recentNode">
+            <summary>Special node.</summary>
+        </member>
+        <member name="E:Ephemera.NBagOfUis.FilTree.FileSelected">
+            <summary>User has selected a file.</summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.FilTree.TreeDirInfo">
+            <summary>Convenience container.</summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.FilTree.ListFileInfo">
+            <summary>Convenience container.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.FilTree.#ctor">
+            <summary>
+            Default constructor. Initializes the filtree.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.FilTree.InitTree">
+            <summary>
+            Populate from properties. Client must call this after editing the properties.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.FilTree.GetSubdirs(System.IO.DirectoryInfo[],System.Windows.Forms.TreeNode)">
+            <summary>
+            Recursively drill down through the directory structure and populate the tree.
+            </summary>
+            <param name="dis"></param>
+            <param name="parentNode"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.FilTree.TreeView_NodeMouseClick(System.Object,System.Windows.Forms.TreeNodeMouseClickEventArgs)">
+            <summary>
+            Drill down through dirs/files.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.FilTree.TreeView_MouseMove(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Show folder info at mouse position.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.FilTree.PopulateFileList(System.Windows.Forms.TreeNode)">
+            <summary>
+            Populate the file selector.
+            </summary>
+            <param name="node">Selected node.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.FilTree.UserFileSelected(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handler for single or double mouse clicks.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.FilTree.ListFiles_MouseMove(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Show file info at mouse position.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.FilTree.GetInfo(System.Windows.Forms.Control)">
+            <summary>
+            Context menu handler.
+            </summary>
+            <param name="ctl"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.FilTree.InitializeComponent">
+            <summary>Required method for Designer support - do not modify the contents of this method with the code editor. (haha)</summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.GraphicsUtils">
+            <summary>
+            Static general utility functions.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.GraphicsUtils.CreateIcon(System.String)">
+            <summary>
+            Create icon from a file.
+            </summary>
+            <param name="fn"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.GraphicsUtils.CreateIcon(System.Drawing.Bitmap,System.Int32)">
+            <summary>
+            Create icon from a bitmap.
+            </summary>
+            <param name="bmpSource">Source image.</param>
+            <param name="size">Specific size or 0 for all common windows sizes.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.GraphicsUtils.SaveIcon(System.Drawing.Icon,System.String)">
+            <summary>
+            Save to file.
+            </summary>
+            <param name="ico"></param>
+            <param name="fn"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.GraphicsUtils.ColorizeControl(System.ComponentModel.Component,System.Drawing.Color)">
+            <summary>
+            Recolor a control.
+            </summary>
+            <param name="comp"></param>
+            <param name="clr"></param>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripCheckBoxRenderer.SelectedColor">
+            <summary>Color to use when check box is selected.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ToolStripCheckBoxRenderer.OnRenderButtonBackground(System.Windows.Forms.ToolStripItemRenderEventArgs)">
+            <summary>
+            Override for drawing.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.MeterType">
+            <summary>Display types.</summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.Meter">
+            <summary>
+            Implements a rudimentary volume meter.
+            </summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Meter._buff">
+            <summary>Storage.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Meter._buffIndex">
+            <summary>Storage.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Meter._pen">
+            <summary>The pen.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Meter._brush">
+            <summary>The brush.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Meter._format">
+            <summary>For drawing text.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Meter.Label">
+            <summary>Optional label.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Meter.DrawColor">
+            <summary>For styling.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Meter.MeterType">
+            <summary>How the meter responds.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Meter.Minimum">
+            <summary>Minimum value. If Log type, this is in db - usually -60;</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Meter.Maximum">
+            <summary>Maximum value. If Log type, this is in db - usually +18.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Meter.Orientation">
+            <summary>Meter orientation.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Meter.#ctor">
+            <summary>
+            Basic volume meter.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Meter.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Meter.InitializeComponent">
+            <summary>
+            Designer.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Meter.AddValue(System.Double)">
+            <summary>
+            Add a new data point. If Log, this will convert for you.
+            </summary>
+            <param name="val"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Meter.OnPaint(System.Windows.Forms.PaintEventArgs)">
+            <summary>
+            Paints the volume meter.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Meter.OnResize(System.EventArgs)">
+            <summary>
+            Update drawing area.
+            </summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.ToolStripMeter">
+            <summary>Simple toolstrip container for the meter.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.ToolStripMeter._meter">
+            <summary>Contained control.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripMeter.Label">
+            <summary>Optional label.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripMeter.DrawColor">
+            <summary>For styling.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripMeter.MeterType">
+            <summary>How the meter responds.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripMeter.Minimum">
+            <summary>Minimum Value of the slider.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripMeter.Maximum">
+            <summary>Maximum Value of the slider.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripMeter.BorderStyle">
+            <summary>Optional border.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ToolStripMeter.#ctor">
+            <summary>
+            Make one.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ToolStripMeter.AddValue(System.Double)">
+            <summary>
+            Add a new data point. If Log, this will convert for you.
+            </summary>
+            <param name="val"></param>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.OptionsEditor.Options">
+            <summary>The values to edit. Key is text, value is bool enable.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.OptionsEditor.AllowEdit">
+            <summary>If true, user can add and delete values, otherwise just select.</summary>
+        </member>
+        <member name="E:Ephemera.NBagOfUis.OptionsEditor.OptionsChanged">
+            <summary>Value changed event.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.OptionsEditor.#ctor">
+            <summary>
+            Constructor.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.OptionsEditor.All_Click(System.Object,System.EventArgs)">
+            <summary>
+            Select all.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.OptionsEditor.None_Click(System.Object,System.EventArgs)">
+            <summary>
+            Select none.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.OptionsEditor.Delete_Click(System.Object,System.EventArgs)">
+            <summary>
+            Delete selection.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.OptionsEditor.Add_Click(System.Object,System.EventArgs)">
+            <summary>
+            Add new one.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.OptionsEditor.TxtEdit_KeyDown(System.Object,System.Windows.Forms.KeyEventArgs)">
+            <summary>
+            Process return and escape keys.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.OptionsEditor.TxtEdit_Leave(System.Object,System.EventArgs)">
+            <summary>
+            Validate and save edit.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.Pan">
+            <summary>
+            Pan slider control
+            </summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Pan._value">
+            <summary> </summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Pan._brush">
+            <summary>The brush.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Pan._format">
+            <summary>For drawing text.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Pan.Value">
+            <summary>The current Pan setting.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Pan.DrawColor">
+            <summary>For styling.</summary>
+        </member>
+        <member name="E:Ephemera.NBagOfUis.Pan.ValueChanged">
+            <summary>True when pan value changed.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pan.#ctor">
+            <summary>
+            Creates a new Pan control.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pan.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pan.InitializeComponent">
+            <summary>
+            Designer.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pan.OnPaint(System.Windows.Forms.PaintEventArgs)">
+            <summary>
+            Draw control.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pan.OnMouseMove(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handle dragging.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pan.OnMouseDown(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handle dragging.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pan.SetValueFromMouse(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Calculate position.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pan.OnKeyDown(System.Windows.Forms.KeyEventArgs)">
+            <summary>
+            Handle the nudge key.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.Taper">
+            <summary></summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.Pot">
+            <summary>
+            Control potentiometer.
+            </summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Pot._resetVal">
+            <summary>If user resets. This is the first value assigned to Value.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Pot._beginDragValue">
+            <summary> </summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Pot._beginDragY">
+            <summary> </summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Pot._dragging">
+            <summary> </summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Pot._pen">
+            <summary>For drawing.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Pot._format">
+            <summary>For drawing text.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Pot.DrawColor">
+            <summary>For styling.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Pot.Label">
+            <summary>Name etc.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Pot.Taper">
+            <summary>Taper.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Pot.Resolution">
+            <summary>Per step resolution of this pot.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Pot.Minimum">
+            <summary>Minimum Value of the pot.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Pot.Maximum">
+            <summary>Maximum Value of the pot.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Pot.Value">
+            <summary>The current value of the pot.</summary>
+        </member>
+        <member name="E:Ephemera.NBagOfUis.Pot.ValueChanged">
+            <summary>Value changed event.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pot.#ctor">
+            <summary>
+            Creates a new pot control.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pot.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pot.InitializeComponent">
+            <summary>
+            Designer.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pot.Rescale">
+            <summary>
+            If min or max or resolution changed by client.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pot.OnPaint(System.Windows.Forms.PaintEventArgs)">
+            <summary>
+            Draws the control.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pot.OnMouseDown(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handles the mouse down event to allow changing value by dragging.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pot.OnMouseUp(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handles the mouse up event to allow changing value by dragging.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pot.OnMouseMove(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handles the mouse down event to allow changing value by dragging.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Pot.OnKeyDown(System.Windows.Forms.KeyEventArgs)">
+            <summary>
+            Handle the nudge key.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.PropertyGridEx">
+            <summary>Extends the PropertyGrid to add some features.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.PropertyGridEx.Dirty">
+            <summary>Edited flag.</summary>
+        </member>
+        <member name="E:Ephemera.NBagOfUis.PropertyGridEx.PropertyGridExChange">
+            <summary>The property grid is reporting something.</summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.PropertyGridEx.PropertyGridExEventArgs">
+            <summary>General event for raising events not natively supported by the property grid.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.PropertyGridEx.PropertyGridExEventArgs.EventType">
+            <summary>General info.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.PropertyGridEx.PropertyGridExEventArgs.EventData">
+            <summary>General data.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.PropertyGridEx.RaisePropertyGridExEvent(System.String,System.Object)">
+            <summary>Children can call this to send something back to the host.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.PropertyGridEx.#ctor">
+            <summary>Initializes a new instance of the class.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.PropertyGridEx.AddButton(System.String,System.Drawing.Image,System.String,System.EventHandler)">
+            <summary>Add a custom button to the property grid.</summary>
+            <param name="text"></param>
+            <param name="image"></param>
+            <param name="tooltip"></param>
+            <param name="onClick"></param>
+            <returns>The button or null if failed.</returns>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.PropertyGridEx.AddLabel(System.String,System.Drawing.Image,System.String)">
+            <summary>Add a label to the property grid.</summary>
+            <param name="text"></param>
+            <param name="image"></param>
+            <param name="tooltip"></param>
+            <returns>The label or null if failed.</returns>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.PropertyGridEx.AddSeparator">
+            <summary>Add a separator to the property grid.</summary>
+            <returns>The separator or null if failed.</returns>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.PropertyGridEx.MoveSplitter(System.Int32)">
+            <summary>Moves the vertical splitter.</summary>
+            <param name="x"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.PropertyGridEx.ResizeDescriptionArea(System.Int32)">
+            <summary>Alter the bottom description area. Must be in OnLoad()!</summary>
+            <param name="numl">Number of lines to show.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.PropertyGridEx.ExpandGroup(System.String,System.Boolean)">
+            <summary>Expand or collapse the group.</summary>
+            <param name="groupName">Name of the group to act on.</param>
+            <param name="expand">Expand or collapse.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.PropertyGridEx.ShowProperty(System.String,System.Boolean)">
+            <summary>Show or hide a named property.</summary>
+            <param name="which">Name of the property.</param>
+            <param name="visible">True or false.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.SettingsEditor.Edit(System.Object,System.String,System.Int32,System.Boolean)">
+            <summary>
+            Edit the properties in a dialog. Works with SettingsCore from nbot.
+            </summary>
+            <param name="settings">To edit.</param>
+            <param name="title">To show.</param>
+            <param name="height">Adjustable.</param>
+            <param name="expand">Default expansion.</param>
+            <returns>List of tuples of name, category.</returns>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.Slider">
+            <summary>
+            Slider control.
+            </summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Slider._resetVal">
+            <summary>If user resets. This is the first value assigned to Value.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Slider._brush">
+            <summary>The brush.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.Slider._format">
+            <summary>For drawing text.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Slider.Label">
+            <summary>Optional label.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Slider.DrawColor">
+            <summary>For styling.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Slider.Orientation">
+            <summary>Fader orientation</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Slider.Resolution">
+            <summary>Per step resolution of this slider.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Slider.Minimum">
+            <summary>Minimum Value of the slider.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Slider.Maximum">
+            <summary>Maximum Value of the slider.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.Slider.Value">
+            <summary>The current value of the slider.</summary>
+        </member>
+        <member name="E:Ephemera.NBagOfUis.Slider.ValueChanged">
+            <summary>Slider value changed event.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Slider.#ctor">
+            <summary>
+            Creates a new Slider control.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Slider.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Slider.InitializeComponent">
+            <summary>
+            From Designer.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Slider.Rescale">
+            <summary>
+            If min or max or resolution changed by client.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Slider.OnPaint(System.Windows.Forms.PaintEventArgs)">
+            <summary>
+            Draw the slider.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Slider.OnMouseMove(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handle dragging.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Slider.OnMouseDown(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handle dragging.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Slider.SetValueFromMouse(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            ommon updater.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.Slider.OnKeyDown(System.Windows.Forms.KeyEventArgs)">
+            <summary>
+            Handle the nudge key.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.ToolStripSlider">
+            <summary>Simple toolstrip container for the slider.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.ToolStripSlider._slider">
+            <summary>Contained control.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripSlider.Label">
+            <summary>Optional label.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripSlider.DrawColor">
+            <summary>For styling.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripSlider.Resolution">
+            <summary>Per step resolution of this slider.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripSlider.Minimum">
+            <summary>Minimum Value of the slider.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripSlider.Maximum">
+            <summary>Maximum Value of the slider.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripSlider.Value">
+            <summary>The current value of the slider.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.ToolStripSlider.BorderStyle">
+            <summary>Optional border.</summary>
+        </member>
+        <member name="E:Ephemera.NBagOfUis.ToolStripSlider.ValueChanged">
+            <summary>Slider value changed event.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.ToolStripSlider.#ctor">
+            <summary>
+            Make one.
+            </summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.TextViewer.MatchText">
+            <summary>The colors to display when text is matched.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.TextViewer.BackColor">
+            <summary>Cosmetics. Note this needs to be set in client constructor not OnLoad(). Unknown reason.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.TextViewer.Font">
+            <summary>Cosmetics.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.TextViewer.WordWrap">
+            <summary>Word wrap toggle.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.TextViewer.Prompt">
+            <summary>Optional prompt.</summary>
+        </member>
+        <member name="P:Ephemera.NBagOfUis.TextViewer.MaxText">
+            <summary>Limit the size.</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.TextViewer._rtb">
+            <summary>Contained control.</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.TextViewer.#ctor">
+            <summary>
+            Constructor sets some defaults.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.TextViewer.OnLoad(System.EventArgs)">
+            <summary>
+            Ready to see.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.TextViewer.Dispose(System.Boolean)">
+            <summary>
+             Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.TextViewer.AppendLine(System.String,System.Nullable{System.Drawing.Color})">
+            <summary>
+            A message to display to the user. Adds EOL.
+            </summary>
+            <param name="text">The message.</param>
+            <param name="color">Specific color to use.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.TextViewer.AppendText(System.String,System.Nullable{System.Drawing.Color})">
+            <summary>
+            A message to display to the user. Doesn't add EOL.
+            </summary>
+            <param name="text">The message.</param>
+            <param name="color">Specific color to use.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.TextViewer.AppendColor(System.String,System.Nullable{System.Drawing.Color},System.Nullable{System.Drawing.Color},System.Boolean)">
+            <summary>
+            Output text wwith explicit color.
+            </summary>
+            <param name="text">The text to show.</param>
+            <param name="fg"></param>
+            <param name="bg"></param>
+            <param name="nl">Add new line.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.TextViewer.AppendMatch(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Output text using text matching color.
+            </summary>
+            <param name="text">The text to show.</param>
+            <param name="line">Color whole line.</param>
+            <param name="nl">Add new line.</param>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.TextViewer.Clear">
+            <summary>
+            Clean up.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.TextViewer.Write(System.String,System.Boolean)">
+            <summary>
+            Low level output. Assumes caller has taken care of cross-thread issues.
+            </summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.TextViewer.Rtb_KeyDown(System.Object,System.Windows.Forms.KeyEventArgs)">
+            <summary>
+            Catch a few keys.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.StringListEditor">
+            <summary>Generic property editor for lists of strings.</summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.MonospaceFontEditor">
+            <summary>Selector for monospaced fonts.</summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.PathListEditor">
+            <summary>Broken - don't use.</summary>
+        </member>
+        <member name="T:Ephemera.NBagOfUis.WaitCursor">
+            <summary>Class that provides a better wait cursor. Clients should use it with using (new WaitCursor()) { slow code }</summary>
+        </member>
+        <member name="F:Ephemera.NBagOfUis.WaitCursor.m_cursorOld">
+            <summary>Restore original cursor</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.WaitCursor.#ctor">
+            <summary>Constructor</summary>
+        </member>
+        <member name="M:Ephemera.NBagOfUis.WaitCursor.Dispose">
+            <summary>Dispose</summary>
+        </member>
+    </members>
+</doc>
