@@ -1,5 +1,7 @@
 ﻿
 
+using Ephemera.MidiLib;
+
 namespace Ephemera.MidiLibEx.Test
 {
     partial class MainForm
@@ -48,12 +50,13 @@ namespace Ephemera.MidiLibEx.Test
             lbPatterns = new System.Windows.Forms.CheckedListBox();
             btnAll = new System.Windows.Forms.Button();
             btnNone = new System.Windows.Forms.Button();
-            nudTempo = new System.Windows.Forms.NumericUpDown();
+            //nudTempo = new System.Windows.Forms.NumericUpDown();
+            sldTempo = new NBagOfUis.Slider();
             label1 = new System.Windows.Forms.Label();
             sldVolume = new Ephemera.NBagOfUis.Slider();
-            barBar = new BarBar();
+            timeBar = new TimeBar();
             toolStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)nudTempo).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)sldTempo).BeginInit();
             SuspendLayout();
             // 
             // toolStrip1
@@ -280,16 +283,29 @@ namespace Ephemera.MidiLibEx.Test
             btnNone.UseVisualStyleBackColor = true;
             btnNone.Click += AllOrNone_Click;
             // 
-            // nudTempo
+            // sldTempo
             // 
-            nudTempo.Increment = new decimal(new int[] { 5, 0, 0, 0 });
-            nudTempo.Location = new System.Drawing.Point(159, 60);
-            nudTempo.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
-            nudTempo.Minimum = new decimal(new int[] { 40, 0, 0, 0 });
-            nudTempo.Name = "nudTempo";
-            nudTempo.Size = new System.Drawing.Size(58, 26);
-            nudTempo.TabIndex = 96;
-            nudTempo.Value = new decimal(new int[] { 40, 0, 0, 0 });
+            //nudTempo.Increment = new decimal(new int[] { 5, 0, 0, 0 });
+            //nudTempo.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
+            //nudTempo.Minimum = new decimal(new int[] { 40, 0, 0, 0 });
+            //nudTempo.Value = new decimal(new int[] { 40, 0, 0, 0 });
+
+            sldTempo.Location = new System.Drawing.Point(159, 60);
+            sldTempo.Name = "sldTempo";
+            sldTempo.Size = new System.Drawing.Size(58, 26);
+            sldTempo.TabIndex = 96;
+
+            sldTempo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            sldTempo.DrawColor = System.Drawing.Color.White;
+            sldTempo.Label = "";
+            sldTempo.Location = new System.Drawing.Point(8, 38);
+            sldTempo.Maximum = 240D;
+            sldTempo.Minimum = 40D;
+            sldTempo.Name = "nudTempo";
+            sldTempo.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            sldTempo.Resolution = 1D;
+            sldTempo.Value = 100D;
+
             // 
             // label1
             // 
@@ -317,25 +333,25 @@ namespace Ephemera.MidiLibEx.Test
             // 
             // barBar
             // 
-            barBar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            barBar.FontLarge = new System.Drawing.Font("Microsoft Sans Serif", 20F);
-            barBar.FontSmall = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            barBar.Location = new System.Drawing.Point(244, 38);
-            barBar.MarkerColor = System.Drawing.Color.Black;
-            barBar.Name = "barBar";
-            barBar.ProgressColor = System.Drawing.Color.White;
-            barBar.Size = new System.Drawing.Size(701, 48);
-            barBar.TabIndex = 100;
+            timeBar.Name = "barBar";
+            timeBar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            timeBar.FontLarge = new System.Drawing.Font("Microsoft Sans Serif", 20F);
+            timeBar.FontSmall = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            timeBar.Location = new System.Drawing.Point(244, 38);
+            timeBar.ControlColor = System.Drawing.Color.Black;
+            timeBar.SelectedColor = System.Drawing.Color.White;
+            timeBar.Size = new System.Drawing.Size(701, 48);
+            timeBar.TabIndex = 100;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(1062, 542);
-            Controls.Add(barBar);
+            Controls.Add(timeBar);
             Controls.Add(sldVolume);
             Controls.Add(label1);
-            Controls.Add(nudTempo);
+            Controls.Add(sldTempo);
             Controls.Add(btnNone);
             Controls.Add(btnAll);
             Controls.Add(lbPatterns);
@@ -348,7 +364,7 @@ namespace Ephemera.MidiLibEx.Test
             Text = "Midi Lib";
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)nudTempo).EndInit();
+            ((System.ComponentModel.ISupportInitialize)sldTempo).EndInit();
             ResumeLayout(false);
             PerformLayout();
 
@@ -357,31 +373,25 @@ namespace Ephemera.MidiLibEx.Test
         #endregion
 
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private NBagOfUis.Slider sldVolume;
-        private NBagOfUis.TextViewer txtViewer;
         private System.Windows.Forms.ToolStripButton btnLogMidi;
         private System.Windows.Forms.ToolStripButton btnKillMidi;
         private System.Windows.Forms.ToolStripButton btnPlay;
         private System.Windows.Forms.ToolStripButton btnRewind;
         private System.Windows.Forms.ToolStripButton btnExportCsv;
         private System.Windows.Forms.ToolStripButton btnExportMidi;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
+        private System.Windows.Forms.ToolStripComboBox cmbDrumChannel1;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+        private System.Windows.Forms.ToolStripComboBox cmbDrumChannel2;
+
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
-        private System.Windows.Forms.CheckedListBox lbPatterns;
-        private System.Windows.Forms.Button btnAll;
-        private System.Windows.Forms.Button btnNone;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
-        private System.Windows.Forms.ToolStripComboBox cmbDrumChannel1;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
-        private System.Windows.Forms.ToolStripComboBox cmbDrumChannel2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
-        private System.Windows.Forms.NumericUpDown nudTempo;
-        private System.Windows.Forms.Label label1;
-        private BarBar barBar;
+
         private System.Windows.Forms.ToolStripButton btnStuff;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton btnDocs;
@@ -390,6 +400,17 @@ namespace Ephemera.MidiLibEx.Test
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
         private System.Windows.Forms.ToolStripButton btnOpen;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
+
+        private System.Windows.Forms.CheckedListBox lbPatterns;
+        private System.Windows.Forms.Button btnAll;
+        private System.Windows.Forms.Button btnNone;
+        //private System.Windows.Forms.NumericUpDown nudTempo;
+        private NBagOfUis.Slider sldTempo;
+        private System.Windows.Forms.Label label1;
+        private TimeBar timeBar;
+
+        private NBagOfUis.Slider sldVolume;
+        private NBagOfUis.TextViewer txtViewer;
     }
 }
 

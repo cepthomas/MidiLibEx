@@ -26,11 +26,13 @@ namespace Ephemera.MidiLibEx
         /// <summary>Supported file types.</summary>
         public const string STYLE_FILE_TYPES = "*.sty;*.pcs;*.sst;*.prs";
 
-        /// <summary>Default value.</summary>
-        public const double DEFAULT_VOLUME = 0.8;
 
-        /// <summary>Allow UI controls some more headroom.</summary>
-        public const double MAX_VOLUME = 2.0;
+        //  TODO1 dupes:
+        ///// <summary>Default value.</summary>
+        //public const double DEFAULT_VOLUME = 0.8;
+
+        ///// <summary>Allow UI controls some more headroom.</summary>
+        //public const double MAX_VOLUME = 2.0;
     }
     #endregion
 

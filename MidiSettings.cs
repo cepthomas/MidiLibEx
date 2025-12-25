@@ -31,13 +31,13 @@ namespace Ephemera.MidiLibEx
         [DisplayName("Input Devices")]
         [Description("Valid devices if handling input.")]
         [Browsable(true)]
-        [Editor(typeof(DevicesTypeEditor), typeof(UITypeEditor))]
+//TODO1        [Editor(typeof(DevicesTypeEditor), typeof(UITypeEditor))]
         public List<DeviceSpec> InputDevices { get; set; } = new();
 
         [DisplayName("Output Devices")]
         [Description("Valid devices if sending output.")]
         [Browsable(true)]
-        [Editor(typeof(DevicesTypeEditor), typeof(UITypeEditor))]
+//TODO1        [Editor(typeof(DevicesTypeEditor), typeof(UITypeEditor))]
         public List<DeviceSpec> OutputDevices { get; set; } = new();
 
         [DisplayName("Default Tempo")]

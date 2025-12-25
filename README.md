@@ -1,4 +1,4 @@
-# MidiLib ----------------------------------------------------------
+# MidiLibEx TODO1 update doc ----------------------------------------------------------
 
 This library contains a bunch of components and controls accumulated over the years. It supports:
 - Reading and playing midi files.

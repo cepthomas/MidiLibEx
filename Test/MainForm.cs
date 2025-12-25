@@ -93,15 +93,15 @@ namespace Ephemera.MidiLibEx.Test
             // UI configs.
             sldVolume.DrawColor = _controlColor;
             sldVolume.Minimum = 0.0;
-            sldVolume.Maximum = MidiLibDefs.MAX_VOLUME;
-            sldVolume.Resolution = MidiLibDefs.MAX_VOLUME / 50;
-            sldVolume.Value = MidiLibDefs.DEFAULT_VOLUME;
+            sldVolume.Maximum = Defs.MAX_VOLUME;
+            sldVolume.Resolution = Defs.MAX_VOLUME / 50;
+            sldVolume.Value = Defs.DEFAULT_VOLUME;
             sldVolume.Label = "volume";
 
             // Time controller.
             MidiSettings.LibSettings.Snap = SnapType.Beat;
-            barBar.ProgressColor = _controlColor;
-            barBar.CurrentTimeChanged += BarBar_CurrentTimeChanged;
+            timeBar.ControlColor = _controlColor;
+            timeBar.StateChange += TimeBar_StateChange;
 
             // Init channel selectors.
             cmbDrumChannel1.Items.Add("NA");
@@ -121,7 +121,7 @@ namespace Ephemera.MidiLibEx.Test
                 _channels.Values.ForEach(ch => ch.Kill());
             };
             btnLogMidi.CheckedChanged += (_, __) => _outputDevice.LogEnable = btnLogMidi.Checked;
-            nudTempo.ValueChanged += (_, __) => SetTimer();
+            sldTempo.ValueChanged += (_, __) => SetTimer();
         }
 
         /// <summary>
@@ -355,7 +355,7 @@ namespace Ephemera.MidiLibEx.Test
         /// </summary>
         void Rewind()
         {
-            barBar.Current = new(0);
+            timeBar.Rewind();
         }
 
         /// <summary>
@@ -363,7 +363,7 @@ namespace Ephemera.MidiLibEx.Test
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void BarBar_CurrentTimeChanged(object? sender, EventArgs e)
+        void TimeBar_StateChange(object? sender, EventArgs e)
         {
             //_player.CurrentSub = barBar.Current.TotalSubs;
         }
@@ -416,7 +416,7 @@ namespace Ephemera.MidiLibEx.Test
                 lbPatterns.SelectedIndex = 0;
 
                 // Set up timer default.
-                nudTempo.Value = 100;
+                sldTempo.Value = 100;
 
                 btnExportMidi.Enabled = _mdata.IsStyleFile;
             }
@@ -485,13 +485,13 @@ namespace Ephemera.MidiLibEx.Test
                 if (chEvents.Any())
                 {
                     // Make new channel.
-                    Channel channel = new()
+                    OutputChannel channel = new()
                     {
                         ChannelName = $"chan{number}",
                         ChannelNumber = number,
                         Device = _outputDevice,
                         DeviceId = _outputDevice.DeviceName,
-                        Volume = MidiLibDefs.DEFAULT_VOLUME,
+                        Volume = Defs.DEFAULT_VOLUME,
                         State = ChannelState.Normal,
                         Patch = patch,
                         IsDrums = number == MidiDefs.DEFAULT_DRUM_CHANNEL,
@@ -523,7 +523,7 @@ namespace Ephemera.MidiLibEx.Test
             if(_inputDevice is not null && _inputDevice.Valid)
             {
                 int chnum = 16;
-                Channel channel = new()
+                InputChannel channel = new()
                 {
                     ChannelName = $"chan16",
                     ChannelNumber = chnum,
@@ -536,18 +536,18 @@ namespace Ephemera.MidiLibEx.Test
                     Selected = false,
                 };
                 _channels.Add(channel.ChannelName, channel);
-                channel.SendPatch();
+                //channel.SendPatch();
             }
 
             // Set timer.
-            nudTempo.Value = pinfo.Tempo;
+            sldTempo.Value = pinfo.Tempo;
 
             // Update bar.
             var tot = _channels.TotalSubs();
-            barBar.Start = new(0);
-            barBar.End = new(tot > 0 ? tot - 1 : 0);
-            barBar.Length = new(tot);
-            barBar.Current = new(0);
+            timeBar.Start = new(0);
+            timeBar.End = new(tot > 0 ? tot - 1 : 0);
+            timeBar.Length = new(tot);
+            timeBar.Current = new(0);
 
             UpdateDrumChannels();
         }
@@ -632,7 +632,7 @@ namespace Ephemera.MidiLibEx.Test
                 if (ch.State == ChannelState.Solo || (!anySolo && ch.State == ChannelState.Normal))
                 {
                     // Process any sequence steps.
-                    var playEvents = ch.GetEvents(barBar.Current.TotalSubs);
+                    var playEvents = ch.GetEvents(timeBar.Current.TotalSubs);
                     foreach (var mevt in playEvents)
                     {
                         switch (mevt)
@@ -677,7 +677,7 @@ namespace Ephemera.MidiLibEx.Test
             }
 
             // Bump time. Check for end of play.
-            done = barBar.IncrementCurrent(1);
+            done = timeBar.Increment();
 
             return done;
         }
@@ -735,7 +735,7 @@ namespace Ephemera.MidiLibEx.Test
                 patternNames.ForEach(p => patterns.Add(_mdata.GetPattern(p)!));
 
                 // Get selected channels.
-                List<Channel> channels = new();
+                List<OutputChannel> channels = new();
                 _channelControls.Where(cc => cc.Selected).ForEach(cc => channels.Add(cc.BoundChannel));
                 if (!channels.Any()) // grab them all.
                 {
@@ -776,7 +776,7 @@ namespace Ephemera.MidiLibEx.Test
         /// </summary>
         void SetTimer()
         {
-            MidiTimeConverter mt = new(_mdata.DeltaTicksPerQuarterNote, (double)nudTempo.Value);
+            MidiTimeConverter mt = new(_mdata.DeltaTicksPerQuarterNote, (double)sldTempo.Value);
             double period = mt.RoundedInternalPeriod();
             _mmTimer.SetTimer((int)Math.Round(period), MmTimerCallback);
         }
@@ -836,37 +836,37 @@ namespace Ephemera.MidiLibEx.Test
             }
         }
 
-        /// <summary>
-        /// Generate human info.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void Docs_Click(object sender, EventArgs e)
-        {
-            List<string> docs = new()
-            {
-                "# Midi Input Devices"
-            };
+        ///// <summary>
+        ///// Generate human info.
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //void Docs_Click(object sender, EventArgs e)
+        //{
+        //    List<string> docs = new()
+        //    {
+        //        "# Midi Input Devices"
+        //    };
 
-            for (int i = 0; i < MidiIn.NumberOfDevices; i++)
-            {
-                docs.Add($"- \"{MidiIn.DeviceInfo(i).ProductName}\"");
-            }
+        //    for (int i = 0; i < MidiIn.NumberOfDevices; i++)
+        //    {
+        //        docs.Add($"- \"{MidiIn.DeviceInfo(i).ProductName}\"");
+        //    }
 
-            docs.Add("");
-            docs.Add("# Midi Output Devices");
+        //    docs.Add("");
+        //    docs.Add("# Midi Output Devices");
 
-            for (int i = 0; i < MidiOut.NumberOfDevices; i++)
-            {
-                docs.Add($"- \"{MidiOut.DeviceInfo(i).ProductName}\"");
-            }
-            docs.Add("");
+        //    for (int i = 0; i < MidiOut.NumberOfDevices; i++)
+        //    {
+        //        docs.Add($"- \"{MidiOut.DeviceInfo(i).ProductName}\"");
+        //    }
+        //    docs.Add("");
 
-            docs.AddRange(MidiDefs.FormatDoc());
-            docs.AddRange(MusicDefinitions.FormatDoc());
+        //    docs.AddRange(MidiDefs.FormatDoc());
+        //    docs.AddRange(MusicDefinitions.FormatDoc());
 
-            Tools.MarkdownToHtml(docs, Tools.MarkdownMode.DarkApi, true);
-        }
+        //    Tools.MarkdownToHtml(docs, Tools.MarkdownMode.DarkApi, true);
+        //}
 
         /// <summary>
         /// 

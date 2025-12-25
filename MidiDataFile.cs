@@ -401,7 +401,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         void CleanUpPatterns()
         {
-            // TODO auto-determine which channel(s) have drums?
+            // TODO1 auto-determine which channel(s) have drums?
             // Drum channels will probably have the most notes. Also durations will be short.
             // Could also remember user's reassignments in the settings file.
 
