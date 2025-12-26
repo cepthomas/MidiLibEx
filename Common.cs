@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NAudio.Midi;
 
 
 namespace Ephemera.MidiLibEx
@@ -18,7 +14,7 @@ namespace Ephemera.MidiLibEx
     #endregion
 
     #region Definitions
-    public class MidiLibDefs
+    public class MidiLibDefs // TODO1
     {
         /// <summary>Supported file types.</summary>
         public const string MIDI_FILE_TYPES = "*.mid";

@@ -288,11 +288,29 @@
         <member name="T:Ephemera.NBagOfTricks.IniReader">
             <summary>Process the ini file.</summary>
         </member>
-        <member name="P:Ephemera.NBagOfTricks.IniReader.Contents">
+        <member name="F:Ephemera.NBagOfTricks.IniReader._contents">
             <summary>What's in the file.</summary>
         </member>
-        <member name="M:Ephemera.NBagOfTricks.IniReader.#ctor(System.String)">
-            <summary>Do it.</summary>
+        <member name="M:Ephemera.NBagOfTricks.IniReader.GetSectionNames">
+            <summary>All section names</summary>
+            <returns>Names</returns>
+        </member>
+        <member name="M:Ephemera.NBagOfTricks.IniReader.GetValues(System.String)">
+            <summary>Get values for the section name.</summary>
+            <param name="name"></param>
+            <returns>The section contents or throws if name is invalid.</returns>
+        </member>
+        <member name="M:Ephemera.NBagOfTricks.IniReader.ParseFile(System.String)">
+            <summary>
+            Process an ini file.
+            </summary>
+            <param name="fn"></param>
+        </member>
+        <member name="M:Ephemera.NBagOfTricks.IniReader.ParseString(System.String)">
+            <summary>
+            Process an ini string.
+            </summary>
+            <param name="s">Input</param>
         </member>
         <member name="T:Ephemera.NBagOfTricks.JsonColorConverter">
             <summary>Serialize prettier.</summary>

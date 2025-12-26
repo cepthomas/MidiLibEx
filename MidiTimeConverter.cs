@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ephemera.MidiLib;
 
 
 namespace Ephemera.MidiLibEx
@@ -34,7 +35,7 @@ namespace Ephemera.MidiLibEx
         /// <returns></returns>
         public long InternalToMidi(int t)
         {
-            long mtime = t * _midiPpq / MidiSettings.LibSettings.SubsPerBeat;
+            long mtime = t * _midiPpq / MusicTime.TicksPerBeat;
             return mtime;
         }
 
@@ -45,7 +46,7 @@ namespace Ephemera.MidiLibEx
         /// <returns></returns>
         public int MidiToInternal(long t)
         {
-            long itime = t * MidiSettings.LibSettings.SubsPerBeat / _midiPpq;
+            long itime = t * MusicTime.TicksPerBeat / _midiPpq;
             return (int)itime;
         }
 
@@ -89,7 +90,7 @@ namespace Ephemera.MidiLibEx
         public double InternalPeriod()
         {
             double secPerBeat = 60.0 / _tempo;
-            double msecPerT = 1000 * secPerBeat / MidiSettings.LibSettings.SubsPerBeat;
+            double msecPerT = 1000 * secPerBeat / MusicTime.TicksPerBeat;
             return msecPerT;
         }
 

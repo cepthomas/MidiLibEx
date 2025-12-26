@@ -338,7 +338,7 @@ namespace Ephemera.MidiLibEx.Test
             timeBar.FontLarge = new System.Drawing.Font("Microsoft Sans Serif", 20F);
             timeBar.FontSmall = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             timeBar.Location = new System.Drawing.Point(244, 38);
-            timeBar.ControlColor = System.Drawing.Color.Black;
+            timeBar.DrawColor = System.Drawing.Color.Black;
             timeBar.SelectedColor = System.Drawing.Color.White;
             timeBar.Size = new System.Drawing.Size(701, 48);
             timeBar.TabIndex = 100;

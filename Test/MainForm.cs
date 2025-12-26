@@ -11,9 +11,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
+using System.Drawing.Design;
 using NAudio.Midi;
 using Ephemera.NBagOfTricks;
-using Ephemera.NBagOfUis;
+//using Ephemera.NBagOfUis;
 using Ephemera.MidiLib;
 
 
@@ -26,11 +27,14 @@ namespace Ephemera.MidiLibEx.Test
         #endregion
 
         #region Fields - internal
+        /// <summary>The boss.</summary>
+        readonly Manager _mgr = new();
+
         /// <summary>All the channels - key is user assigned name.</summary>
         readonly Dictionary<string, OutputChannel> _channels = new();
 
         /// <summary>Midi output.</summary>
-        IOutputDevice _outputDevice = new NullOutputDevice();
+        IOutputDevice? _outputDevice = null;
 
         /// <summary>Midi input.</summary>
         IInputDevice? _inputDevice;
@@ -53,7 +57,7 @@ namespace Ephemera.MidiLibEx.Test
 
         #region Fields - adjust to taste
         /// <summary>Cosmetics.</summary>
-        readonly Color _controlColor = Color.Aquamarine;
+        readonly Color _drawColor = Color.Aquamarine;
 
         /// <summary>Where to put things.</summary>
         readonly string _outPath = @"???";
@@ -67,11 +71,11 @@ namespace Ephemera.MidiLibEx.Test
         {
             // Must do this first before initializing.
             _settings = (TestSettings)SettingsCore.Load(".", typeof(TestSettings));
-            MidiSettings.LibSettings = _settings.MidiSettings;
+//            MidiSettings.LibSettings = _settings.MidiSettings;
 
             InitializeComponent();
 
-            toolStrip1.Renderer = new ToolStripCheckBoxRenderer() { SelectedColor = _controlColor };
+            toolStrip1.Renderer = new ToolStripCheckBoxRenderer() { SelectedColor = _drawColor };
 
             // Make sure out path exists.
             _outPath = Path.Join(MiscUtils.GetSourcePath(), "out");
@@ -91,7 +95,7 @@ namespace Ephemera.MidiLibEx.Test
             txtViewer.MatchText.Add("WRN", Color.Plum);
 
             // UI configs.
-            sldVolume.DrawColor = _controlColor;
+            sldVolume.DrawColor = _drawColor;
             sldVolume.Minimum = 0.0;
             sldVolume.Maximum = Defs.MAX_VOLUME;
             sldVolume.Resolution = Defs.MAX_VOLUME / 50;
@@ -99,8 +103,10 @@ namespace Ephemera.MidiLibEx.Test
             sldVolume.Label = "volume";
 
             // Time controller.
-            MidiSettings.LibSettings.Snap = SnapType.Beat;
-            timeBar.ControlColor = _controlColor;
+//            MidiSettings.LibSettings.Snap = SnapType.Beat;
+            timeBar.DrawColor = _drawColor;
+            timeBar.SelectedColor = Color.LightYellow;
+            timeBar.Snap = SnapType.Beat;
             timeBar.StateChange += TimeBar_StateChange;
 
             // Init channel selectors.
@@ -115,12 +121,12 @@ namespace Ephemera.MidiLibEx.Test
             // Hook up some simple UI handlers.
             btnPlay.CheckedChanged += Play_CheckedChanged;
             btnRewind.Click += (_, __) => UpdateState(PlayState.Rewind);
-            btnKillMidi.Click += (_, __) =>
-            {
-                btnPlay.Checked = false;
-                _channels.Values.ForEach(ch => ch.Kill());
-            };
-            btnLogMidi.CheckedChanged += (_, __) => _outputDevice.LogEnable = btnLogMidi.Checked;
+            btnKillMidi.Click += (_, __) => _mgr.Kill();
+            //{
+            //    btnPlay.Checked = false;
+            //    _channels.Values.ForEach(ch => ch.Kill());
+            //};
+//            btnLogMidi.CheckedChanged += (_, __) => _outputDevice.LogEnable = btnLogMidi.Checked;
             sldTempo.ValueChanged += (_, __) => SetTimer();
         }
 
@@ -195,44 +201,20 @@ namespace Ephemera.MidiLibEx.Test
             DestroyDevices();
 
             // Set up input device.
-            foreach (var dev in _settings.MidiSettings.InputDevices)
-            {
-                _inputDevice = new MidiInput(dev.DeviceName);
-
-                if (!_inputDevice.Valid)
-                {
-                    _logger.Error($"Something wrong with your input device:{dev.DeviceName}");
-                    ok = false;
-                }
-                else
-                {
-                    _inputDevice.CaptureEnable = true;
-                    _inputDevice.InputReceive += Listener_InputReceive;
-                }
-            }
+            _inputDevice = _mgr.GetInputDevice(_settings.InputDeviceName);
+            _inputDevice.CaptureEnable = true;
+            _inputDevice.MessageReceive += Listener_InputReceive;
 
             // Set up output device.
-            foreach (var dev in _settings.MidiSettings.OutputDevices)
-            {
-                switch (dev.DeviceName)
-                {
-                    default:
-                        // Try midi.
-                        _outputDevice = new MidiOutput(dev.DeviceName);
-                        if (!_outputDevice.Valid)
-                        {
-                            _logger.Error($"Something wrong with your output device:{_outputDevice.DeviceName}");
-                            ok = false;
-                        }
-                        else
-                        {
-                            _outputDevice.LogEnable = btnLogMidi.Checked;
-                        }
-                        break;
-                }
-            }
+            _outputDevice = _mgr.GetOutputDevice(_settings.OutputDeviceName);
+            _outputDevice.MessageSend += _outputDevice_MessageSend;
 
             return ok;
+        }
+
+        private void _outputDevice_MessageSend(object? sender, BaseMidi e)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -298,11 +280,12 @@ namespace Ephemera.MidiLibEx.Test
         /// <param name="e"></param>
         void Control_ChannelChange(object? sender, ChannelChangeEventArgs e)
         {
-            Channel channel = ((ChannelControl)sender!).BoundChannel;
+            ChannelControl control = (ChannelControl)sender!;
+            OutputChannel channel = ((ChannelControl)sender!).BoundChannel;
 
             if (e.StateChange)
             {
-                switch (channel.State)
+                switch (control.State)
                 {
                     case ChannelState.Normal:
                         break;
@@ -311,22 +294,23 @@ namespace Ephemera.MidiLibEx.Test
                         // Mute any other non-solo channels.
                         _channels.Values.ForEach(ch =>
                         {
-                            if (channel.ChannelNumber != ch.ChannelNumber && channel.State != ChannelState.Solo)
+                            if (channel.ChannelNumber != ch.ChannelNumber && control.State != ChannelState.Solo)
                             {
-                                channel.Kill();
+                                _mgr.Kill(channel);
                             }
                         });
                         break;
 
                     case ChannelState.Mute:
-                        channel.Kill();
+                        _mgr.Kill(channel);
                         break;
                 }
             }
 
             if (e.PatchChange && channel.Patch >= 0)
             {
-                channel.SendPatch();
+                
+                //???? channel.SendPatch();
             }
         }
         #endregion
@@ -347,7 +331,7 @@ namespace Ephemera.MidiLibEx.Test
         {
             _mmTimer.Stop();
             // Send kill just in case.
-            _channels.Values.ForEach(ch => ch.Kill());
+            _mgr.Kill();
         }
 
         /// <summary>
@@ -392,8 +376,8 @@ namespace Ephemera.MidiLibEx.Test
                 cmbDrumChannel2.SelectedIndex = 0;
                 _mdata = new MidiDataFile();
 
-                // Process the file. Set the default tempo from preferences.
-                _mdata.Read(fn, _settings.MidiSettings.DefaultTempo, false);
+                // Process the file. Set the default tempo from TODO1.
+                _mdata.Read(fn, 100, false);
 
                 // Init new stuff with contents of file/pattern.
                 lbPatterns.Items.Clear();
@@ -476,43 +460,33 @@ namespace Ephemera.MidiLibEx.Test
             int x = lbPatterns.Right + 5;
             int y = lbPatterns.Top;
 
-            foreach(var (number, patch) in pinfo.GetChannels(true, true))
+            int maxTick = 0;
+
+            foreach(var (chnum, patch) in pinfo.GetChannels(true, true))
             {
                 // Get events for the channel.
-                var chEvents = pinfo.GetFilteredEvents(new List<int>() { number });
-
-                // Is this channel pertinent?
+                var chEvents = pinfo.GetFilteredEvents([chnum]);
                 if (chEvents.Any())
                 {
-                    // Make new channel.
-                    OutputChannel channel = new()
-                    {
-                        ChannelName = $"chan{number}",
-                        ChannelNumber = number,
-                        Device = _outputDevice,
-                        DeviceId = _outputDevice.DeviceName,
-                        Volume = Defs.DEFAULT_VOLUME,
-                        State = ChannelState.Normal,
-                        Patch = patch,
-                        IsDrums = number == MidiDefs.DEFAULT_DRUM_CHANNEL,
-                        Selected = false,
-                    };
-                    _channels.Add(channel.ChannelName, channel);
-                    channel.SetEvents(chEvents);
+                    maxTick = Math.Max(chEvents.Last().ScaledTime, maxTick);
+
+                    // Create channel.
+                    var ch = _mgr.OpenMidiOutput(_settings.OutputDeviceName, chnum, $"out_chan{chnum}", patch);
+                    ch.Volume = Defs.DEFAULT_VOLUME;
+                    ch.IsDrums = chnum == MidiDefs.DEFAULT_DRUM_CHANNEL;
+                    ch.SetEvents(chEvents);
+                    _channels.Add(ch.ChannelName, ch);
 
                     // Make new control and bind to channel.
                     ChannelControl control = new()
                     {
                         Location = new(x, y),
                         BorderStyle = BorderStyle.FixedSingle,
-                        BoundChannel = channel
+                        BoundChannel = ch
                     };
                     control.ChannelChange += Control_ChannelChange;
                     Controls.Add(control);
                     _channelControls.Add(control);
-
-                    // Good time to send initial patch.
-                    channel.SendPatch();
 
                     // Adjust positioning.
                     y += control.Height + 5;
@@ -523,31 +497,19 @@ namespace Ephemera.MidiLibEx.Test
             if(_inputDevice is not null && _inputDevice.Valid)
             {
                 int chnum = 16;
-                InputChannel channel = new()
-                {
-                    ChannelName = $"chan16",
-                    ChannelNumber = chnum,
-                    Device = _outputDevice,
-                    DeviceId = _outputDevice.DeviceName,
-                    Volume = MidiLibDefs.DEFAULT_VOLUME,
-                    State = ChannelState.Normal,
-                    Patch = MidiDefs.GetInstrumentNumber("OrchestralHarp"),
-                    IsDrums = false,
-                    Selected = false,
-                };
-                _channels.Add(channel.ChannelName, channel);
-                //channel.SendPatch();
+                var ch = _mgr.OpenMidiInput(_settings.InputDeviceName, chnum, $"in_chan{chnum}");
             }
 
             // Set timer.
             sldTempo.Value = pinfo.Tempo;
 
-            // Update bar.
-            var tot = _channels.TotalSubs();
-            timeBar.Start = new(0);
-            timeBar.End = new(tot > 0 ? tot - 1 : 0);
-            timeBar.Length = new(tot);
-            timeBar.Current = new(0);
+            // Init bar.
+            Dictionary<int, string> sectInfo = [];
+            //_mdata.GetPatternNames(); ???
+            sectInfo.Add(0, "content");
+            sectInfo.Add(maxTick, "END");
+            timeBar.InitSectionInfo(sectInfo);
+            timeBar.Invalidate();
 
             UpdateDrumChannels();
         }
@@ -623,16 +585,18 @@ namespace Ephemera.MidiLibEx.Test
             bool done;
 
             // Any soloes?
-            bool anySolo = _channels.AnySolo();
+            bool anySolo = _channelControls.Where(c => c.State == ChannelState.Solo).Any();
 
             // Process each channel.
-            foreach (var ch in _channels.Values)
+            foreach (var cc in _channelControls)
             {
+                var ch = cc.BoundChannel;
+
                 // Look for events to send. Any explicit solos?
-                if (ch.State == ChannelState.Solo || (!anySolo && ch.State == ChannelState.Normal))
+                if (cc.State == ChannelState.Solo || (!anySolo && cc.State == ChannelState.Normal))
                 {
                     // Process any sequence steps.
-                    var playEvents = ch.GetEvents(timeBar.Current.TotalSubs);
+                    var playEvents = ch.GetEvents(timeBar.Current.Tick);
                     foreach (var mevt in playEvents)
                     {
                         switch (mevt)
@@ -652,7 +616,7 @@ namespace Ephemera.MidiLibEx.Test
                                         Math.Min((int)(evt.Velocity * sldVolume.Value * ch.Volume), MidiDefs.MAX_MIDI),
                                         evt.OffEvent is null ? 0 : evt.NoteLength); // Fix NAudio NoteLength bug.
 
-                                    ch.SendEvent(ne);
+                                    ch.Device.SendEvent(ne);
                                 }
                                 break;
 
@@ -663,13 +627,13 @@ namespace Ephemera.MidiLibEx.Test
                                 }
                                 else
                                 {
-                                    ch.SendEvent(evt);
+                                    ch.Device.SendEvent(evt);
                                 }
                                 break;
 
                             default:
                                 // Everything else as is.
-                                ch.SendEvent(mevt);
+                                ch.Device.SendEvent(mevt);
                                 break;
                         }
                     }
@@ -684,25 +648,25 @@ namespace Ephemera.MidiLibEx.Test
         #endregion
 
         #region Drum channel
-        /// <summary>
-        /// User changed the drum channel.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void DrumChannel_SelectedIndexChanged(object? sender, EventArgs e)
-        {
-            UpdateDrumChannels();
-        }
+        ///// <summary>
+        ///// User changed the drum channel.
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //void DrumChannel_SelectedIndexChanged(object? sender, EventArgs e)
+        //{
+        //    UpdateDrumChannels();
+        //}
 
-        /// <summary>
-        /// Update all channels based on current UI.
-        /// </summary>
-        void UpdateDrumChannels()
-        {
-            _channelControls.ForEach(ctl => ctl.IsDrums =
-                (ctl.ChannelNumber == cmbDrumChannel1.SelectedIndex) ||
-                (ctl.ChannelNumber == cmbDrumChannel2.SelectedIndex));
-        }
+        ///// <summary>
+        ///// Update all channels based on current UI.
+        ///// </summary>
+        //void UpdateDrumChannels()
+        //{
+        //    _channelControls.ForEach(ctl => ctl.IsDrums =
+        //        (ctl.ChannelNumber == cmbDrumChannel1.SelectedIndex) ||
+        //        (ctl.ChannelNumber == cmbDrumChannel2.SelectedIndex));
+        //}
         #endregion
 
         #region Export
@@ -881,24 +845,24 @@ namespace Ephemera.MidiLibEx.Test
         }
         #endregion
 
-        #region Device input
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void Listener_InputReceive(object? sender, InputReceiveEventArgs e)
-        {
-            _logger.Trace($"Listener:{sender} Note:{e.Note} Controller:{e.Controller} Value:{e.Value}");
+        //#region Device input
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //void Listener_InputReceive(object? sender, BaseMidi e)
+        //{
+        //    _logger.Trace($"Listener:{sender} Note:{e.Note} Controller:{e.Controller} Value:{e.Value}");
 
-            // Translate and pass to output.
-            var channel = _channels["chan16"];
-            NoteEvent nevt = e.Value > 0 ?
-               new NoteOnEvent(0, channel.ChannelNumber, e.Note % MidiDefs.MAX_MIDI, e.Value % MidiDefs.MAX_MIDI, 0) :
-               new NoteEvent(0, channel.ChannelNumber, MidiCommandCode.NoteOff, e.Note, 0);
-            channel.SendEvent(nevt);
-        }
-        #endregion
+        //    // Translate and pass to output.
+        //    var channel = _channels["chan16"];
+        //    NoteEvent nevt = e.Value > 0 ?
+        //       new NoteOnEvent(0, channel.ChannelNumber, e.Note % MidiDefs.MAX_MIDI, e.Value % MidiDefs.MAX_MIDI, 0) :
+        //       new NoteEvent(0, channel.ChannelNumber, MidiCommandCode.NoteOff, e.Note, 0);
+        //    channel.SendEvent(nevt);
+        //}
+        //#endregion
     }
 
     public class TestSettings : SettingsCore
@@ -914,10 +878,23 @@ namespace Ephemera.MidiLibEx.Test
         [Browsable(true)]
         public bool IgnoreMe { get; set; } = true;
 
-        [DisplayName("Midi Settings")]
-        [Description("Edit midi settings.")]
+        [DisplayName("Input Device")]
+        [Description("Midi Input Device.")]
         [Browsable(true)]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public MidiSettings MidiSettings { get; set; } = new();
+        [Editor(typeof(GenericListTypeEditor), typeof(UITypeEditor))]
+        public string InputDeviceName { get; set; } = "";
+
+        [DisplayName("Output Device")]
+        [Description("Midi Output Device.")]
+        [Browsable(true)]
+        [Editor(typeof(GenericListTypeEditor), typeof(UITypeEditor))]
+        public string OutputDeviceName { get; set; } = "";
+
+
+        //[DisplayName("Midi Settings")]
+        //[Description("Edit midi settings.")]
+        //[Browsable(true)]
+        //[TypeConverter(typeof(ExpandableObjectConverter))]
+        //        public MidiSettings MidiSettings { get; set; } = new();
     }
 }
