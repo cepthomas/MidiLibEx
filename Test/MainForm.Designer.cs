@@ -1,4 +1,5 @@
-﻿
+﻿#if _XXX
+
 
 using Ephemera.MidiLib;
 
@@ -414,3 +415,4 @@ namespace Ephemera.MidiLibEx.Test
     }
 }
 
+#endif

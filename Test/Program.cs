@@ -18,8 +18,8 @@ namespace Ephemera.MidiLibEx.Test
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var f = new MainForm();
-            Application.Run(f);
+            //var f = new MainForm();
+            //Application.Run(f);
         }
     }
 }

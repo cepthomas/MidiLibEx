@@ -16,7 +16,7 @@ using Ephemera.MidiLib;
 namespace Ephemera.MidiLibEx
 {
 //     [Serializable]
-//     public class MidiSettings
+//     public class MidiSettings TODO1 delete
 //     {
 //         /// <summary>Current midi settings. Client must set this before accessing!</summary>
 //         [Browsable(false)]

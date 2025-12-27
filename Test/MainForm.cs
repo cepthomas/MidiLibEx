@@ -1,3 +1,4 @@
+#if _XXX
 
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,6 @@ using NAudio.Midi;
 using Ephemera.NBagOfTricks;
 //using Ephemera.NBagOfUis;
 using Ephemera.MidiLib;
-
 
 namespace Ephemera.MidiLibEx.Test
 {
@@ -898,3 +898,5 @@ namespace Ephemera.MidiLibEx.Test
         //        public MidiSettings MidiSettings { get; set; } = new();
     }
 }
+
+#endif

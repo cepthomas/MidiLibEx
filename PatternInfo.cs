@@ -12,7 +12,10 @@ using Ephemera.MidiLib;
 
 namespace Ephemera.MidiLibEx
 {
-    /// <summary>Represents the contents of a midi file pattern. If it is a plain midi file (not style) there will be one only.</summary>
+    /// <summary>
+    /// Represents the contents of a midi file pattern.
+    /// If it is a plain midi file (not style) there will be one only.
+    /// </summary>
     public class PatternInfo
     {
         #region Fields
@@ -62,11 +65,8 @@ namespace Ephemera.MidiLibEx
             _mt = new(ppq, tempo);
         }
 
-        // <summary>
-        // 
-        // </summary>
         /// <summary>
-        ///Constructor from existing data. 
+        /// Constructor from existing data. 
         /// </summary>
         /// <param name="name">Pattern name</param>
         /// <param name="ppq">Resolution</param>
