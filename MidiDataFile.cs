@@ -28,6 +28,14 @@ namespace Ephemera.MidiLibEx
         PatternInfo _currentPattern = new();
         #endregion
 
+        #region Constants
+        /// <summary>Supported file types.</summary>
+        public const string MIDI_FILE_TYPES = "*.mid";
+
+        /// <summary>Supported file types.</summary>
+        public const string STYLE_FILE_TYPES = "*.sty;*.pcs;*.sst;*.prs";
+        #endregion
+
         #region Properties
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
@@ -68,7 +76,7 @@ namespace Ephemera.MidiLibEx
             FileName = fn;
             Tempo = defaultTempo; 
             _includeNoisy = includeNoisy;
-            IsStyleFile = MidiLibDefs.STYLE_FILE_TYPES.Contains(Path.GetExtension(fn).ToLower());
+            IsStyleFile = STYLE_FILE_TYPES.Contains(Path.GetExtension(fn).ToLower());
 
             using var br = new BinaryReader(File.OpenRead(fn));
             bool done = false;
@@ -401,7 +409,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         void CleanUpPatterns()
         {
-            // TODO1 auto-determine which channel(s) have drums?
+            // TODO auto-determine which channel(s) have drums?
             // Drum channels will probably have the most notes. Also durations will be short.
             // Could also remember user's reassignments in the settings file.
 
