@@ -23,13 +23,12 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="outFileName">Where to boss?</param>
         /// <param name="patterns">Specific patterns.</param>
-        /// <param name="channels">Specific channnels or all if empty.</param>
+        /// <param name="channelNumbers">Specific channnel numbers.</param>
+        /// <param name="drumChannelNumbers">Drum channel numbers.</param>
         /// <param name="global">File meta data to include.</param>
-        public static void ExportCsv(string outFileName, IEnumerable<PatternInfo> patterns, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
+        public static void ExportCsv(string outFileName, IEnumerable<PatternInfo> patterns,
+            List<int> channelNumbers, List<int> drumChannelNumbers, Dictionary<string, int> global)
         {
-            var channelNumbers = channels.Select(ch => ch.ChannelNumber).ToList();
-            var drumChannelNumbers = channels.Where(ch => ch.IsDrums).Select(ch => ch.ChannelNumber).ToHashSet();
-
             // Header
             List<string> contentText = new()
             {
@@ -47,8 +46,9 @@ namespace Ephemera.MidiLibEx
 
                 pi.GetChannels(false, false).ForEach(p =>
                 {
-                    //var pname = drumChannelNumbers.Contains(p.chnum) ? MidiDefs.Instance.GetDrumKitName(p.patch) : MidiDefs.Instance.GetInstrumentName(p.patch);
-                    var pname = "TODO1";
+                    var pname = drumChannelNumbers.Contains(p.chnum) ?
+                        MidiDefs.Instance.GetDrumKitName(p.patch) :
+                        MidiDefs.Instance.GetInstrumentName(p.patch);
                     contentText.Add($"0,0,0,Patch,{p.chnum}:{pname},,");
                 });
 
@@ -64,12 +64,10 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="outFileName">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>
-        /// <param name="channels">Specific channnels or all if empty.</param>
+        /// <param name="channelNumbers">Specific channnel numbers.</param>
         /// <param name="global">File meta data to include.</param>
-        public static void ExportMidi(string outFileName, PatternInfo pattern, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
+        public static void ExportMidi(string outFileName, PatternInfo pattern, List<int> channelNumbers, Dictionary<string, int> global)
         {
-            var channelNumbers = channels.Select(ch => ch.ChannelNumber).ToList();
-
             // Init output file contents.
             int ppq = global["DeltaTicksPerQuarterNote"];
             MidiEventCollection outColl = new(1, ppq);
@@ -122,7 +120,7 @@ namespace Ephemera.MidiLibEx
 
             string PatchName(int pnum)
             {
-                return isDrums ? MidiDefs.Instance.GetDrumKitName(pnum) : MidiDefs.Instance.GetInstrumentName(pnum); //TODO1 get name from channel??
+                return isDrums ? MidiDefs.Instance.GetDrumKitName(pnum) : MidiDefs.Instance.GetInstrumentName(pnum);
             }
 
             switch (mevt)

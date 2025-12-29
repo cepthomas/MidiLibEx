@@ -66,21 +66,6 @@ namespace Ephemera.MidiLibEx
         }
 
         /// <summary>
-        /// Constructor from existing data. 
-        /// </summary>
-        /// <param name="name">Pattern name</param>
-        /// <param name="ppq">Resolution</param>
-        /// <param name="events">All the events</param>
-        /// <param name="channels">Channels of interest</param>
-        /// <param name="tempo">Defalt tempo</param>
-        public PatternInfo(string name, int ppq, IEnumerable<MidiEventDesc> events, IEnumerable<OutputChannel> channels, int tempo) : this(name, tempo, ppq)
-        {
-            events.ForEach(e => AddEvent(e));
-            Tempo = tempo;
-            channels.ForEach(ch => SetChannelPatch(ch.ChannelNumber, ch.Patch));
-        }
-
-        /// <summary>
         /// Add an event to the collection. This function does the scaling.
         /// </summary>
         /// <param name="evt">The event to add.</param>

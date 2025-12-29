@@ -14,28 +14,14 @@ namespace Ephemera.MidiLibEx.Test
     {
         /// <summary>Test entry.</summary>
         [STAThread]
-        static void Main(string[] _)
+        static void Main()
         {
             TestRunner runner = new(OutputFormat.Readable);
-            // "INTEROP"  "CLI"  "MISC"
-            var cases = new[] { "INTEROP", "CLI", "MISC" };
+            // MLEX_BASIC  MLEX_EXPORT  MLEX_TCONV
+            var cases = new[] { "MLEX_TCONV" };
             runner.RunSuites(cases);
-            File.WriteAllLines(@"_test.txt", runner.Context.OutputLines);
+
+            // File.WriteAllLines(Path.Join(MiscUtils.GetSourcePath(), "_test.txt"), runner.Context.OutputLines);
         }
-
-
-        // /// <summary> orig
-        // ///  The main entry point for the application.
-        // /// </summary>
-        // [STAThread]
-        // static void Main()
-        // {
-        //     Application.SetHighDpiMode(HighDpiMode.SystemAware);
-        //     Application.EnableVisualStyles();
-        //     Application.SetCompatibleTextRenderingDefault(false);
-
-        //     //var f = new MainForm();
-        //     //Application.Run(f);
-        // }
     }
 }
