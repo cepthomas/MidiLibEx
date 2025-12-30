@@ -87,15 +87,9 @@ namespace Ephemera.MidiLibEx.Test
             {
                 // Get events for the channel.
                 var channelEvents = pinfo.GetFilteredEvents([chnum]);
+                maxTick = Math.Max(channelEvents.Last().ScaledTime, maxTick);
 
                 UT_INFO($"chnum:{chnum} patch:{patch} events:{channelEvents.Count()}");
-
-                foreach (var evt in channelEvents)
-                {
-                    maxTick = Math.Max(channelEvents.Last().ScaledTime, maxTick);
-
-                    // tests???...
-                }
             }
 
             UT_INFO($"maxTick:{maxTick}");
