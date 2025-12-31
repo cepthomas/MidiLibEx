@@ -20,10 +20,10 @@ namespace Ephemera.MidiLibEx
     {
         #region Fields
         /// <summary>All the pattern midi events.</summary>
-        readonly List<MidiEventDesc> _events = [];
+        readonly List<MidiEvent> _events = [];
 
         /// <summary>All the pattern midi events, key is when to play (scaled time).</summary>
-        readonly Dictionary<int, List<MidiEventDesc>> _eventsByTime = [];
+        readonly Dictionary<long, List<MidiEvent>> _eventsByTime = [];
 
         /// <summary>For scaling subs to internal.</summary>
         readonly MidiTimeConverter? _mt = null;
@@ -57,40 +57,40 @@ namespace Ephemera.MidiLibEx
         /// Normal constructor.
         /// </summary>
         /// <param name="name">Pattern name</param>
-        /// <param name="tempo">Defalt tempo</param>
         /// <param name="ppq">Resolution</param>
-        public PatternInfo(string name, int tempo, int ppq) : this()
+        public PatternInfo(string name, int ppq) : this()
         {
             PatternName = name;
-            _mt = new(ppq, tempo);
+            _mt = new(ppq);
         }
 
         /// <summary>
-        /// Add an event to the collection. This function does the scaling.
+        /// Add an event to the collection.
+        /// TODO1 OK? Note that this replaces the AbsoluteTime property with the value scaled for internal use.
         /// </summary>
         /// <param name="evt">The event to add.</param>
-        public void AddEvent(MidiEventDesc evt)
+        public void AddEvent(MidiEvent evt)
         {
-            // Capture that this is a valid channel. Patch will get patched up later.
-            SetChannelPatch(evt.ChannelNumber, -1);
+            // Capture that this is a valid channel. Patch will get fixed later.
+            SetChannelPatch(evt.Channel, -1);
 
             // Cache info.
-            if(evt.RawEvent is NoteOnEvent)
+            if(evt is NoteOnEvent)
             {
-                _hasNotes.Add(evt.ChannelNumber);
+                _hasNotes.Add(evt.Channel);
             }
 
             // Scale time.
-            evt.ScaledTime = _mt!.MidiToInternal(evt.AbsoluteTime);
+            evt.AbsoluteTime = _mt!.MidiToInternal(evt.AbsoluteTime);
             _events.Add(evt);
 
-            if(!_eventsByTime.ContainsKey(evt.ScaledTime))
+            if(!_eventsByTime.ContainsKey(evt.AbsoluteTime))
             {
-                _eventsByTime.Add(evt.ScaledTime, new() { evt });
+                _eventsByTime.Add(evt.AbsoluteTime, new() { evt });
             }
             else
             {
-                _eventsByTime[evt.ScaledTime].Add(evt);
+                _eventsByTime[evt.AbsoluteTime].Add(evt);
             }
         }
 
@@ -98,11 +98,11 @@ namespace Ephemera.MidiLibEx
         /// Get enumerator for events using supplied filters.
         /// </summary>
         /// <param name="channels">Specific channnels.</param>
-        /// <returns>Enumerator sorted by scaled time.</returns>
-        public IEnumerable<MidiEventDesc> GetFilteredEvents(IEnumerable<int> channels)
+        /// <returns>Enumerator sorted by absolute time.</returns>
+        public IEnumerable<MidiEvent> GetFilteredEvents(IEnumerable<int> channels)
         {
-            IEnumerable<MidiEventDesc> descs = _events.Where(e => channels.Contains(e.ChannelNumber)) ?? Enumerable.Empty<MidiEventDesc>();
-            return descs.OrderBy(e => e.ScaledTime);
+            IEnumerable<MidiEvent> descs = _events.Where(e => channels.Contains(e.Channel)) ?? Enumerable.Empty<MidiEvent>();
+            return descs.OrderBy(e => e.AbsoluteTime);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="when"></param>
         /// <returns></returns>
-        public IEnumerable<MidiEventDesc> GetEventsWhen(int when)
+        public IEnumerable<MidiEvent> GetEventsWhen(int when)
         {
             var evts = _eventsByTime.ContainsKey(when) ? _eventsByTime[when] : new();
             return evts;
@@ -126,7 +126,7 @@ namespace Ephemera.MidiLibEx
         {
             List<(int chnum, int patch)> ps = new();
             // Assemble results from filters.
-            bool any = hasNotes ? _events.Where(e => e.RawEvent is NoteOnEvent).Any() : _events.Any();
+            bool any = hasNotes ? _events.Where(e => e is NoteOnEvent).Any() : _events.Any();
             if(any)
             {
                 _channelPatches

@@ -76,7 +76,7 @@ namespace Ephemera.MidiLibEx.Test
             UT_NOT_NULL(mdata);
 
             // Load the new one.
-            int maxTick = 0;
+            long maxTick = 0;
 
             //var pnames = mdata.GetPatternNames();
 
@@ -87,7 +87,7 @@ namespace Ephemera.MidiLibEx.Test
             {
                 // Get events for the channel.
                 var channelEvents = pinfo.GetFilteredEvents([chnum]);
-                maxTick = Math.Max(channelEvents.Last().ScaledTime, maxTick);
+                maxTick = Math.Max(channelEvents.Last().AbsoluteTime, maxTick);
 
                 UT_INFO($"chnum:{chnum} patch:{patch} events:{channelEvents.Count()}");
             }

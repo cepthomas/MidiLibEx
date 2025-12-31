@@ -90,7 +90,7 @@ namespace Ephemera.MidiLibEx
                     case "MThd":
                         ReadMThd(br);
                         // Always at least one pattern. Plain midi has just one, style has multiple.
-                        _currentPattern = new("", defaultTempo, DeltaTicksPerQuarterNote);
+                        _currentPattern = new("", DeltaTicksPerQuarterNote);
                         break;
                     case "MTrk":
                         ReadMTrk(br);
@@ -298,7 +298,7 @@ namespace Ephemera.MidiLibEx
                             _patterns.Add(_currentPattern);
 
                             // Start a new pattern.
-                            _currentPattern = new PatternInfo(evt.Text, Tempo, DeltaTicksPerQuarterNote);
+                            _currentPattern = new PatternInfo(evt.Text, DeltaTicksPerQuarterNote) {  Tempo = Tempo };
                             absoluteTime = 0;
                             AddMidiEvent(evt);
                         }
@@ -327,7 +327,7 @@ namespace Ephemera.MidiLibEx
             ///// Local function. /////
             void AddMidiEvent(MidiEvent evt)
             {
-                _currentPattern.AddEvent(new MidiEventDesc(evt));//, $"chan{evt.Channel}"));
+                _currentPattern.AddEvent(evt);
             }
 
             return absoluteTime;

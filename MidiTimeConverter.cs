@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ephemera.MidiLib;
+using Ephemera.NBagOfTricks;
 
 
 namespace Ephemera.MidiLibEx
 {
-    /// <summary>Helpers to translate between midi standard and arbtrary internal representation.</summary>
+    /// <summary>Helper to translate between midi standard and arbtrary internal representation.</summary>
     public class MidiTimeConverter
     {
         /// <summary>Resolution for midi file events aka DeltaTicksPerQuarterNote.</summary>
@@ -22,7 +23,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="midiPpq">The file resolution.</param>
         /// <param name="tempo">BPM may be needed for some calcs.</param>
-        public MidiTimeConverter(int midiPpq, double tempo)
+        public MidiTimeConverter(int midiPpq, double tempo = 0)
         {
             _midiPpq = midiPpq;
             _tempo = tempo;
@@ -40,7 +41,7 @@ namespace Ephemera.MidiLibEx
         }
 
         /// <summary>
-        /// Conversion function.
+        /// Conversion function. TODO should round?
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
@@ -78,6 +79,7 @@ namespace Ephemera.MidiLibEx
         /// <returns></returns>
         public double MidiPeriod()
         {
+            if (_tempo == 0) { throw new InvalidOperationException("Tempo is not set"); }
             double secPerBeat = 60.0 / _tempo;
             double msecPerT = 1000 * secPerBeat / _midiPpq;
             return msecPerT;
@@ -89,6 +91,7 @@ namespace Ephemera.MidiLibEx
         /// <returns></returns>
         public double InternalPeriod()
         {
+            if (_tempo == 0) { throw new InvalidOperationException("Tempo is not set"); }
             double secPerBeat = 60.0 / _tempo;
             double msecPerT = 1000 * secPerBeat / MusicTime.TicksPerBeat;
             return msecPerT;
