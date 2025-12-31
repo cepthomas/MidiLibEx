@@ -327,7 +327,7 @@ namespace Ephemera.MidiLibEx
             ///// Local function. /////
             void AddMidiEvent(MidiEvent evt)
             {
-                _currentPattern.AddEvent(new MidiEventDesc(evt, $"chan{evt.Channel}"));
+                _currentPattern.AddEvent(new MidiEventDesc(evt));//, $"chan{evt.Channel}"));
             }
 
             return absoluteTime;

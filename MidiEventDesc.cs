@@ -19,9 +19,6 @@ namespace Ephemera.MidiLibEx
         /// <summary>One-based channel number.</summary>
         public int ChannelNumber { get { return RawEvent.Channel; } }
 
-        /// <summary>Associated channel name.</summary>
-        public string ChannelName { get; }
-
         /// <summary>Time (ticks) from original file.</summary>
         public long AbsoluteTime { get { return RawEvent.AbsoluteTime; } }
 
@@ -32,17 +29,16 @@ namespace Ephemera.MidiLibEx
         public MidiEvent RawEvent { get; init; }
 
         /// <summary>Normal constructor from NAudio event.</summary>
-        public MidiEventDesc(MidiEvent evt, string channelName)
+        public MidiEventDesc(MidiEvent evt)
         {
             RawEvent = evt;
-            ChannelName = channelName;
         }
 
         /// <summary>Read me.</summary>
         public override string ToString()
         {
             string ntype = RawEvent.CommandCode == MidiCommandCode.MetaEvent ? (RawEvent as MetaEvent)!.MetaEventType.ToString() : RawEvent.CommandCode.ToString();
-            string ret = $"Ch {ChannelNumber}:{ChannelName} TAbs:{AbsoluteTime} TScld:{ScaledTime} Event:{RawEvent}";
+            string ret = $"Ch {ChannelNumber} TAbs:{AbsoluteTime} TScld:{ScaledTime} Event:{RawEvent}";
             return ret;
         }
     }
