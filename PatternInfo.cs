@@ -66,7 +66,7 @@ namespace Ephemera.MidiLibEx
 
         /// <summary>
         /// Add an event to the collection.
-        /// TODO1 OK? Note that this replaces the AbsoluteTime property with the value scaled for internal use.
+        /// Note!! this replaces the original file AbsoluteTime with the value scaled for internal use.
         /// </summary>
         /// <param name="evt">The event to add.</param>
         public void AddEvent(MidiEvent evt)
@@ -81,7 +81,7 @@ namespace Ephemera.MidiLibEx
             }
 
             // Scale time.
-            evt.AbsoluteTime = _mt!.MidiToInternal(evt.AbsoluteTime);
+            evt.AbsoluteTime = _mt!.MidiToInternal(evt.AbsoluteTime); 
             _events.Add(evt);
 
             if(!_eventsByTime.ContainsKey(evt.AbsoluteTime))
