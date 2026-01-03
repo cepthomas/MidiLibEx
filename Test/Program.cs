@@ -18,7 +18,7 @@ namespace Ephemera.MidiLibEx.Test
         {
             TestRunner runner = new(OutputFormat.Readable);
             // MLEX_BASIC  MLEX_EXPORT  MLEX_TCONV
-            var cases = new[] { "MLEX_TCONV" };
+            var cases = new[] { "MLEX" };
             runner.RunSuites(cases);
 
             // File.WriteAllLines(Path.Join(MiscUtils.GetSourcePath(), "_test.txt"), runner.Context.OutputLines);
