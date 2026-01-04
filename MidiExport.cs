@@ -52,8 +52,8 @@ namespace Ephemera.MidiLibEx
                 pi.GetChannels(false, false).ForEach(p =>
                 {
                     var pname = drumChannelNumbers.Contains(p.chnum) ?
-                        MidiDefs.Instance.GetDrumKitName(p.patch) :
-                        MidiDefs.Instance.GetInstrumentName(p.patch);
+                        MidiDefs.GetDrumKitName(p.patch) :
+                        MidiDefs.GetInstrumentName(p.patch);
                     contentText.Add($"0,0,0,Patch,{p.chnum}:{pname},,");
                 });
 
@@ -70,12 +70,12 @@ namespace Ephemera.MidiLibEx
 
                     string NoteName(int nnum)
                     {
-                        return isDrums ? MidiDefs.Instance.GetDrumName(nnum) : MusicDefs.Instance.NoteNumberToName(nnum);
+                        return isDrums ? MidiDefs.GetDrumName(nnum) : MusicDefs.NoteNumberToName(nnum);
                     }
 
                     string PatchName(int pnum)
                     {
-                        return isDrums ? MidiDefs.Instance.GetDrumKitName(pnum) : MidiDefs.Instance.GetInstrumentName(pnum);
+                        return isDrums ? MidiDefs.GetDrumKitName(pnum) : MidiDefs.GetInstrumentName(pnum);
                     }
 
                     switch (mevt)
@@ -106,7 +106,7 @@ namespace Ephemera.MidiLibEx
                             break;
 
                         case ControlChangeEvent evt:
-                            ret = $"{sc},{(int)evt.Controller}:{MidiDefs.Instance.GetControllerName((int)evt.Controller)},value:{evt.ControllerValue}";
+                            ret = $"{sc},{(int)evt.Controller}:{MidiDefs.GetControllerName((int)evt.Controller)},value:{evt.ControllerValue}";
                             break;
 
                         case PitchWheelChangeEvent evt:
