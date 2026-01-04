@@ -50,7 +50,7 @@ namespace Ephemera.MidiLibEx.Test
             mdata.Read(fnPath, tempo, false);
 
             var pnames = mdata.GetPatternNames();
-            if (pnames.Count == 0)
+            if (!pnames.Any())
             {
                 throw new InvalidOperationException($"Something wrong with this file: {fnPath}");
             }
