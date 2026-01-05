@@ -84,13 +84,13 @@ namespace Ephemera.MidiLibEx
             evt.AbsoluteTime = _mt!.MidiToInternal(evt.AbsoluteTime); 
             _events.Add(evt);
 
-            if(!_eventsByTime.ContainsKey(evt.AbsoluteTime))
+            if (!_eventsByTime.TryGetValue(evt.AbsoluteTime, out List<MidiEvent>? value))
             {
-                _eventsByTime.Add(evt.AbsoluteTime, new() { evt });
+                _eventsByTime.Add(evt.AbsoluteTime, [evt]);
             }
             else
             {
-                _eventsByTime[evt.AbsoluteTime].Add(evt);
+                value.Add(evt);
             }
         }
 
@@ -101,7 +101,7 @@ namespace Ephemera.MidiLibEx
         /// <returns>Enumerator sorted by absolute time.</returns>
         public IEnumerable<MidiEvent> GetFilteredEvents(IEnumerable<int> channels)
         {
-            IEnumerable<MidiEvent> descs = _events.Where(e => channels.Contains(e.Channel)) ?? Enumerable.Empty<MidiEvent>();
+            IEnumerable<MidiEvent> descs = _events.Where(e => channels.Contains(e.Channel)) ?? [];
             return descs.OrderBy(e => e.AbsoluteTime);
         }
 
@@ -112,7 +112,7 @@ namespace Ephemera.MidiLibEx
         /// <returns></returns>
         public IEnumerable<MidiEvent> GetEventsWhen(int when)
         {
-            var evts = _eventsByTime.ContainsKey(when) ? _eventsByTime[when] : new();
+            List<MidiEvent> evts = _eventsByTime.ContainsKey(when) ? _eventsByTime[when] : [];
             return evts;
         }
 
@@ -124,13 +124,13 @@ namespace Ephemera.MidiLibEx
         /// <returns></returns>
         public IEnumerable<(int chnum, int patch)> GetChannels(bool hasNotes, bool hasPatch)
         {
-            List<(int chnum, int patch)> ps = new();
+            List<(int chnum, int patch)> ps = [];
             // Assemble results from filters.
             bool any = hasNotes ? _events.Where(e => e is NoteOnEvent).Any() : _events.Any();
             if(any)
             {
                 _channelPatches
-                    .Where(n => hasPatch ? n.Value != -1 : true)
+                    .Where(n => !hasPatch || n.Value != -1)
                     .Where(n => _hasNotes.Contains(n.Key))
                     .OrderBy(n => n.Key)
                     .ForEach(n => { ps.Add((n.Key, n.Value)); });
@@ -146,7 +146,7 @@ namespace Ephemera.MidiLibEx
         /// <returns>The patch or -1 if invalid channel</returns>
         public int GetPatch(int channel)
         {
-            return _channelPatches.ContainsKey(channel) ? _channelPatches[channel] : -1;
+            return _channelPatches.TryGetValue(channel, out int value) ? value : -1;
         }
 
         /// <summary>
@@ -155,10 +155,7 @@ namespace Ephemera.MidiLibEx
         /// <param name="channel"></param>
         public void RemoveChannel(int channel)
         {
-            if(_channelPatches.ContainsKey(channel))
-            {
-                _channelPatches.Remove(channel);
-            }
+            _channelPatches.Remove(channel);
         }
 
         /// <summary>
@@ -168,13 +165,12 @@ namespace Ephemera.MidiLibEx
         /// <param name="patch">The patch. Can be default -1.</param>
         public void SetChannelPatch(int channel, int patch)
         {
-            if (!_channelPatches.ContainsKey(channel))
+            if (!_channelPatches.TryAdd(channel, patch))
             {
-                _channelPatches.Add(channel, patch);
-            }
-            else if (patch != -1)
-            {
-                _channelPatches[channel] = patch;
+                if (patch != -1)
+                {
+                    _channelPatches[channel] = patch;
+                }
             }
         }
 
