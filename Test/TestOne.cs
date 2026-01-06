@@ -134,33 +134,6 @@ namespace Ephemera.MidiLibEx.Test
     }
 
     //----------------------------------------------------------------
-    /// <summary>Test MidiTimeConverter.</summary>
-    public class MLEX_TCONV : TestSuite
-    {
-        public override void RunSuite()
-        {
-            UT_STOP_ON_FAIL(false);
-
-            //////////////////////////////////////////////////////////
-            // A unit test. If we use ppq of 8 (32nd notes):
-            // 100 bpm = 800 ticks/min = 13.33 ticks/sec = 0.01333 ticks/msec = 75.0 msec/tick
-            //  99 bpm = 792 ticks/min = 13.20 ticks/sec = 0.0132 ticks/msec  = 75.757 msec/tick
-
-            MidiTimeConverter mt = new(0, 100);
-            UT_CLOSE(mt.InternalPeriod(), 75.0, 0.001);
-
-            mt = new(0, 99);
-            UT_CLOSE(mt.InternalPeriod(), 75.757, 0.001);
-
-            mt = new(384, 100);
-            UT_CLOSE(mt.MidiToSec(144000) / 60.0, 3.75, 0.001);
-
-            mt = new(96, 100);
-            UT_CLOSE(mt.MidiPeriod(), 6.25, 0.001);
-        }
-    }
-
-    //----------------------------------------------------------------
     /// <summary>Test all api.</summary>
     public class MLEX_API : TestSuite // TODO more tests as needed
     {

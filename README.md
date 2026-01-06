@@ -21,7 +21,6 @@ MidiDataFile, PatternInfo, MidiExport
 - Processes and contains a massaged version of the midi/style file contents.
 - Translates from raw file to MidiData internal representation.
 - Units are in ticks - scaled version of midi ticks.
-- MidiTimeConverter: Used for mapping between data sets using different resolutions.
 - Lots of utility and export functions too.
 
 # Style Files
