@@ -121,15 +121,16 @@ namespace Ephemera.MidiLibEx.Test
             List<PatternInfo> patterns = [pinfo];
 
             // Get selected channels.
-            List<int> channels = [1, 2, 3, 4, 10];
-            List<int> drums = [10];
+            var sdev = "nullout:test1";
+            MidiManager.Instance.OpenOutputChannel(sdev, 2, "chan2");
+            MidiManager.Instance.OpenOutputChannel(sdev, 3, "chan3");
 
             // Execute the requested export function.
             var newfn = Tools.MakeExportFileName(Common.OutPath, mdata.FileName, "all", "csv");
-            MidiExport.ExportCsv(newfn, patterns, channels, drums, mdata.GetGlobal());
+            MidiExport.ExportCsv(newfn, patterns, MidiManager.Instance.OutputChannels, mdata.GetGlobal());
 
             newfn = Tools.MakeExportFileName(Common.OutPath, mdata.FileName, "", "mid");
-            MidiExport.ExportMidi(newfn, patterns[0], channels, mdata.GetGlobal());
+            MidiExport.ExportMidi(newfn, patterns[0], MidiManager.Instance.OutputChannels, mdata.GetGlobal());
         }
     }
 
