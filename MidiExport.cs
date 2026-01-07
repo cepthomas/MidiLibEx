@@ -23,12 +23,10 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="outFileName">Where to boss?</param>
         /// <param name="patterns">Specific patterns.</param>
-        /// <param name="channelNumbers">Specific channnel numbers.</param>
-        /// <param name="drumChannelNumbers">Drum channel numbers.</param>
+        /// <param name="channels">Specific channnel numbers.</param>
         /// <param name="global">File meta data to include.</param>
         public static void ExportCsv(string outFileName, IEnumerable<PatternInfo> patterns,
-            IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
- //           List<int> channelNumbers, List<int> drumChannelNumbers, Dictionary<string, int> global)
+                IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
         {
             // Init output file contents.
             int ppq = global["DeltaTicksPerQuarterNote"];
@@ -43,7 +41,6 @@ namespace Ephemera.MidiLibEx
             global.ForEach(m => contentText.Add($"-1,0,0,Global,0,{m.Key}:{m.Value},"));
 
             List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
-            List<int> drumNumbers = [.. channels.Where(cc => cc.IsDrums).Select(cc => cc.ChannelNumber)];
 
             // Midi events.
             foreach (PatternInfo pi in patterns)
@@ -58,14 +55,6 @@ namespace Ephemera.MidiLibEx
                     contentText.Add($"0,0,0,Patch,{p.ChannelNumber}:{p.PatchName},,");
                 });
 
-                //pi.GetChannels(false, false).ForEach(p =>
-                //{
-                //    var pname = drumChannelNumbers.Contains(p.chnum) ?
-                //        MidiDefs.GetDrumKitName(p.patch) :
-                //        MidiDefs.GetInstrumentName(p.patch);
-                //    contentText.Add($"0,0,0,Patch,{p.chnum}:{pname},,");
-                //});
-
                 var events = pi.GetFilteredEvents(channelNumbers);
                 foreach (var mevt in events)
                 {
@@ -75,23 +64,15 @@ namespace Ephemera.MidiLibEx
                     string ntype = mevt.CommandCode == MidiCommandCode.MetaEvent ? (mevt as MetaEvent)!.MetaEventType.ToString() : mevt.CommandCode.ToString();
                     string sc = $"{mevt.AbsoluteTime},{mt.InternalToMidi((int)mevt.AbsoluteTime)},{mevt.DeltaTime},{ntype},{mevt.Channel}";
 
-                    bool isDrums = drumNumbers.Contains(mevt.Channel);
-
-                    // TODO1 fix all these?
-                    //string NoteName(int nnum) { return isDrums ? MidiDefs.GetDrumName(nnum) : MusicDefs.NoteNumberToName(nnum); }
-                    //string PatchName(int pnum) { return isDrums ? MidiDefs.GetDrumKitName(pnum) : MidiDefs.GetInstrumentName(pnum); }
-
                     switch (mevt)
                     {
                         case NoteOnEvent evt:
                             //string slen = evt.OffEvent is null ? "?" : evt.NoteLength.ToString(); // NAudio NoteLength bug?
                             ret = $"{sc},{evt.NoteNumber},{evt.Velocity}";
-                            //ret = $"{sc},{evt.NoteNumber}:{NoteName(evt.NoteNumber)},vel:{evt.Velocity}";
                             break;
 
                         case NoteEvent evt: // used for NoteOff
                             ret = $"{sc},{evt.NoteNumber},";
-                            //ret = $"{sc},{evt.NoteNumber}:{NoteName(evt.NoteNumber)},";
                             break;
 
                         case TempoEvent evt:
@@ -108,7 +89,6 @@ namespace Ephemera.MidiLibEx
 
                         case PatchChangeEvent evt:
                             ret = $"{sc},{evt.Patch},";
-                            //ret = $"{sc},{evt.Patch}:{PatchName(evt.Patch)},";
                             break;
 
                         case ControlChangeEvent evt:
@@ -116,7 +96,7 @@ namespace Ephemera.MidiLibEx
                             break;
 
                         case PitchWheelChangeEvent evt:
-                            //ret = $"{sc},pitch:{evt.Pitch},"; too busy?
+                            //ret = $"{sc},pitch:{evt.Pitch},"; too busy
                             break;
 
                         case TextEvent evt:
@@ -152,8 +132,8 @@ namespace Ephemera.MidiLibEx
         /// <param name="pattern">Specific pattern.</param>
         /// <param name="channels">Specific channnels.</param>
         /// <param name="global">File meta data to include.</param>
-        public static void ExportMidi(string outFileName, PatternInfo pattern, IEnumerable<OutputChannel> channels, // List<int> channelNumbers,
-            Dictionary<string, int> global)
+        public static void ExportMidi(string outFileName, PatternInfo pattern,
+                IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
         {
             // Init output file contents.
             int ppq = global["DeltaTicksPerQuarterNote"];
@@ -161,7 +141,6 @@ namespace Ephemera.MidiLibEx
             IList<MidiEvent> outEvents = outColl.AddTrack();
 
             List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
-            List<int> drumNumbers = [.. channels.Where(cc => cc.IsDrums).Select(cc => cc.ChannelNumber)];
 
             // Build the event collection.
             outEvents.Add(new TempoEvent(0, 0) { Tempo = pattern.Tempo });

@@ -191,7 +191,7 @@ namespace Ephemera.MidiLibEx.Test
             // public class MidiExport
             //     public static void ExportCsv(string outFileName, IEnumerable<PatternInfo> patterns, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
             //     public static void ExportMidi(string outFileName, PatternInfo pattern, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
-            //     static string Format(MidiEventDesc evtDesc, bool isDrums)
+            //     static string Format(MidiEventDesc evtDesc, bool is-Drums)
 
         }
     }

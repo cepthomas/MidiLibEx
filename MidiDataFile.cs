@@ -187,7 +187,7 @@ namespace Ephemera.MidiLibEx
 
             if (chunkSize != 6)
             {
-                throw new FormatException("Unexpected header chunk length");
+                throw new NotSupportedException("Unexpected header chunk length");
             }
 
             MidiFileType = (int)ReadStream(br, 2);
@@ -498,7 +498,7 @@ namespace Ephemera.MidiLibEx
             {
                 2 => MiscUtils.FixEndian(br.ReadUInt16()),
                 4 => MiscUtils.FixEndian(br.ReadUInt32()),
-                _ => throw new FormatException("Unsupported read size"),
+                _ => throw new NotSupportedException("Unsupported read size"),
             };
             return i;
         }
