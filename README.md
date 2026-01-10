@@ -1,27 +1,35 @@
 # MidiLibEx
 
-This library contains a bunch of higher level components to complement the MidiLib project.
+This library adds higher level functionality to that provided by [MidiLib](https://github.com/cepthomas/MidiLib).
 - Reading and playing midi files.
 - Reading and playing the patterns in Yamaha style files.
 - Remapping channel patches.
 - Various export functions including specific style patterns.
-- Requires VS2022 and .NET8.
+
+The Test project should be useful. [Midifrier](https://github.com/cepthomas/Midifrier) also uses this extensively.
+
+Requires VS2022 and .NET8.
 
 
 ## Notes
-- Since midi files and NAudio use 1-based channel numbers, so does this application, except when used internally as an array index.
-- Time is represented by `bar.beat.tick ` but 0-based, unlike typical music representation.
 - If midi file type is `1`, all tracks are combined. Because?
-- NAudio `NoteEvent` is used to represent Note Off and Key After Touch messages. It is also the base class for `NoteOnEvent`. Not sure why it was done that way.
 - Some midi files (particuarly single instrument) use different drum channel numbers so there are a couple of options for simple remapping.
 
 # Components
 
-MidiDataFile, PatternInfo, MidiExport
-- Processes and contains a massaged version of the midi/style file contents.
-- Translates from raw file to MidiData internal representation.
-- Units are in ticks - scaled version of midi ticks.
-- Lots of utility and export functions too.
+- MidiDataFile
+  - Processes and contains a massaged version of the midi/style file contents.
+  - Represents one complete collection of midi events from a file - standard midi or yamaha style files.
+  - Translates from raw file to internal representation.
+  - Units are in ticks - scaled version of midi ticks.
+
+- PatternInfo
+  - Represents the contents of a midi file pattern.
+  - If it is a plain midi file (not style) there will be one only.
+
+- MidiExport
+  - Export the (original file) contents in a csv readable form.
+  - Export (original file) pattern parts to individual midi files.
 
 # Style Files
 
@@ -42,11 +50,7 @@ There's tons of styles and technical info at https://psrtutorial.com/. An overvi
 > 
 > Each of the other markers (Intro A, Main B, etc) defines musical patterns that are triggered by the keying chords.
 
-# Example
-
-The Test project should be useful. [Midifrier](https://github.com/cepthomas/Midifrier) also uses this extensively.
 
 # External Components
 
 - [NAudio](https://github.com/naudio/NAudio) (MIT).
-
