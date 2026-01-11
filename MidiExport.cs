@@ -8,7 +8,6 @@ using System.Windows.Forms;
 using NAudio.Midi;
 using Ephemera.NBagOfTricks;
 using Ephemera.MidiLib;
-using Ephemera.MusicLib;
 
 
 namespace Ephemera.MidiLibEx

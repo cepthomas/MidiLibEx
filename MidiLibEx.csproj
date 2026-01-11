@@ -39,11 +39,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MidiLib\MidiLib.csproj" />
-      <ProjectReference Include="..\MusicLib\MusicLib.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
+        <Reference Include="Ephemera.MidiLib">
+          <HintPath>lib\Ephemera.MidiLib.dll</HintPath>
+        </Reference>
         <Reference Include="Ephemera.NBagOfTricks">
           <HintPath>lib\Ephemera.NBagOfTricks.dll</HintPath>
         </Reference>

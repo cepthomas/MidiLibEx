@@ -4,11 +4,11 @@
         <name>Ephemera.MidiLib</name>
     </assembly>
     <members>
+        <member name="T:Ephemera.MidiLib.ChannelFlavor">
+            <summary>Some chanels have specialized behavior.</summary>
+        </member>
         <member name="T:Ephemera.MidiLib.HandleOps">
             <summary>Encode device/channel info for round trip through script.</summary>
-        </member>
-        <member name="M:Ephemera.MidiLib.HandleOps.Format(System.Int32)">
-            <summary>See me.</summary>
         </member>
         <member name="T:Ephemera.MidiLib.InputChannel">
             <summary>Describes one midi input channel.</summary>
@@ -19,6 +19,9 @@
         <member name="P:Ephemera.MidiLib.InputChannel.ChannelNumber">
             <summary>Actual 1-based midi channel number.</summary>
         </member>
+        <member name="P:Ephemera.MidiLib.InputChannel.Flavor">
+            <summary>Optional variation.</summary>
+        </member>
         <member name="P:Ephemera.MidiLib.InputChannel.Device">
             <summary>Associated device.</summary>
         </member>
@@ -28,15 +31,22 @@
         <member name="P:Ephemera.MidiLib.InputChannel.Handle">
             <summary>Handle for use by scripts.</summary>
         </member>
-        <member name="M:Ephemera.MidiLib.InputChannel.#ctor(Ephemera.MidiLib.IInputDevice,System.Int32)">
+        <member name="M:Ephemera.MidiLib.InputChannel.#ctor(Ephemera.MidiLib.IInputDevice,System.Int32,Ephemera.MidiLib.ChannelFlavor)">
             <summary>
             Constructor with required args.
             </summary>
             <param name="device"></param>
             <param name="channelNumber"></param>
+            <param name="flavor"></param>
         </member>
         <member name="T:Ephemera.MidiLib.OutputChannel">
             <summary>Describes one midi output channel.</summary>
+        </member>
+        <member name="F:Ephemera.MidiLib.OutputChannel._instruments">
+            <summary>All the possible instruments. May be GM, from alias file, drum kits, ...</summary>
+        </member>
+        <member name="F:Ephemera.MidiLib.OutputChannel._drums">
+            <summary>If it's a drum channel use drum names instead of notes.</summary>
         </member>
         <member name="P:Ephemera.MidiLib.OutputChannel.ChannelName">
             <summary>Channel name - optional.</summary>
@@ -44,11 +54,17 @@
         <member name="P:Ephemera.MidiLib.OutputChannel.ChannelNumber">
             <summary>Actual 1-based midi channel number.</summary>
         </member>
-        <member name="P:Ephemera.MidiLib.OutputChannel.InstrumentFile">
-            <summary>Override default instrument list.</summary>
+        <member name="P:Ephemera.MidiLib.OutputChannel.Flavor">
+            <summary>Optional variation.</summary>
         </member>
-        <member name="F:Ephemera.MidiLib.OutputChannel._instruments">
-            <summary>All the possibl instruments. May be GM, from alias file, drum kits, ...</summary>
+        <member name="P:Ephemera.MidiLib.OutputChannel.Device">
+            <summary>Associated device.</summary>
+        </member>
+        <member name="P:Ephemera.MidiLib.OutputChannel.Handle">
+            <summary>Handle for use by scripts.</summary>
+        </member>
+        <member name="P:Ephemera.MidiLib.OutputChannel.Enable">
+            <summary>True if channel is active.</summary>
         </member>
         <member name="P:Ephemera.MidiLib.OutputChannel.Patch">
             <summary>Current instrument/patch number. Set sends a midi patch message.</summary>
@@ -59,20 +75,19 @@
         <member name="P:Ephemera.MidiLib.OutputChannel.Volume">
             <summary>Current volume.</summary>
         </member>
-        <member name="P:Ephemera.MidiLib.OutputChannel.Device">
-            <summary>Associated device.</summary>
+        <member name="P:Ephemera.MidiLib.OutputChannel.InstrumentFile">
+            <summary>Override default instrument list.</summary>
         </member>
         <member name="P:Ephemera.MidiLib.OutputChannel.Events">
             <summary>Associated events - optional depending on implementation.</summary>
         </member>
-        <member name="P:Ephemera.MidiLib.OutputChannel.Handle">
-            <summary>Handle for use by scripts.</summary>
-        </member>
-        <member name="P:Ephemera.MidiLib.OutputChannel.IsDrums">
-            <summary>Meta info only client knows. TODO1 all need to do this!!! General solution? </summary>
-        </member>
-        <member name="P:Ephemera.MidiLib.OutputChannel.Enable">
-            <summary>True if channel is active.</summary>
+        <member name="M:Ephemera.MidiLib.OutputChannel.#ctor(Ephemera.MidiLib.IOutputDevice,System.Int32,Ephemera.MidiLib.ChannelFlavor)">
+            <summary>
+            Constructor with required args.
+            </summary>
+            <param name="device"></param>
+            <param name="channelNumber"></param>
+            <param name="flavor"></param>
         </member>
         <member name="M:Ephemera.MidiLib.OutputChannel.GetInstrumentName(System.Int32)">
             <summary>
@@ -87,13 +102,6 @@
             </summary>
             <param name="name"></param>
             <returns></returns>
-        </member>
-        <member name="M:Ephemera.MidiLib.OutputChannel.#ctor(Ephemera.MidiLib.IOutputDevice,System.Int32)">
-            <summary>
-            Constructor with required args.
-            </summary>
-            <param name="device"></param>
-            <param name="channelNumber"></param>
         </member>
         <member name="M:Ephemera.MidiLib.OutputChannel.LoadInstrumentFile">
             <summary>Load instrument names.</summary>
@@ -206,90 +214,6 @@
         </member>
         <member name="F:Ephemera.MidiLib.VolumeDefs.MAX_VOLUME">
             <summary>Allow UI controls some more headroom.</summary>
-        </member>
-        <member name="T:Ephemera.MidiLib.MidiInputDevice">
-            <summary>A midi input device.</summary>
-        </member>
-        <member name="F:Ephemera.MidiLib.MidiInputDevice._midiIn">
-            <summary>NAudio midi input device.</summary>
-        </member>
-        <member name="P:Ephemera.MidiLib.MidiInputDevice.DeviceName">
-            <inheritdoc />
-        </member>
-        <member name="P:Ephemera.MidiLib.MidiInputDevice.Id">
-            <inheritdoc />
-        </member>
-        <member name="P:Ephemera.MidiLib.MidiInputDevice.CaptureEnable">
-            <inheritdoc />
-        </member>
-        <member name="P:Ephemera.MidiLib.MidiInputDevice.Valid">
-            <inheritdoc />
-        </member>
-        <member name="E:Ephemera.MidiLib.MidiInputDevice.MessageReceive">
-            <summary>Client needs to deal with this.</summary>
-        </member>
-        <member name="M:Ephemera.MidiLib.MidiInputDevice.#ctor(System.String)">
-            <summary>
-            Normal constructor.
-            </summary>
-            <param name="deviceName">Client must supply name of device.</param>
-        </member>
-        <member name="M:Ephemera.MidiLib.MidiInputDevice.Dispose">
-            <summary>Resource clean up.</summary>
-        </member>
-        <member name="M:Ephemera.MidiLib.MidiInputDevice.MidiIn_MessageReceived(System.Object,NAudio.Midi.MidiInMessageEventArgs)">
-            <summary>
-            Process driver level midi input event.
-            </summary>
-        </member>
-        <member name="M:Ephemera.MidiLib.MidiInputDevice.MidiIn_ErrorReceived(System.Object,NAudio.Midi.MidiInMessageEventArgs)">
-            <summary>
-            Process error midi event - parameter 1 is invalid. Do I care?
-            </summary>
-        </member>
-        <member name="M:Ephemera.MidiLib.MidiInputDevice.GetAvailableDevices">
-            <summary>
-            Get a list of available device names.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="T:Ephemera.MidiLib.MidiOutputDevice">
-            <summary>A midi output device.</summary>
-        </member>
-        <member name="F:Ephemera.MidiLib.MidiOutputDevice._midiOut">
-            <summary>NAudio midi output device.</summary>
-        </member>
-        <member name="E:Ephemera.MidiLib.MidiOutputDevice.MessageSend">
-            <summary>Client needs to deal with this.</summary>
-        </member>
-        <member name="P:Ephemera.MidiLib.MidiOutputDevice.DeviceName">
-            <inheritdoc />
-        </member>
-        <member name="P:Ephemera.MidiLib.MidiOutputDevice.Id">
-            <inheritdoc />
-        </member>
-        <member name="P:Ephemera.MidiLib.MidiOutputDevice.Valid">
-            <inheritdoc />
-        </member>
-        <member name="M:Ephemera.MidiLib.MidiOutputDevice.#ctor(System.String)">
-            <summary>
-            Normal constructor. OK to throw in here.
-            </summary>
-            <param name="deviceName">Client must supply name of device.</param>
-        </member>
-        <member name="M:Ephemera.MidiLib.MidiOutputDevice.Dispose">
-            <summary>
-            Clean up any resources being used.
-            </summary>
-        </member>
-        <member name="M:Ephemera.MidiLib.MidiOutputDevice.Send(Ephemera.MidiLib.BaseEvent)">
-            <inheritdoc />
-        </member>
-        <member name="M:Ephemera.MidiLib.MidiOutputDevice.GetAvailableDevices">
-            <summary>
-            Get a list of available device names.
-            </summary>
-            <returns></returns>
         </member>
         <member name="T:Ephemera.MidiLib.BaseEvent">
             <summary>Base class for internal representation of midi events.</summary>
@@ -459,11 +383,95 @@
         </member>
         <member name="M:Ephemera.MidiLib.MidiDefs.CreateOrderedMidiList(System.Collections.Generic.Dictionary{System.Int32,System.String},System.Boolean,System.Boolean)">
             <summary>
-            Convert a midi dictionary into ordered list of strings.
+            Convert a midi dictionary into ordered list of strings. TODO doesn't really belong here.
             </summary>
             <param name="source">The dictionary to process</param>
             <param name="addKey">Add the index number to the entry</param>
             <param name="fill">Add mising midi values</param>
+            <returns></returns>
+        </member>
+        <member name="T:Ephemera.MidiLib.MidiInputDevice">
+            <summary>A midi input device.</summary>
+        </member>
+        <member name="F:Ephemera.MidiLib.MidiInputDevice._midiIn">
+            <summary>NAudio midi input device.</summary>
+        </member>
+        <member name="P:Ephemera.MidiLib.MidiInputDevice.DeviceName">
+            <inheritdoc />
+        </member>
+        <member name="P:Ephemera.MidiLib.MidiInputDevice.Id">
+            <inheritdoc />
+        </member>
+        <member name="P:Ephemera.MidiLib.MidiInputDevice.CaptureEnable">
+            <inheritdoc />
+        </member>
+        <member name="P:Ephemera.MidiLib.MidiInputDevice.Valid">
+            <inheritdoc />
+        </member>
+        <member name="E:Ephemera.MidiLib.MidiInputDevice.MessageReceive">
+            <summary>Client needs to deal with this.</summary>
+        </member>
+        <member name="M:Ephemera.MidiLib.MidiInputDevice.#ctor(System.String)">
+            <summary>
+            Normal constructor.
+            </summary>
+            <param name="deviceName">Client must supply name of device.</param>
+        </member>
+        <member name="M:Ephemera.MidiLib.MidiInputDevice.Dispose">
+            <summary>Resource clean up.</summary>
+        </member>
+        <member name="M:Ephemera.MidiLib.MidiInputDevice.MidiIn_MessageReceived(System.Object,NAudio.Midi.MidiInMessageEventArgs)">
+            <summary>
+            Process driver level midi input event.
+            </summary>
+        </member>
+        <member name="M:Ephemera.MidiLib.MidiInputDevice.MidiIn_ErrorReceived(System.Object,NAudio.Midi.MidiInMessageEventArgs)">
+            <summary>
+            Process error midi event - parameter 1 is invalid. Do I care?
+            </summary>
+        </member>
+        <member name="M:Ephemera.MidiLib.MidiInputDevice.GetAvailableDevices">
+            <summary>
+            Get a list of available device names.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Ephemera.MidiLib.MidiOutputDevice">
+            <summary>A midi output device.</summary>
+        </member>
+        <member name="F:Ephemera.MidiLib.MidiOutputDevice._midiOut">
+            <summary>NAudio midi output device.</summary>
+        </member>
+        <member name="E:Ephemera.MidiLib.MidiOutputDevice.MessageSend">
+            <summary>Client needs to deal with this.</summary>
+        </member>
+        <member name="P:Ephemera.MidiLib.MidiOutputDevice.DeviceName">
+            <inheritdoc />
+        </member>
+        <member name="P:Ephemera.MidiLib.MidiOutputDevice.Id">
+            <inheritdoc />
+        </member>
+        <member name="P:Ephemera.MidiLib.MidiOutputDevice.Valid">
+            <inheritdoc />
+        </member>
+        <member name="M:Ephemera.MidiLib.MidiOutputDevice.#ctor(System.String)">
+            <summary>
+            Normal constructor. OK to throw in here.
+            </summary>
+            <param name="deviceName">Client must supply name of device.</param>
+        </member>
+        <member name="M:Ephemera.MidiLib.MidiOutputDevice.Dispose">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+        </member>
+        <member name="M:Ephemera.MidiLib.MidiOutputDevice.Send(Ephemera.MidiLib.BaseEvent)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ephemera.MidiLib.MidiOutputDevice.GetAvailableDevices">
+            <summary>
+            Get a list of available device names.
+            </summary>
             <returns></returns>
         </member>
         <member name="F:Ephemera.MidiLib.MidiManager._outputDevices">
@@ -496,8 +504,22 @@
             <param name="channelName"></param>
             <returns></returns>
         </member>
-        <member name="M:Ephemera.MidiLib.MidiManager.OpenOutputChannel(System.String,System.Int32,System.String,System.Boolean)">
-            <param name="isDrums">TODO1 fix all isDrums </param>
+        <member name="M:Ephemera.MidiLib.MidiManager.OpenOutputChannel(System.String,System.Int32,System.String)">
+            <summary>
+            Open a normal output channel. Lazy inits the device. Throws if anything is invalid.
+            </summary>
+            <param name="deviceName"></param>
+            <param name="channelNumber"></param>
+            <param name="channelName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Ephemera.MidiLib.MidiManager.OpenOutputChannelDrums(System.String,System.Int32,System.String)">
+            <summary>
+            Open a drums output channel. Lazy inits the device. Throws if anything is invalid.
+            </summary>
+            <param name="deviceName"></param>
+            <param name="channelNumber"></param>
+            <param name="channelName"></param>
             <returns></returns>
         </member>
         <member name="M:Ephemera.MidiLib.MidiManager.DestroyChannels">
@@ -708,7 +730,7 @@
         </member>
         <member name="P:Ephemera.MidiLib.NullInputDevice.DeviceName">
             <inheritdoc />
-            Uses nullin:name for DeviceName.
+            Uses 'nullin:{name}' for DeviceName.
         </member>
         <member name="P:Ephemera.MidiLib.NullInputDevice.Valid">
             <inheritdoc />
@@ -733,7 +755,7 @@
         </member>
         <member name="P:Ephemera.MidiLib.NullOutputDevice.DeviceName">
             <inheritdoc />
-            Uses nullout:name for DeviceName.
+            Uses 'nullout:{name}' for DeviceName.
         </member>
         <member name="P:Ephemera.MidiLib.NullOutputDevice.Valid">
             <inheritdoc />
@@ -767,7 +789,7 @@
         </member>
         <member name="P:Ephemera.MidiLib.OscInputDevice.DeviceName">
             <inheritdoc />
-            Uses oscin:port for DeviceName.
+            Uses 'oscin:{port}' for DeviceName.
         </member>
         <member name="P:Ephemera.MidiLib.OscInputDevice.CaptureEnable">
             <inheritdoc />
@@ -781,7 +803,7 @@
         <member name="M:Ephemera.MidiLib.OscInputDevice.#ctor(System.String)">
             <summary>
             Constructor. Throws for invalid args etc.
-            <param name="port">Client port.</param>
+            <param name="deviceName">Client must supply name of device.</param>
             </summary>
         </member>
         <member name="M:Ephemera.MidiLib.OscInputDevice.Dispose">
@@ -817,7 +839,7 @@
         </member>
         <member name="P:Ephemera.MidiLib.OscOutputDevice.DeviceName">
             <inheritdoc />
-            Uses oscout:host:port for DeviceName.
+            Uses 'oscout:{host}:{port}' for DeviceName.
         </member>
         <member name="P:Ephemera.MidiLib.OscOutputDevice.Valid">
             <inheritdoc />
@@ -825,12 +847,11 @@
         <member name="P:Ephemera.MidiLib.OscOutputDevice.Id">
             <inheritdoc />
         </member>
-        <member name="M:Ephemera.MidiLib.OscOutputDevice.#ctor(System.String,System.String)">
+        <member name="M:Ephemera.MidiLib.OscOutputDevice.#ctor(System.String)">
             <summary>
             Constructor. Throws for invalid args etc.
             </summary>
-            <param name="host">Client host.</param>
-            <param name="port">Client port.</param>
+            <param name="deviceName">Client must supply name of device.</param>
         </member>
         <member name="M:Ephemera.MidiLib.OscOutputDevice.Dispose">
             <summary>
@@ -911,7 +932,7 @@
         <member name="P:Ephemera.MidiLib.TimeBar.DoLoop">
             <summary>Keep going at end.</summary>
         </member>
-        <member name="P:Ephemera.MidiLib.TimeBar.Valid">
+        <member name="P:Ephemera.MidiLib.TimeBar.FreeRunning">
             <summary>Convenience for readability.</summary>
         </member>
         <member name="P:Ephemera.MidiLib.TimeBar.Length">
