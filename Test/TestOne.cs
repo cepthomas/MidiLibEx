@@ -122,8 +122,8 @@ namespace Ephemera.MidiLibEx.Test
 
             // Get selected channels.
             var sdev = "nullout:test1";
-            MidiManager.Instance.OpenOutputChannel(sdev, 2, "chan2");
-            MidiManager.Instance.OpenOutputChannel(sdev, 3, "chan3");
+            MidiManager.Instance.OpenOutputChannel(sdev, 2, "chan2", "RockOrgan");
+            MidiManager.Instance.OpenOutputChannel(sdev, 3, "chan3", "VoiceOohs");
 
             // Execute the requested export function.
             var newfn = Tools.MakeExportFileName(Common.OutPath, mdata.FileName, "all", "csv");
