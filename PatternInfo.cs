@@ -75,7 +75,7 @@ namespace Ephemera.MidiLibEx
             SetChannelPatch(evt.Channel, -1);
 
             // Cache info.
-            if(evt is NoteOnEvent)
+            if (evt is NoteOnEvent)
             {
                 _hasNotes.Add(evt.Channel);
             }
