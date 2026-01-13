@@ -15,6 +15,7 @@ namespace Ephemera.MidiLibEx
     /// <summary>
     /// Represents the contents of a midi file pattern.
     /// If it is a plain midi file (not style) there will be one only.
+    /// Time is converted from midi to internal.
     /// </summary>
     public class PatternInfo
     {
