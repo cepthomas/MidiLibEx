@@ -91,7 +91,7 @@ namespace Ephemera.MidiLibEx
                             break;
 
                         case ControlChangeEvent evt:
-                            ret = $"{sc},{(int)evt.Controller}:{MidiDefs.ControllerIds.GetName((int)evt.Controller)},value:{evt.ControllerValue}";
+                            ret = $"{sc},{(int)evt.Controller}:{MidiDefs.Controllers.GetName((int)evt.Controller)},value:{evt.ControllerValue}";
                             break;
 
                         case PitchWheelChangeEvent evt:
