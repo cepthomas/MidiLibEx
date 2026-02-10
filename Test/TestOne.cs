@@ -10,14 +10,10 @@ using Ephemera.MidiLib;
 
 
 // Useful files:
-// Style file, full info:
-//var mdata = Common.OpenFile("_LoveSong.S474.sty");
-// Plain midi, full song:
-// var mdata = Common.OpenFile("WICKGAME.MID");
-// Plain midi, one instrument, no patch:
-// var mdata = Common.OpenFile("_bass_ch2.mid");
-// Plain midi, one instrument, ??? patch:
-// var mdata = Common.OpenFile("_drums_ch1.mid");
+// Style file, full info: _LoveSong.S474.sty
+// Plain midi, full song: WICKGAME.MID
+// Plain midi, one instrument, no patch: bass_ch2.mid
+// Plain midi, drums on different channel: _drums_ch1.mid
 
 
 namespace Ephemera.MidiLibEx.Test
@@ -44,7 +40,7 @@ namespace Ephemera.MidiLibEx.Test
         /// <param name="fn">The TestAudioFiles file to open.</param>
         internal static MidiDataFile OpenFile(string fn, int tempo)
         {
-            string fnPath = Path.Join(MiscUtils.GetSourcePath(), "..", "..", "..", "Misc", "TestAudioFiles", fn);
+            string fnPath = Path.Join(MiscUtils.GetSourcePath(), "Files", fn);
             var mdata = new MidiDataFile();
 
             mdata.Read(fnPath, tempo, false);
@@ -126,13 +122,24 @@ namespace Ephemera.MidiLibEx.Test
             MidiManager.Instance.OpenOutputChannel(sdev, 3, "chan3", "VoiceOohs");
 
             // Execute the requested export function.
-            var newfn = Tools.MakeExportFileName(Common.OutPath, mdata.FileName, "all", "csv");
+            var newfn = MakeExportFileName(Common.OutPath, mdata.FileName, "all", "csv");
             MidiExport.ExportCsv(newfn, patterns, MidiManager.Instance.OutputChannels, mdata.GetGlobal());
 
-            newfn = Tools.MakeExportFileName(Common.OutPath, mdata.FileName, "", "mid");
+            newfn = MakeExportFileName(Common.OutPath, mdata.FileName, "", "mid");
             MidiExport.ExportMidi(newfn, patterns[0], MidiManager.Instance.OutputChannels, mdata.GetGlobal());
+
+            string MakeExportFileName(string path, string baseFn, string mod, string ext)
+            {
+                string name = Path.GetFileNameWithoutExtension(baseFn);
+                // Clean the file name.
+                name = name.Replace('.', '-').Replace(' ', '_');
+                mod = mod == "" ? "default" : mod.Replace(' ', '_');
+                var newfn = Path.Join(path, $"{name}_{mod}.{ext}");
+                return newfn;
+            }
         }
     }
+
 
     //----------------------------------------------------------------
     /// <summary>Test all api.</summary>
