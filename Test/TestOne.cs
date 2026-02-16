@@ -25,12 +25,7 @@ namespace Ephemera.MidiLibEx.Test
         {
             get
             {
-                if (_outPath is null)
-                {
-                    _outPath = Path.Join(MiscUtils.GetSourcePath(), "out");
-                    DirectoryInfo di = new(_outPath);
-                    di.Create();
-                }
+                if (_outPath is null) { _outPath = MiscUtils.GetSourcePath(); }
                 return _outPath;
             }
         }
@@ -63,31 +58,31 @@ namespace Ephemera.MidiLibEx.Test
 
         public override void RunSuite()
         {
-            UT_STOP_ON_FAIL(true);
+            StopOnFail(true);
             int tempo = 100;
 
             // Style file, full info:
             var mdata = Common.OpenFile("_LoveSong.S474.sty", tempo);
-            UT_NOT_NULL(mdata);
+            Assert(mdata is not null);
 
             // Load the new one.
             long maxTick = 0;
 
             //var pnames = mdata.GetPatternNames();
 
-            var pinfo = mdata.GetPattern("Main C");
-            UT_NOT_NULL(pinfo);
+            var pinfo = mdata!.GetPattern("Main C");
+            Assert(pinfo is not null);
 
-            foreach (var (chnum, patch) in pinfo.GetChannels(true, true))
+            foreach (var (chnum, patch) in pinfo!.GetChannels(true, true))
             {
                 // Get events for the channel.
                 var channelEvents = pinfo.GetFilteredEvents([chnum]);
                 maxTick = Math.Max(channelEvents.Last().AbsoluteTime, maxTick);
 
-                UT_INFO($"chnum:{chnum} patch:{patch} events:{channelEvents.Count()}");
+                Info($"chnum:{chnum} patch:{patch} events:{channelEvents.Count()}");
             }
 
-            UT_INFO($"maxTick:{maxTick}");
+            Info($"maxTick:{maxTick}");
 
             int now = 22;
             var events = pinfo.GetEventsWhen(now);
@@ -105,13 +100,13 @@ namespace Ephemera.MidiLibEx.Test
     {
         public override void RunSuite()
         {
-            UT_STOP_ON_FAIL(true);
+            StopOnFail(true);
             int tempo = 100;
 
             var mdata = Common.OpenFile("WICKGAME.MID", tempo);
-            UT_NOT_NULL(mdata);
+            Assert(mdata is not null);
 
-            var numtr = mdata.NumTracks; // 10
+            var numtr = mdata!.NumTracks; // 10
             var pnames = mdata.GetPatternNames(); // one: ""
             var pinfo = mdata.GetPattern("");
             List<PatternInfo> patterns = [pinfo];
@@ -147,7 +142,7 @@ namespace Ephemera.MidiLibEx.Test
     {
         public override void RunSuite()
         {
-            UT_STOP_ON_FAIL(true);
+            StopOnFail(true);
 
             // public class MidiDataFile
             //     public string FileName { get; private set; } = "";
