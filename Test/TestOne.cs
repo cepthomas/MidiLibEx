@@ -35,7 +35,11 @@ namespace Ephemera.MidiLibEx.Test
         /// <param name="fn">The TestAudioFiles file to open.</param>
         internal static MidiDataFile OpenFile(string fn, int tempo)
         {
-            string fnPath = Path.Join(MiscUtils.GetSourcePath(), "Files", fn);
+            //string fnPath = Path.Join(MiscUtils.GetSourcePath(), "Files", fn);
+
+            var devPath = Environment.GetEnvironmentVariable("DEV_PATH");
+            string fnPath = Path.Join(devPath, "Misc", "TestAudioFiles", fn);
+
             var mdata = new MidiDataFile();
 
             mdata.Read(fnPath, tempo, false);
