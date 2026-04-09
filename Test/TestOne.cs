@@ -9,7 +9,7 @@ using Ephemera.MidiLibEx;
 using Ephemera.MidiLib;
 
 
-// Useful files:
+// Useful files - from https://github.com/cepthomas/NTerm/TestAudioFiles:
 // Style file, full info: _LoveSong.S474.sty
 // Plain midi, full song: WICKGAME.MID
 // Plain midi, one instrument, no patch: bass_ch2.mid
@@ -37,6 +37,7 @@ namespace Ephemera.MidiLibEx.Test
         {
             //string fnPath = Path.Join(MiscUtils.GetSourcePath(), "Files", fn);
 
+            // This needs DEV_PATH set, or hack to taste.
             var devPath = Environment.GetEnvironmentVariable("DEV_PATH");
             string fnPath = Path.Join(devPath, "Misc", "TestAudioFiles", fn);
 
