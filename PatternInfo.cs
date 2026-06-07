@@ -15,7 +15,6 @@ namespace Ephemera.MidiLibEx
     /// <summary>
     /// Represents the contents of a midi file pattern.
     /// If it is a plain midi file (not style) there will be one only.
-    /// Time is converted from midi to internal and stored in the MidiEvent.AbsoluteTime field.
     /// </summary>
     public class PatternInfo
     {
@@ -23,11 +22,11 @@ namespace Ephemera.MidiLibEx
         /// <summary>All the pattern midi events.</summary>
         readonly List<MidiEvent> _events = [];
 
-        /// <summary>All the pattern midi events, key is when to play (scaled time).</summary>
+        /// <summary>All the pattern midi events, key is when to play (scaled/internal time).</summary>
         readonly Dictionary<long, List<MidiEvent>> _eventsByTime = [];
 
-        /// <summary>For scaling subs to internal.</summary>
-        readonly MidiTimeConverter? _mt = null;
+        /// <summary>For scaling midi ticks to internal.</summary>
+        readonly MidiTimeConverter _mt;
 
         /// <summary>Collection of all channels in this pattern. Key is number, value is associated patch.</summary>
         readonly Dictionary<int, int> _channelPatches = [];
@@ -48,18 +47,11 @@ namespace Ephemera.MidiLibEx
         #endregion
 
         /// <summary>
-        /// Default constructor. Use only for initialization!
-        /// </summary>
-        public PatternInfo()
-        {
-        }
-
-        /// <summary>
         /// Normal constructor.
         /// </summary>
         /// <param name="name">Pattern name</param>
         /// <param name="ppq">Resolution</param>
-        public PatternInfo(string name, int ppq) : this()
+        public PatternInfo(string name, int ppq)
         {
             PatternName = name;
             _mt = new(ppq);
@@ -75,24 +67,16 @@ namespace Ephemera.MidiLibEx
             // Capture that this is a valid channel. Patch will get fixed later.
             SetChannelPatch(evt.Channel, -1);
 
-            // Cache info.
+            // Cache channel note info.
             if (evt is NoteOnEvent)
             {
                 _hasNotes.Add(evt.Channel);
             }
 
-            // Scale time.
-            evt.AbsoluteTime = _mt!.MidiToInternal(evt.AbsoluteTime); 
+            // Scale time and add to collections.
             _events.Add(evt);
-
-            if (!_eventsByTime.TryGetValue(evt.AbsoluteTime, out List<MidiEvent>? value))
-            {
-                _eventsByTime.Add(evt.AbsoluteTime, [evt]);
-            }
-            else
-            {
-                value.Add(evt);
-            }
+            int scTime = _mt!.MidiToInternal(evt.AbsoluteTime); 
+            _eventsByTime.Add(scTime, evt);
         }
 
         /// <summary>

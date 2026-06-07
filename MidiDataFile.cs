@@ -25,7 +25,7 @@ namespace Ephemera.MidiLibEx
         readonly List<PatternInfo> _patterns = [];
 
         /// <summary>Currently collecting this pattern.</summary>
-        PatternInfo _currentPattern = new();
+        PatternInfo _currentPattern = new("", 0);
         #endregion
 
         #region Constants
