@@ -31,10 +31,10 @@ namespace Ephemera.MidiLibEx
             int ppq = global["DeltaTicksPerQuarterNote"];
 
             // Header
-            List<string> contentText = new()
-            {
+            List<string> contentText =
+            [
                 "ScaledTime,AbsoluteTime,DeltaTime,Event,Channel,Content1,Content2"
-            };
+            ];
 
             // Any globals.
             global.ForEach(m => contentText.Add($"-1,0,0,Global,0,{m.Key}:{m.Value},"));
@@ -145,7 +145,7 @@ namespace Ephemera.MidiLibEx
             outEvents.Add(new TempoEvent(0, 0) { Tempo = pattern.Tempo });
             outEvents.Add(new TextEvent($"Export {pattern.PatternName}", MetaEventType.TextEvent, 0));
 
-            if (pattern.TimeSignature == (0, 0))
+            if (pattern.TimeSignature != (0, 0))
             {
                 outEvents.Add(new TimeSignatureEvent(0, pattern.TimeSignature.num, pattern.TimeSignature.denom, 24, 8));
             }

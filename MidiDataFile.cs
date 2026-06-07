@@ -22,7 +22,7 @@ namespace Ephemera.MidiLibEx
         bool _includeNoisy = false;
 
         /// <summary>All the file pattern sections. Plain midi files will have only one, unnamed.</summary>
-        readonly List<PatternInfo> _patterns = new();
+        readonly List<PatternInfo> _patterns = [];
 
         /// <summary>Currently collecting this pattern.</summary>
         PatternInfo _currentPattern = new();
@@ -76,7 +76,7 @@ namespace Ephemera.MidiLibEx
             FileName = fn;
             Tempo = defaultTempo; 
             _includeNoisy = includeNoisy;
-            IsStyleFile = STYLE_FILE_TYPES.Contains(Path.GetExtension(fn).ToLower());
+            IsStyleFile = STYLE_FILE_TYPES.Contains(Path.GetExtension(fn), StringComparison.CurrentCultureIgnoreCase);
 
             using var br = new BinaryReader(File.OpenRead(fn));
             bool done = false;
@@ -318,6 +318,11 @@ namespace Ephemera.MidiLibEx
                         AddMidiEvent(evt);
                         break;
 
+                    case MetaEvent evt:
+                        // Other meta?
+                        Console.WriteLine($"MetaEvent:{evt}");
+                        break;
+
                     default:
                         // Add to taste.
                         break;
@@ -420,7 +425,7 @@ namespace Ephemera.MidiLibEx
                 // Get the always present nameless pattern.
 
                 // Delete unneeded stuff.
-                List<PatternInfo> toRemove = new();
+                List<PatternInfo> toRemove = [];
 
                 foreach (var p in _patterns)
                 {

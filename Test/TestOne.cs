@@ -21,15 +21,7 @@ namespace Ephemera.MidiLibEx.Test
     //----------------------------------------------------------------
     internal class Common
     {
-        public static string OutPath
-        {
-            get
-            {
-                if (_outPath is null) { _outPath = MiscUtils.GetSourcePath(); }
-                return _outPath;
-            }
-        }
-        static string? _outPath = null;
+        public static string OutPath { get { return MiscUtils.GetSourcePath(); } }
 
         /// <summary>Common file opener.</summary>
         /// <param name="fn">The TestAudioFiles file to open.</param>
@@ -46,7 +38,7 @@ namespace Ephemera.MidiLibEx.Test
             mdata.Read(fnPath, tempo, false);
 
             var pnames = mdata.GetPatternNames();
-            if (!pnames.Any())
+            if (pnames is null || pnames.Count == 0)
             {
                 throw new InvalidOperationException($"Something wrong with this file: {fnPath}");
             }
@@ -56,11 +48,8 @@ namespace Ephemera.MidiLibEx.Test
     }
 
     //----------------------------------------------------------------
-    public class MLEX_BASIC : TestSuite
+    public class MLEX_STYLE : TestSuite
     {
-        /// <summary>Midi events from the input file.</summary>
-        MidiDataFile _mdata = new();
-
         public override void RunSuite()
         {
             StopOnFail(true);
@@ -73,7 +62,7 @@ namespace Ephemera.MidiLibEx.Test
             // Load the new one.
             long maxTick = 0;
 
-            //var pnames = mdata.GetPatternNames();
+            var pnames = mdata!.GetPatternNames();
 
             var pinfo = mdata!.GetPattern("Main C");
             Assert(pinfo is not null);
@@ -140,7 +129,6 @@ namespace Ephemera.MidiLibEx.Test
         }
     }
 
-
     //----------------------------------------------------------------
     /// <summary>Test all api.</summary>
     public class MLEX_API : TestSuite // TODO more tests as needed
@@ -200,7 +188,6 @@ namespace Ephemera.MidiLibEx.Test
             //     public static void ExportCsv(string outFileName, IEnumerable<PatternInfo> patterns, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
             //     public static void ExportMidi(string outFileName, PatternInfo pattern, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
             //     static string Format(MidiEventDesc evtDesc, bool is-Drums)
-
         }
     }
 }

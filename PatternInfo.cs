@@ -15,7 +15,7 @@ namespace Ephemera.MidiLibEx
     /// <summary>
     /// Represents the contents of a midi file pattern.
     /// If it is a plain midi file (not style) there will be one only.
-    /// Time is converted from midi to internal.
+    /// Time is converted from midi to internal and stored in the MidiEvent.AbsoluteTime field.
     /// </summary>
     public class PatternInfo
     {
@@ -33,7 +33,7 @@ namespace Ephemera.MidiLibEx
         readonly Dictionary<int, int> _channelPatches = [];
 
         /// <summary>Channels with real notes.</summary>
-        HashSet<int> _hasNotes = [];
+        readonly HashSet<int> _hasNotes = [];
         #endregion
 
         #region Properties
