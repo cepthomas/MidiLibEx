@@ -600,11 +600,12 @@
             <param name="t"></param>
             <returns></returns>
         </member>
-        <member name="M:Ephemera.MidiLib.MidiTimeConverter.MidiToInternal(System.Int64)">
+        <member name="M:Ephemera.MidiLib.MidiTimeConverter.MidiToInternal(System.Int64,System.Boolean)">
             <summary>
-            Conversion function. TODO should round?
+            Conversion function.
             </summary>
             <param name="t"></param>
+            <param name="roundup"></param>
             <returns></returns>
         </member>
         <member name="M:Ephemera.MidiLib.MidiTimeConverter.InternalToMsec(System.Int32)">

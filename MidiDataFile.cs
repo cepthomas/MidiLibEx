@@ -33,7 +33,7 @@ namespace Ephemera.MidiLibEx
         public const string MIDI_FILE_TYPES = "*.mid";
 
         /// <summary>Supported file types.</summary>
-        public const string STYLE_FILE_TYPES = "*.sty;*.pcs;*.sst;*.prs";
+        public const string STYLE_FILE_TYPES = "*.sty;*.pcs;*.sst;*.prs;*.bcs;*.yjz";
         #endregion
 
         #region Properties
@@ -47,7 +47,7 @@ namespace Ephemera.MidiLibEx
         public int MidiFileType { get; private set; } = 0;
 
         /// <summary>How many tracks.</summary>
-        public int NumTracks { get; private set; } = 0;// TODO Properly handle tracks from original files?
+        public int NumTracks { get; private set; } = 0;  // TODO Properly handle tracks from original files?
 
         /// <summary>Original resolution for all events.</summary>
         public int DeltaTicksPerQuarterNote { get; private set; } = 0;

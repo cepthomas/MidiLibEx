@@ -103,7 +103,6 @@ namespace Ephemera.MidiLibEx.Test
             var numtr = mdata!.NumTracks; // 10
             var pnames = mdata.GetPatternNames(); // one: ""
             var pinfo = mdata.GetPattern("");
-            List<PatternInfo> patterns = [pinfo];
 
             // Get selected channels.
             var sdev = "nullout:test1";
@@ -112,10 +111,10 @@ namespace Ephemera.MidiLibEx.Test
 
             // Execute the requested export function.
             var newfn = MakeExportFileName(Common.OutPath, mdata.FileName, "all", "csv");
-            MidiExport.ExportCsv(newfn, patterns, MidiManager.Instance.OutputChannels, mdata.GetGlobal());
+            MidiExport.ExportCsv(newfn, pinfo, MidiManager.Instance.OutputChannels, mdata.GetGlobal());
 
             newfn = MakeExportFileName(Common.OutPath, mdata.FileName, "", "mid");
-            MidiExport.ExportMidi(newfn, patterns[0], MidiManager.Instance.OutputChannels, mdata.GetGlobal());
+            MidiExport.ExportMidi(newfn, pinfo, MidiManager.Instance.OutputChannels, mdata.GetGlobal());
 
             string MakeExportFileName(string path, string baseFn, string mod, string ext)
             {
@@ -131,7 +130,7 @@ namespace Ephemera.MidiLibEx.Test
 
     //----------------------------------------------------------------
     /// <summary>Test all api.</summary>
-    public class MLEX_API : TestSuite // TODO more tests as needed
+    public class MLEX_API : TestSuite // more tests as needed
     {
         public override void RunSuite()
         {
@@ -141,7 +140,7 @@ namespace Ephemera.MidiLibEx.Test
             //     public string FileName { get; private set; } = "";
             //     public bool IsStyleFile { get; private set; } = false;
             //     public int MidiFileType { get; private set; } = 0;
-            //     public int NumTracks { get; private set; } = 0;// TODO Properly handle tracks from original files?
+            //     public int NumTracks { get; private set; } = 0;// Properly handle tracks from original files?
             //     public int DeltaTicksPerQuarterNote { get; private set; } = 0;
             //     public int Tempo { get; private set; } = 0;
             //     public (int num, int denom) TimeSignature { get; set; } = (4, 2);

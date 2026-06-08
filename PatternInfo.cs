@@ -28,11 +28,14 @@ namespace Ephemera.MidiLibEx
         /// <summary>For scaling midi ticks to internal.</summary>
         readonly MidiTimeConverter _mt;
 
-        /// <summary>Collection of all channels in this pattern. Key is number, value is associated patch.</summary>
+        /// <summary>Collection of all channels in this pattern. Key is channel number, value is associated patch.</summary>
         readonly Dictionary<int, int> _channelPatches = [];
 
         /// <summary>Channels with real notes.</summary>
         readonly HashSet<int> _hasNotes = [];
+
+        /// <summary>Max length of all sequences in midi ticks.</summary>
+        long _maxTick = 0;
         #endregion
 
         #region Properties
@@ -44,6 +47,9 @@ namespace Ephemera.MidiLibEx
 
         /// <summary>Time signature, if supplied by file.</summary>
         public (int num, int denom) TimeSignature { get; set; } = new();
+
+        /// <summary>Length of all sequences in scaled/internal time.</summary>
+        public int Length { get { return _mt.MidiToInternal(_maxTick, true); } }
         #endregion
 
         /// <summary>
@@ -59,7 +65,6 @@ namespace Ephemera.MidiLibEx
 
         /// <summary>
         /// Add an event to the collection.
-        /// Note!! this replaces the original file AbsoluteTime with the value scaled for internal use.
         /// </summary>
         /// <param name="evt">The event to add.</param>
         public void AddEvent(MidiEvent evt)
@@ -74,19 +79,21 @@ namespace Ephemera.MidiLibEx
             }
 
             // Scale time and add to collections.
-            _events.Add(evt);
-            int scTime = _mt!.MidiToInternal(evt.AbsoluteTime); 
+            _events.Add(evt); // all
+            int scTime = _mt!.MidiToInternal(evt.AbsoluteTime, true); 
             _eventsByTime.Add(scTime, evt);
+
+            _maxTick = Math.Max(_maxTick, evt.AbsoluteTime);
         }
 
         /// <summary>
         /// Get enumerator for events using supplied filters.
         /// </summary>
-        /// <param name="channels">Specific channnels.</param>
+        /// <param name="channelNumbers">Specific channnels.</param>
         /// <returns>Enumerator sorted by absolute time.</returns>
-        public IEnumerable<MidiEvent> GetFilteredEvents(IEnumerable<int> channels)
+        public IEnumerable<MidiEvent> GetFilteredEvents(IEnumerable<int> channelNumbers)
         {
-            IEnumerable<MidiEvent> descs = _events.Where(e => channels.Contains(e.Channel)) ?? [];
+            IEnumerable<MidiEvent> descs = _events.Where(e => channelNumbers.Contains(e.Channel)) ?? [];
             return descs.OrderBy(e => e.AbsoluteTime);
         }
 
