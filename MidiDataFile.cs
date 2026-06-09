@@ -47,7 +47,7 @@ namespace Ephemera.MidiLibEx
         public int MidiFileType { get; private set; } = 0;
 
         /// <summary>How many tracks.</summary>
-        public int NumTracks { get; private set; } = 0;  // TODO Properly handle tracks from original files?
+        public int NumTracks { get; private set; } = 0;  // TODO1 Properly handle tracks from original files?
 
         /// <summary>Original resolution for all events.</summary>
         public int DeltaTicksPerQuarterNote { get; private set; } = 0;

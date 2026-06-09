@@ -12,10 +12,17 @@ namespace Ephemera.MidiLibEx.Test
 {
     static class Program
     {
+        // This needs DEV_PATH set, or hack to taste.
+        public static string InputDir = Path.Join(Environment.GetEnvironmentVariable("DEV_PATH"), "Misc", "TestAudioFiles");
+        public static string OutputDir = Path.Join(MiscUtils.GetSourcePath(), "out");
+
         /// <summary>Test entry.</summary>
         [STAThread]
         static void Main()
         {
+            // Ensure paths.
+            Directory.CreateDirectory(OutputDir);
+
             TestRunner runner = new(OutputFormat.Readable);
             //  MLEX_STYLE  MLEX_EXPORT  MLEX_API
             var torun = new[] { "MLEX_EXPORT" };

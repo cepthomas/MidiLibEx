@@ -7,6 +7,7 @@ using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfTricks.PNUT;
 using Ephemera.MidiLibEx;
 using Ephemera.MidiLib;
+using System.Runtime.CompilerServices;
 
 
 // Useful files - from https://github.com/cepthomas/NTerm/TestAudioFiles:
@@ -21,30 +22,28 @@ namespace Ephemera.MidiLibEx.Test
     //----------------------------------------------------------------
     internal class Common
     {
-        public static string OutPath { get { return MiscUtils.GetSourcePath(); } }
+        //public static string OutPath { get { return MiscUtils.GetSourcePath(); } }
 
-        /// <summary>Common file opener.</summary>
-        /// <param name="fn">The TestAudioFiles file to open.</param>
-        internal static MidiDataFile OpenFile(string fn, int tempo)
-        {
-            //string fnPath = Path.Join(MiscUtils.GetSourcePath(), "Files", fn);
+        ///// <summary>Common file opener.</summary>
+        ///// <param name="fn">The TestAudioFiles file to open.</param>
+        //internal static MidiDataFile OpenFile(string fn, int tempo)
+        //{
+        //    //string fnPath = Path.Join(MiscUtils.GetSourcePath(), "Files", fn);
+        //    //// This needs DEV_PATH set, or hack to taste.
+        //    //var devPath = Environment.GetEnvironmentVariable("DEV_PATH");
+        //    //string fnPath = Path.Join(devPath, "Misc", "TestAudioFiles", fn);
 
-            // This needs DEV_PATH set, or hack to taste.
-            var devPath = Environment.GetEnvironmentVariable("DEV_PATH");
-            string fnPath = Path.Join(devPath, "Misc", "TestAudioFiles", fn);
+        //    var mdata = new MidiDataFile();
+        //    mdata.Read(fnPath, tempo, false);
 
-            var mdata = new MidiDataFile();
+        //    var pnames = mdata.GetPatternNames();
+        //    if (pnames is null || pnames.Count == 0)
+        //    {
+        //        throw new InvalidOperationException($"Something wrong with this file: {fnPath}");
+        //    }
 
-            mdata.Read(fnPath, tempo, false);
-
-            var pnames = mdata.GetPatternNames();
-            if (pnames is null || pnames.Count == 0)
-            {
-                throw new InvalidOperationException($"Something wrong with this file: {fnPath}");
-            }
-
-            return mdata;
-        }
+        //    return mdata;
+        //}
     }
 
     //----------------------------------------------------------------
@@ -56,14 +55,13 @@ namespace Ephemera.MidiLibEx.Test
             int tempo = 100;
 
             // Style file, full info:
-            var mdata = Common.OpenFile("_LoveSong.S474.sty", tempo);
+            var mdata = new MidiDataFile();
+            mdata.Read(Path.Join(Program.InputDir, "_LoveSong.S474.sty"), tempo, false);
             Assert(mdata is not null);
 
             // Load the new one.
             long maxTick = 0;
-
             var pnames = mdata!.GetPatternNames();
-
             var pinfo = mdata!.GetPattern("Main C");
             Assert(pinfo is not null);
 
@@ -97,34 +95,41 @@ namespace Ephemera.MidiLibEx.Test
             StopOnFail(true);
             int tempo = 100;
 
-            var mdata = Common.OpenFile("WICKGAME.MID", tempo);
-            Assert(mdata is not null);
+            // Simple midi file:
+            var mdata = new MidiDataFile();
+            mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"), tempo, false);
 
             var numtr = mdata!.NumTracks; // 10
             var pnames = mdata.GetPatternNames(); // one: ""
             var pinfo = mdata.GetPattern("");
 
-            // Get selected channels.
-            var sdev = "nullout:test1";
-            MidiManager.Instance.OpenOutputChannel(sdev, 2, "chan2", "RockOrgan");
-            MidiManager.Instance.OpenOutputChannel(sdev, 3, "chan3", "VoiceOohs");
+            // Get selected channels. 
+            List<int> all = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+            List<int> some = [2, 3];
+
+// mini copy/AsyncIteratorMethodBuilder for midi
+
+            //var sdev = "nullout:test1";
+            //MidiManager.Instance.OpenOutputChannel(sdev, 2, "chan2", "RockOrgan");
+            //MidiManager.Instance.OpenOutputChannel(sdev, 3, "chan3", "VoiceOohs");
 
             // Execute the requested export function.
-            var newfn = MakeExportFileName(Common.OutPath, mdata.FileName, "all", "csv");
-            MidiExport.ExportCsv(newfn, pinfo, MidiManager.Instance.OutputChannels, mdata.GetGlobal());
+            var newfn = Path.Join(Program.OutputDir, "simple_midi_all");
+          //  var newfn = MakeExportFileName(Common.OutPath, mdata.FileName, "all", "csv");
+            MidiExport.ExportCsv($"{newfn}.csv", pinfo, all, mdata.GetGlobal());
 
-            newfn = MakeExportFileName(Common.OutPath, mdata.FileName, "", "mid");
-            MidiExport.ExportMidi(newfn, pinfo, MidiManager.Instance.OutputChannels, mdata.GetGlobal());
+       //     newfn = MakeExportFileName(Program.OutputDir, mdata.FileName, "", "mid");
+            MidiExport.ExportMidi($"{newfn}.mid", pinfo, all, mdata.GetGlobal());
 
-            string MakeExportFileName(string path, string baseFn, string mod, string ext)
-            {
-                string name = Path.GetFileNameWithoutExtension(baseFn);
-                // Clean the file name.
-                name = name.Replace('.', '-').Replace(' ', '_');
-                mod = mod == "" ? "default" : mod.Replace(' ', '_');
-                var newfn = Path.Join(path, $"{name}_{mod}.{ext}");
-                return newfn;
-            }
+            //string MakeExportFileName(string path, string baseFn, string mod, string ext)
+            //{
+            //    string name = Path.GetFileNameWithoutExtension(baseFn);
+            //    // Clean the file name.
+            //    name = name.Replace('.', '-').Replace(' ', '_');
+            //    mod = mod == "" ? "default" : mod.Replace(' ', '_');
+            //    var newfn = Path.Join(path, $"{name}_{mod}.{ext}");
+            //    return newfn;
+            //}
         }
     }
 

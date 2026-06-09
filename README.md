@@ -1,4 +1,4 @@
-# MidiLibEx
+# MidiLibEx TODO1 clean up
 
 This library adds higher level functionality to that provided by [MidiLib](https://github.com/cepthomas/MidiLib).
 - Reading and playing midi files.
@@ -28,10 +28,13 @@ Requires VS2022 and .NET8.
   - If it is a plain midi file (not style) there will be one only.
 
 - MidiExport
-  - Export the (original file) contents in a csv readable form.
-  - Export (original file) pattern parts to individual midi files.
+  - Export the original file contents in a csv readable form.
+  - Export the original file pattern parts to individual midi files.
 
 # Style Files
+
+http://www.wierzba.homepage.t-online.de/StyleFileDescription_v21.pdf
+
 
 Style files contain multiple sections, each of which describes a pattern. For the purposes of this application, `section` refers
 to a part of a file and `pattern` refers to the internal representation. Patterns are named for their intent (`Intro A`, `Main B`, ...)

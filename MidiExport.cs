@@ -10,11 +10,6 @@ using Ephemera.NBagOfTricks;
 using Ephemera.MidiLib;
 
 
-needs:
-ch.ChannelNumber
-{ch.Patch}
-{ch.PatchName}
-
 
 namespace Ephemera.MidiLibEx
 {
@@ -26,29 +21,29 @@ namespace Ephemera.MidiLibEx
         /// <summary>
         /// Export the contents in a csv readable form. This is as the events appear in the original file.
         /// </summary>
-        /// <param name="outFileName">Where to boss?</param>
+        /// <param name="fn">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>
         /// <param name="channels">Specific channnels.</param>
         /// <param name="meta">File meta data to include.</param>
-        public static void ExportCsvX(string outFileName, PatternInfo pattern, IEnumerable<OutputChannel> channels, Dictionary<string, int> meta)
+        public static void ExportCsv(string fn, PatternInfo pattern, List<int> channels, Dictionary<string, int> meta)
         {
             // Collect output text.
             List<string> contentText = ["AbsoluteTime,DeltaTime,Event,Channel,Content1,Content2"];
 
-            // Any globals.
+            // Any globals. TODO1 client puts patch info in meta??
             meta.ForEach(m => contentText.Add($"0,0,Global,0,{m.Key}:{m.Value},"));
 
-            // Selections.
-            List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
+            // // Selections.
+            // List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
 
             // Midi events.
             var pname = pattern.PatternName == "" ? "NoName" : pattern.PatternName;
             contentText.Add($"0,0,Pattern,0,name:{pname},tempo:{pattern.Tempo}");
             contentText.Add($"0,0,Pattern,0,name:{pname},timesig:{pattern.TimeSignature}");
 
-            channels.ForEach(ch => { contentText.Add($"0,0,Patch,0,{ch.Patch},{ch.PatchName}"); });
+            // channels.ForEach(ch => { contentText.Add($"0,0,Patch,0,{ch.Patch},{ch.PatchName}"); });
 
-            foreach (var mevt in pattern.GetFilteredEvents(channelNumbers))
+            foreach (var mevt in pattern.GetFilteredEvents(channels))
             {
                 // Boilerplate.
                 List<object> parts =
@@ -66,7 +61,7 @@ namespace Ephemera.MidiLibEx
                     case TempoEvent evt: parts.AddRange([evt.Tempo, evt.MicrosecondsPerQuarterNote]); break;
                     case TimeSignatureEvent evt: parts.AddRange([evt.TimeSignature, ""]); break;
                     case KeySignatureEvent evt: parts.AddRange([evt.SharpsFlats, evt.MajorMinor]); break;
-                    case PatchChangeEvent evt: parts.AddRange([evt.Patch, "???"]); break; // TODO get patch name from channel
+                    case PatchChangeEvent evt: parts.AddRange([evt.Patch, "???"]); break; // TODO1 get patch name from channel
                     case ControlChangeEvent evt: parts.AddRange([$"{(int)evt.Controller}:{MidiDefs.Controllers.GetName((int)evt.Controller)}", $"value:{evt.ControllerValue}"]); break;
                     case PitchWheelChangeEvent evt: /*parts.AddRange([evt.Pitch, ""]);*/ break;
                     case TextEvent evt: parts.AddRange([evt.Text, evt.Data.Length]); break;
@@ -84,24 +79,24 @@ namespace Ephemera.MidiLibEx
                 contentText.Add(sparts);
             }
 
-            File.WriteAllLines(outFileName, contentText);
+            File.WriteAllLines(fn, contentText);
         }
 
         /// <summary>
         /// Export pattern parts to individual midi files. This is as the events appear in the original file.
         /// </summary>
-        /// <param name="outFileName">Where to boss?</param>
+        /// <param name="fn">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>
         /// <param name="channels">Specific channnels.</param>
         /// <param name="meta">File meta data to include.</param>
-        public static void ExportMidiX(string outFileName, PatternInfo pattern, IEnumerable<OutputChannel> channels, Dictionary<string, int> meta)
+        public static void ExportMidi(string fn, PatternInfo pattern, List<int> channels, Dictionary<string, int> meta)
         {
             // Init output file contents.
             int ppq = meta["DeltaTicksPerQuarterNote"];
             MidiEventCollection outColl = new(1, ppq);
             IList<MidiEvent> outEvents = outColl.AddTrack();
 
-            List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
+            // List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
 
             // Build the event collection.
             outEvents.Add(new TempoEvent(0, 0) { Tempo = pattern.Tempo });
@@ -112,11 +107,11 @@ namespace Ephemera.MidiLibEx
                 outEvents.Add(new TimeSignatureEvent(0, pattern.TimeSignature.num, pattern.TimeSignature.denom, 24, 8));
             }
 
-            // Patches.
-            pattern.GetChannels(true, true).ForEach(p => { outEvents.Add(new PatchChangeEvent(0, p.chnum, p.patch)); });
+            // // Patches.
+            // pattern.GetChannels(true, true).ForEach(p => { outEvents.Add(new PatchChangeEvent(0, p.chnum, p.patch)); });
 
             // Gather the midi events for the pattern ordered by time.
-            var events = pattern.GetFilteredEvents(channelNumbers);
+            var events = pattern.GetFilteredEvents(channels);
             events?.ForEach(e => { outEvents.Add(e); });
 
             // Add end track.
@@ -125,17 +120,17 @@ namespace Ephemera.MidiLibEx
             outEvents.Add(endt);
 
             // Use NAudio function to create out file.
-            MidiFile.Export(outFileName, outColl);
+            MidiFile.Export(fn, outColl);
         }
 
         /// <summary>
-        /// Export the contents in a text piano roll.
+        /// Export the contents as a text piano roll.
         /// </summary>
-        /// <param name="outFileName">Where to boss?</param>
+        /// <param name="fn">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>
         /// <param name="channels">Specific channnels.</param>
         /// <param name="meta">File meta data to include.</param>
-        public static void ExportPianoRollX(string outFileName, PatternInfo pattern, IEnumerable<OutputChannel> channels, Dictionary<string, int> meta)
+        public static void ExportPianoRoll(string fn, PatternInfo pattern, List<int> channels, Dictionary<string, int> meta)
         {
 
             // /// Get all events at a specific scaled time.
@@ -184,19 +179,51 @@ namespace Ephemera.MidiLibEx
             11 |    .   |        |    .   |    .   |    .   |        |    .   |    .   |
             12 |        |     . .|        |     . .|        |     . .|        |     . .|
 
+
+
+
+AbsoluteTime,DeltaTime,Event ,Channel,Content1,Content2
+1152        ,0        ,NoteOn,3      ,66      ,91
+1536        ,1536     ,NoteOn,2      ,62      ,100
+1536        ,0        ,NoteOn,2      ,59      ,100
+1536        ,0        ,NoteOn,2      ,66      ,100
+3072        ,1536     ,NoteOn,2      ,66      ,0
+3072        ,0        ,NoteOn,2      ,59      ,0
+3072        ,0        ,NoteOn,2      ,62      ,0
+3072        ,0        ,NoteOn,2      ,64      ,100
+3072        ,0        ,NoteOn,2      ,61      ,100
+3072        ,0        ,NoteOn,2      ,57      ,100
+4032        ,820      ,NoteOn,3      ,66      ,0
+4224        ,0        ,NoteOn,3      ,66      ,91
+4608        ,1536     ,NoteOn,2      ,57      ,0
+4608        ,0        ,NoteOn,2      ,61      ,0
+4608        ,0        ,NoteOn,2      ,64      ,0
+4608        ,0        ,NoteOn,2      ,59      ,100
+4608        ,0        ,NoteOn,2      ,52      ,100
+4608        ,0        ,NoteOn,2      ,56      ,100
+7296        ,0        ,NoteOn,3      ,66      ,91
+7680        ,3072     ,NoteOn,2      ,56      ,0
+7680        ,0        ,NoteOn,2      ,52      ,0
+7680        ,0        ,NoteOn,2      ,59      ,0
+7680        ,0        ,NoteOn,2      ,62      ,100
+7680        ,0        ,NoteOn,2      ,59      ,100
+7680        ,0        ,NoteOn,2      ,66      ,100
+7680        ,4        ,NoteOn,3      ,66      ,0
+
+
             */
 
 
 
-            // Selections.
-            List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
-            //channels.ForEach(ch => { contentText.Add($"0,0,Patch,0,{ch.Patch},{ch.PatchName}"); });
+            // // Selections.
+            // List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
+            // //channels.ForEach(ch => { contentText.Add($"0,0,Patch,0,{ch.Patch},{ch.PatchName}"); });
 
             List<string> contentText = [];
 
 
             // Midi events.
-            foreach (var mevt in pattern.GetFilteredEvents(channelNumbers))
+            foreach (var mevt in pattern.GetFilteredEvents(channels))
             {
                 // Boilerplate.
                 List<object> parts =
@@ -214,7 +241,7 @@ namespace Ephemera.MidiLibEx
                     case TempoEvent evt: parts.AddRange([evt.Tempo, evt.MicrosecondsPerQuarterNote]); break;
                     case TimeSignatureEvent evt: parts.AddRange([evt.TimeSignature, ""]); break;
                     case KeySignatureEvent evt: parts.AddRange([evt.SharpsFlats, evt.MajorMinor]); break;
-                    case PatchChangeEvent evt: parts.AddRange([evt.Patch, "???"]); break; // TODO get patch name from channel
+                    case PatchChangeEvent evt: parts.AddRange([evt.Patch, "???"]); break; // TODO1 get patch name from channel
                     case ControlChangeEvent evt: parts.AddRange([$"{(int)evt.Controller}:{MidiDefs.Controllers.GetName((int)evt.Controller)}", $"value:{evt.ControllerValue}"]); break;
                     case PitchWheelChangeEvent evt: /*parts.AddRange([evt.Pitch, ""]);*/ break;
                     case TextEvent evt: parts.AddRange([evt.Text, evt.Data.Length]); break;
@@ -232,7 +259,7 @@ namespace Ephemera.MidiLibEx
                 contentText.Add(sparts);
             }
 
-            File.WriteAllLines(outFileName, contentText);
+            File.WriteAllLines(fn, contentText);
         }
     }
 }
