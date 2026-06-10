@@ -33,6 +33,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Remove="Stuff.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="NAudio" Version="2.1.0" />
         <PackageReference Include="NAudio.Midi" Version="2.1.0" />
         <PackageReference Include="System.Drawing.Common" Version="6.0.0" />

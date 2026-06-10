@@ -18,28 +18,9 @@ namespace Ephemera.MidiLibEx
     public class MidiDataFile
     {
         #region Fields
-
-
-
         /// <summary>All the file pattern sections. Plain midi files will have only one, unnamed.</summary>
         readonly List<Pattern> _patterns = [];
-
-
-
-
-        ///// <summary>Currently collecting this pattern.</summary>
-        //Pattern? _currentPatternX = null;// new("", 0);
-        //#endregion
-
-
-
-        ///// <summary>Currently collecting this track.</summary>
-        //Track? _currentTrackX = null;
-
         #endregion
-
-
-
 
         #region Constants
         /// <summary>Supported file types.</summary>
@@ -50,9 +31,6 @@ namespace Ephemera.MidiLibEx
         #endregion
 
         #region Properties
-        ///// <summary>Current file.</summary>
-        //public string FileName { get; private set; } = "";
-
         /// <summary>It's a style file.</summary>
         public bool IsStyleFile { get; private set; } = false;
 
@@ -64,12 +42,6 @@ namespace Ephemera.MidiLibEx
 
         /// <summary>Original resolution for all events.</summary>
         public int DeltaTicksPerQuarterNote { get; private set; } = 0;
-
-        ///// <summary>Tempo supplied by file.</summary>
-        //public int Tempo { get; private set; } = 0;
-
-        ///// <summary>Time signature, if supplied by file. Default is 4/4.</summary>
-        //public (int num, int denom) TimeSignature { get; set; } = (4, 2);
         #endregion
 
         #region Public functions
@@ -81,13 +53,13 @@ namespace Ephemera.MidiLibEx
         public void Read(string fn, bool includeNoisy)
         {
             // Sanity checks.
-            if(_patterns.Any()) { throw new InvalidOperationException($"Already processed - delete me first"); }
+            if (_patterns.Any()) { throw new InvalidOperationException($"Already processed - delete me first"); }
 
             // Currently collecting this pattern.
             Pattern? pattern = null;
 
             // Currently collecting this track.
-            Track? track = null;
+            Track? track;
 
             IsStyleFile = STYLE_FILE_TYPES.Contains(Path.GetExtension(fn), StringComparison.CurrentCultureIgnoreCase);
             bool done = false;
@@ -114,18 +86,10 @@ namespace Ephemera.MidiLibEx
                         break;
 
                     case "MTrk": // start a track
-                        if (pattern is null)
-                        {
-                            throw new InvalidOperationException($"Missing MThd section");
-                        }
+                        if (pattern is null) { throw new InvalidOperationException($"Missing MThd section"); }
 
-                        if (track is not null)
-                        {
-                            // Finish old one.
-                            pattern.AddTrack(track);
-                        }
-                        track = new();
-                        ReadMTrk(br, track, includeNoisy);
+                        // Do new track.
+                        track = ReadMTrk(br, includeNoisy);
                         pattern.AddTrack(track);
                         break;
 
@@ -136,13 +100,16 @@ namespace Ephemera.MidiLibEx
                     case "Cntt":
                     case "OTSc":
                     case "FNRc":
-                        // Ignore others for now.
+                        // Skip others for now.
                         uint chunkSize = ReadStream(br, 4);
                         br.ReadBytes((int)chunkSize);
                         break;
 
                     default:
-                        throw new InvalidOperationException($"Invalid section [{sectionName}]");
+                        //throw new InvalidOperationException($"Invalid section [{sectionName}]");
+                        //TODO1 sometimes other stuff at the end of the file.
+                        done = true;
+                        break;
                 }
             }
 
@@ -209,11 +176,7 @@ namespace Ephemera.MidiLibEx
         void ReadMThd(BinaryReader br)
         {
             uint chunkSize = ReadStream(br, 4);
-
-            if (chunkSize != 6)
-            {
-                throw new InvalidOperationException("Unexpected header chunk length");
-            }
+            if (chunkSize != 6) { throw new InvalidOperationException("Unexpected header chunk length"); }
 
             MidiFileType = (int)ReadStream(br, 2);
             NumTracks = (int)ReadStream(br, 2);
@@ -227,8 +190,9 @@ namespace Ephemera.MidiLibEx
         /// <param name="track"></param>
         /// <param name="includeNoisy">Include events like controller changes, pitch wheel, ...</param>
         /// <returns></returns>
-        int ReadMTrk(BinaryReader br, Track track, bool includeNoisy)
+        Track ReadMTrk(BinaryReader br, bool includeNoisy)
         {
+            Track track = new();
             uint chunkSize = ReadStream(br, 4);
             long startPos = br.BaseStream.Position;
             int absoluteTime = 0;
@@ -249,52 +213,52 @@ namespace Ephemera.MidiLibEx
                 {
                     ///// Standard midi events /////
                     case NoteOnEvent evt:
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         break;
 
                     case NoteEvent evt: // usually NoteOff
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         break;
 
                     case PatchChangeEvent evt:
                         track.SetChannelPatch(evt.Channel, evt.Patch);
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         break;
 
                     case ControlChangeEvent evt when includeNoisy:
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         break;
 
                     case PitchWheelChangeEvent evt when includeNoisy:
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         break;
 
                     case SysexEvent evt when includeNoisy:
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         break;
 
                     ///// Meta events /////
                     case TempoEvent evt:
                         var tempo = (int)Math.Round(evt.Tempo);
                         track.Tempo = tempo;
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         break;
 
                     case TimeSignatureEvent evt:
-                        //1:1:0 0 TimeSignature 4 / 4 TicksInClick: 24 32ndsInQuarterNote: 8
+                        // 1:1:0 0 TimeSignature 4 / 4 TicksInClick: 24 32ndsInQuarterNote: 8
                         track.TimeSignature = (evt.Numerator, evt.Denominator);
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         break;
 
                     case KeySignatureEvent evt:
-                        //1:1:0 0 KeySignature C major
+                        // 1:1:0 0 KeySignature C major
                         track.SharpsFlats = evt.SharpsFlats;
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         break;
 
                     case TextEvent evt when evt.MetaEventType == MetaEventType.SequenceTrackName:
                         track.Name = evt.Text;
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         break;
 
                     case TextEvent evt when evt.MetaEventType == MetaEventType.Marker:
@@ -357,7 +321,7 @@ namespace Ephemera.MidiLibEx
 
                     case MetaEvent evt when evt.MetaEventType == MetaEventType.EndTrack:
                         // Indicates end of current midi track.
-                        AddMidiEventX(evt);
+                        AddMidiEvent(evt);
                         foundEndTrack = true;
                         break;
 
@@ -368,12 +332,12 @@ namespace Ephemera.MidiLibEx
             }
 
             ///// Local function. /////
-            void AddMidiEventX(MidiEvent evt)
+            void AddMidiEvent(MidiEvent evt)
             {
                 track.AddEvent(evt);
             }
 
-            return absoluteTime;
+            return track;
         }
         #endregion
 
@@ -425,7 +389,7 @@ namespace Ephemera.MidiLibEx
             //                    if (vc.patch == -1)
             //                    {
             //                        var newp = pdefault.GetPatch(vc.chnum);
-            //                        if(newp == -1)
+            //                        if (newp == -1)
             //                        {
             //                            pdefault.RemoveChannel(vc.chnum);
             //                        }

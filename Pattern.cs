@@ -19,23 +19,23 @@ namespace Ephemera.MidiLibEx
     public class Pattern
     {
         #region Fields
-        /// <summary>All the pattern midi events.</summary>
-        readonly List<MidiEvent> _events = [];
+        ///// <summary>All the pattern midi events.</summary>
+        //readonly List<MidiEvent> _events = [];
 
-        /// <summary>All the pattern midi events, key is when to play (scaled/internal time).</summary>
-        readonly Dictionary<long, List<MidiEvent>> _eventsByTime = [];
+        ///// <summary>All the pattern midi events, key is when to play (scaled/internal time).</summary>
+        //readonly Dictionary<long, List<MidiEvent>> _eventsByTime = [];
 
         /// <summary>For scaling midi ticks to internal.</summary>
         readonly MidiTimeConverter _mt;
 
-        /// <summary>Collection of all channels in this pattern. Key is channel number, value is associated patch.</summary>
-        readonly Dictionary<int, int> _channelPatches = [];
+        ///// <summary>Collection of all channels in this pattern. Key is channel number, value is associated patch.</summary>
+        //readonly Dictionary<int, int> _channelPatches = [];
 
-        /// <summary>Channels with real notes.</summary>
-        readonly HashSet<int> _hasNotes = [];
+        ///// <summary>Channels with real notes.</summary>
+        //readonly HashSet<int> _hasNotes = [];
 
-        /// <summary>Max length of all sequences in midi ticks.</summary>
-        long _maxTick = 0;
+        ///// <summary>Max length of all sequences in midi ticks.</summary>
+        //long _maxTick = 0;
         #endregion
 
         #region Properties
@@ -126,7 +126,7 @@ namespace Ephemera.MidiLibEx
         //     List<(int chnum, int patch)> ps = [];
         //     // Assemble results from filters.
         //     bool any = hasNotes ? _events.Where(e => e is NoteOnEvent).Any() : _events.Any();
-        //     if(any)
+        //     if (any)
         //     {
         //         _channelPatches
         //             .Where(n => !hasPatch || n.Value != -1)
@@ -178,7 +178,7 @@ namespace Ephemera.MidiLibEx
         // /// <returns></returns>
         // public override string ToString()
         // {
-        //     var pname = Name == "" ? "nameless" : Name;
+        //     var pname = Name == "" ? "nonamec" : Name;
         //     var s = $"{pname} tempo:{Tempo} timesig:{TimeSignature} channels:{_channelPatches.Count}";
         //     //ValidPatches.ForEach(p => content.Add($"Ch:{p.Key} Patch:{MidiDefs.GetInstrumentName(p.Value)}"));
 
@@ -191,7 +191,7 @@ namespace Ephemera.MidiLibEx
         /// <returns></returns>
         public override string ToString()
         {
-            var pname = Name == "" ? "nameless" : Name;
+            var pname = Name == "" ? "noname" : Name;
             var s = $"{pname}";
             //var s = $"{pname} tempo:{Tempo} timesig:{TimeSignature} channels:{_channelPatches.Count}";
             //ValidPatches.ForEach(p => content.Add($"Ch:{p.Key} Patch:{MidiDefs.GetInstrumentName(p.Value)}"));

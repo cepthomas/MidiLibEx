@@ -54,17 +54,6 @@ namespace Ephemera.MidiLibEx
         //public int Length { get { return _mt.MidiToInternal(_maxTick, true); } }
         #endregion
 
-        ///// <summary>
-        ///// Normal constructor.
-        ///// </summary>
-        ///// <param name="name">Track name</param>
-        ///// <param name="ppq">Resolution</param>
-        //public Track(string name, int ppq)
-        //{
-        //    Name = name;
-        //    _mt = new(ppq);
-        //}
-
         /// <summary>
         /// Add an event to the collection.
         /// </summary>
@@ -101,7 +90,7 @@ namespace Ephemera.MidiLibEx
         }
 
         /// <summary>
-        /// Get all events at a specific scaled time. <<<<<<<<<<<<<<<????????????????
+        /// Get all events at a specific scaled time. TODO1
         /// </summary>
         /// <param name="when"></param>
         /// <returns></returns>
@@ -112,7 +101,7 @@ namespace Ephemera.MidiLibEx
         }
 
         /// <summary>
-        /// Get an ordered list of channels and their patches.
+        /// Get an ordered list of channels and their patches. TODO1
         /// </summary>
         /// <param name="hasNotes">Must have noteons.</param>
         /// <param name="hasPatch">Must have valid patch.</param>
@@ -122,7 +111,7 @@ namespace Ephemera.MidiLibEx
             List<(int chnum, int patch)> ps = [];
             // Assemble results from filters.
             bool any = hasNotes ? _events.Where(e => e is NoteOnEvent).Any() : _events.Any();
-            if(any)
+            if (any)
             {
                 _channelPatches
                     .Where(n => !hasPatch || n.Value != -1)
@@ -175,7 +164,7 @@ namespace Ephemera.MidiLibEx
         /// <returns></returns>
         public override string ToString()
         {
-            var pname = Name == "" ? "nameless" : Name;
+            var pname = Name;// == "" ? "nameless" : Name;
             var s = $"{pname}";
             //var s = $"{pname} tempo:{Tempo} timesig:{TimeSignature} channels:{_channelPatches.Count}";
             //ValidPatches.ForEach(p => content.Add($"Ch:{p.Key} Patch:{MidiDefs.GetInstrumentName(p.Value)}"));

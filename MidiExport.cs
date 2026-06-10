@@ -66,23 +66,11 @@ namespace Ephemera.MidiLibEx
             // 92:4:0 140928 NoteOn Ch: 2 G#4 Vel:100 Len: 3072
             // 94:4:0 144000 EndTrack
 
-
-
-
-
-
-
-            // // Selections.
-            // List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
-
             // Midi events.
             var pname = pattern.Name == "" ? "NoName" : pattern.Name;
             //contentText.Add($"0,0,Pattern,0,name:{pname},tempo:{pattern.Tempo}");
             //contentText.Add($"0,0,Pattern,0,name:{pname},timesig:{pattern.TimeSignature}");
-
             // channels.ForEach(ch => { contentText.Add($"0,0,Patch,0,{ch.Patch},{ch.PatchName}"); });
-
-
 
             foreach (var track in pattern.Tracks)
             {
@@ -108,14 +96,14 @@ namespace Ephemera.MidiLibEx
                         case ControlChangeEvent evt: parts.AddRange([$"{(int)evt.Controller}:{MidiDefs.Controllers.GetName((int)evt.Controller)}", $"value:{evt.ControllerValue}"]); break;
                         case PitchWheelChangeEvent evt: /*parts.AddRange([evt.Pitch, ""]);*/ break;
                         case TextEvent evt: parts.AddRange([evt.Text, evt.Data.Length]); break;
-                        //Others as needed:
-                        //case TrackSequenceNumberEvent:
-                        //case ChannelAfterTouchEvent:
-                        //case SysexEvent:
-                        //case MetaEvent:
-                        //case RawMetaEvent:
-                        //case SequencerSpecificEvent:
-                        //case SmpteOffsetEvent:
+                        // Others as needed:
+                        // TrackSequenceNumberEvent
+                        // ChannelAfterTouchEvent
+                        // SysexEvent
+                        // MetaEvent
+                        // RawMetaEvent
+                        // SequencerSpecificEvent
+                        // SmpteOffsetEvent
                         default: parts.AddRange(["other", ""]); break;
                     }
                     var sparts = string.Join(",", parts);
@@ -124,43 +112,6 @@ namespace Ephemera.MidiLibEx
             }
 
             File.WriteAllLines(fn, contentText);
-
-
-        //    foreach (var mevt in pattern.GetFilteredEvents(channels))
-        //    {
-        //        // Boilerplate.
-        //        List<object> parts =
-        //        [
-        //            mevt.AbsoluteTime,
-        //            mevt.DeltaTime,
-        //            mevt.CommandCode == MidiCommandCode.MetaEvent ? (mevt as MetaEvent)!.MetaEventType : mevt.CommandCode,
-        //            mevt.Channel
-        //        ];
-
-        //        switch (mevt)
-        //        {
-        //            case NoteOnEvent evt: parts.AddRange([evt.NoteNumber, evt.Velocity]); break;
-        //            case NoteEvent evt: parts.AddRange([evt.NoteNumber, ""]); break; // used for NoteOff
-        //            case TempoEvent evt: parts.AddRange([evt.Tempo, evt.MicrosecondsPerQuarterNote]); break;
-        //            case TimeSignatureEvent evt: parts.AddRange([evt.TimeSignature, ""]); break;
-        //            case KeySignatureEvent evt: parts.AddRange([evt.SharpsFlats, evt.MajorMinor]); break;
-        //            case PatchChangeEvent evt: parts.AddRange([evt.Patch, "???"]); break; // TODO1 get patch name from channel
-        //            case ControlChangeEvent evt: parts.AddRange([$"{(int)evt.Controller}:{MidiDefs.Controllers.GetName((int)evt.Controller)}", $"value:{evt.ControllerValue}"]); break;
-        //            case PitchWheelChangeEvent evt: /*parts.AddRange([evt.Pitch, ""]);*/ break;
-        //            case TextEvent evt: parts.AddRange([evt.Text, evt.Data.Length]); break;
-        //            case TrackSequenceNumberEvent evt: parts.AddRange([evt, ""]); break;
-        //            //Others as needed:
-        //            //case ChannelAfterTouchEvent:
-        //            //case SysexEvent:
-        //            //case MetaEvent:
-        //            //case RawMetaEvent:
-        //            //case SequencerSpecificEvent:
-        //            //case SmpteOffsetEvent:
-        //            default: parts.AddRange(["other", ""]); break;
-        //        }
-        //        var sparts = string.Join(",", parts);
-        //        contentText.Add(sparts);
-        //    }
         }
 
         /// <summary>
@@ -204,7 +155,6 @@ namespace Ephemera.MidiLibEx
             //MidiFile.Export(fn, outColl);
         }
 
-
         //public static void ExportMidi_orig(string outFileName, Pattern pattern, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
         //{
         //    // Init output file contents.
@@ -240,11 +190,6 @@ namespace Ephemera.MidiLibEx
         //}
 
 
-
-
-
-
-
         /// <summary>
         /// Export the contents as a text piano roll.
         /// </summary>
@@ -261,11 +206,6 @@ namespace Ephemera.MidiLibEx
             //     List<MidiEvent> evts = _eventsByTime.ContainsKey(when) ? _eventsByTime[when] : [];
             //     return evts;
             // }
-
-
-
-
-
 
             /***********************************************
 
@@ -303,12 +243,9 @@ namespace Ephemera.MidiLibEx
 
             */
 
-
-
             // // Selections.
             // List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
             // //channels.ForEach(ch => { contentText.Add($"0,0,Patch,0,{ch.Patch},{ch.PatchName}"); });
-
         }
     }
 }
