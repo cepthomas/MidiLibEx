@@ -20,69 +20,42 @@ using System.Runtime.CompilerServices;
 namespace Ephemera.MidiLibEx.Test
 {
     //----------------------------------------------------------------
-    internal class Common
-    {
-        //public static string OutPath { get { return MiscUtils.GetSourcePath(); } }
-
-        ///// <summary>Common file opener.</summary>
-        ///// <param name="fn">The TestAudioFiles file to open.</param>
-        //internal static MidiDataFile OpenFile(string fn, int tempo)
-        //{
-        //    //string fnPath = Path.Join(MiscUtils.GetSourcePath(), "Files", fn);
-        //    //// This needs DEV_PATH set, or hack to taste.
-        //    //var devPath = Environment.GetEnvironmentVariable("DEV_PATH");
-        //    //string fnPath = Path.Join(devPath, "Misc", "TestAudioFiles", fn);
-
-        //    var mdata = new MidiDataFile();
-        //    mdata.Read(fnPath, tempo, false);
-
-        //    var pnames = mdata.GetPatternNames();
-        //    if (pnames is null || pnames.Count == 0)
-        //    {
-        //        throw new InvalidOperationException($"Something wrong with this file: {fnPath}");
-        //    }
-
-        //    return mdata;
-        //}
-    }
-
-    //----------------------------------------------------------------
     public class MLEX_STYLE : TestSuite
     {
         public override void RunSuite()
         {
             StopOnFail(true);
-            int tempo = 100;
 
             // Style file, full info:
             var mdata = new MidiDataFile();
-            mdata.Read(Path.Join(Program.InputDir, "_LoveSong.S474.sty"), tempo, false);
+            mdata.Read(Path.Join(Program.InputDir, "_LoveSong.S474.sty"), false);
             Assert(mdata is not null);
 
             // Load the new one.
             long maxTick = 0;
             var pnames = mdata!.GetPatternNames();
-            var pinfo = mdata!.GetPattern("Main C");
-            Assert(pinfo is not null);
+            var pattern = mdata!.GetPattern("Main C");
+            Assert(pattern is not null);
 
-            foreach (var (chnum, patch) in pinfo!.GetChannels(true, true))
-            {
-                // Get events for the channel.
-                var channelEvents = pinfo.GetFilteredEvents([chnum]);
-                maxTick = Math.Max(channelEvents.Last().AbsoluteTime, maxTick);
+            //TODO1 these:::
+            //foreach (var (chnum, patch) in pattern!.GetChannels(true, true))
+            //{
+            //    // Get events for the channel.
+            //    var channelEvents = pattern.GetFilteredEvents([chnum]);
+            //    maxTick = Math.Max(channelEvents.Last().AbsoluteTime, maxTick);
 
-                Info($"chnum:{chnum} patch:{patch} events:{channelEvents.Count()}");
-            }
+            //    Info($"chnum:{chnum} patch:{patch} events:{channelEvents.Count()}");
+            //}
 
-            Info($"maxTick:{maxTick}");
+            //Info($"maxTick:{maxTick}");
 
-            int now = 22;
-            var events = pinfo.GetEventsWhen(now);
+            //int now = 22;
+            //var events = pattern.GetEventsWhen(now);
 
-            foreach (var mevt in events)
-            {
-                // tests???...
-            }
+            //foreach (var mevt in events)
+            //{
+            //    // tests???...
+            //}
         }
     }
 
@@ -93,11 +66,10 @@ namespace Ephemera.MidiLibEx.Test
         public override void RunSuite()
         {
             StopOnFail(true);
-            int tempo = 100;
 
             // Simple midi file:
             var mdata = new MidiDataFile();
-            mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"), tempo, false);
+            mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"), false);
 
             var numtr = mdata!.NumTracks; // 10
             var pnames = mdata.GetPatternNames(); // one: ""

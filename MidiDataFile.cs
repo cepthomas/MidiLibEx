@@ -18,15 +18,28 @@ namespace Ephemera.MidiLibEx
     public class MidiDataFile
     {
         #region Fields
-        /// <summary>Include events like controller changes, pitch wheel, ...</summary>
-        bool _includeNoisy = false;
+
+
 
         /// <summary>All the file pattern sections. Plain midi files will have only one, unnamed.</summary>
-        readonly List<PatternInfo> _patterns = [];
+        readonly List<Pattern> _patterns = [];
 
-        /// <summary>Currently collecting this pattern.</summary>
-        PatternInfo _currentPattern = new("", 0);
+
+
+
+        ///// <summary>Currently collecting this pattern.</summary>
+        //Pattern? _currentPatternX = null;// new("", 0);
+        //#endregion
+
+
+
+        ///// <summary>Currently collecting this track.</summary>
+        //Track? _currentTrackX = null;
+
         #endregion
+
+
+
 
         #region Constants
         /// <summary>Supported file types.</summary>
@@ -37,8 +50,8 @@ namespace Ephemera.MidiLibEx
         #endregion
 
         #region Properties
-        /// <summary>Current file.</summary>
-        public string FileName { get; private set; } = "";
+        ///// <summary>Current file.</summary>
+        //public string FileName { get; private set; } = "";
 
         /// <summary>It's a style file.</summary>
         public bool IsStyleFile { get; private set; } = false;
@@ -52,11 +65,11 @@ namespace Ephemera.MidiLibEx
         /// <summary>Original resolution for all events.</summary>
         public int DeltaTicksPerQuarterNote { get; private set; } = 0;
 
-        /// <summary>Tempo supplied by file.</summary>
-        public int Tempo { get; private set; } = 0;
+        ///// <summary>Tempo supplied by file.</summary>
+        //public int Tempo { get; private set; } = 0;
 
-        /// <summary>Time signature, if supplied by file. Default is 4/4.</summary>
-        public (int num, int denom) TimeSignature { get; set; } = (4, 2);
+        ///// <summary>Time signature, if supplied by file. Default is 4/4.</summary>
+        //public (int num, int denom) TimeSignature { get; set; } = (4, 2);
         #endregion
 
         #region Public functions
@@ -64,68 +77,80 @@ namespace Ephemera.MidiLibEx
         /// Read a file.
         /// </summary>
         /// <param name="fn">The file to open.</param>
-        /// <param name="defaultTempo">Specified by client in case not in the file.</param>
-        /// <param name="includeNoisy"></param>
-        public void Read(string fn, int defaultTempo, bool includeNoisy)
+        /// <param name="includeNoisy">Include events like controller changes, pitch wheel, ...</param>
+        public void Read(string fn, bool includeNoisy)
         {
-            if(_patterns.Any())
-            {
-                throw new InvalidOperationException($"Already processed - delete me first");
-            }
+            // Sanity checks.
+            if(_patterns.Any()) { throw new InvalidOperationException($"Already processed - delete me first"); }
 
-            FileName = fn;
-            Tempo = defaultTempo; 
-            _includeNoisy = includeNoisy;
+            // Currently collecting this pattern.
+            Pattern? pattern = null;
+
+            // Currently collecting this track.
+            Track? track = null;
+
             IsStyleFile = STYLE_FILE_TYPES.Contains(Path.GetExtension(fn), StringComparison.CurrentCultureIgnoreCase);
+            bool done = false;
 
             using var br = new BinaryReader(File.OpenRead(fn));
-            bool done = false;
 
             while (!done)
             {
-                var sectionName = Encoding.UTF8.GetString(br.ReadBytes(4));
+                var bytes = br.ReadBytes(4);
+                if (bytes.Length != 4)
+                {
+                    done = true;
+                    break;
+                }
+
+                var sectionName = Encoding.UTF8.GetString(bytes);
 
                 switch (sectionName)
                 {
                     case "MThd":
                         ReadMThd(br);
                         // Always at least one pattern. Plain midi has just one, style has multiple.
-                        _currentPattern = new("", DeltaTicksPerQuarterNote);
+                        pattern = new("", DeltaTicksPerQuarterNote);
                         break;
-                    case "MTrk":
-                        ReadMTrk(br);
+
+                    case "MTrk": // start a track
+                        if (pattern is null)
+                        {
+                            throw new InvalidOperationException($"Missing MThd section");
+                        }
+
+                        if (track is not null)
+                        {
+                            // Finish old one.
+                            pattern.AddTrack(track);
+                        }
+                        track = new();
+                        ReadMTrk(br, track, includeNoisy);
+                        pattern.AddTrack(track);
                         break;
+
                     case "CASM":
-                        ReadCASM(br);
-                        break;
                     case "CSEG":
-                        ReadCSEG(br);
-                        break;
                     case "Sdec":
-                        ReadSdec(br);
-                        break;
                     case "Ctab":
-                        ReadCtab(br);
-                        break;
                     case "Cntt":
-                        ReadCntt(br);
-                        break;
                     case "OTSc":
-                        // One Touch Setting section
-                        ReadOTSc(br);
-                        break;
                     case "FNRc":
-                        // MDB (Music Finder) section
-                        ReadFNRc(br);
+                        // Ignore others for now.
+                        uint chunkSize = ReadStream(br, 4);
+                        br.ReadBytes((int)chunkSize);
                         break;
+
                     default:
-                        done = true;
-                        break;
+                        throw new InvalidOperationException($"Invalid section [{sectionName}]");
                 }
             }
 
             // Save last one.
-            _patterns.Add(_currentPattern);
+            if (pattern is not null)
+            {
+                _patterns.Add(pattern);
+            }
 
             // Fix up gaps.
             CleanUpPatterns();
@@ -136,9 +161,9 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="name">Which</param>
         /// <returns>The pattern. Throws if name not found.</returns>
-        public PatternInfo GetPattern(string name)
+        public Pattern GetPattern(string name)
         {
-            var pinfo = _patterns.Where(p => p.PatternName == name);
+            var pinfo = _patterns.Where(p => p.Name == name);
             if (pinfo is not null && pinfo.Any())
             {
                 return pinfo.First();
@@ -155,7 +180,7 @@ namespace Ephemera.MidiLibEx
         /// <returns>List of names.</returns>
         public List<string> GetPatternNames()
         {
-            var names = _patterns.Select(p => p.PatternName).ToList();
+            var names = _patterns.Select(p => p.Name).ToList();
             return names;
         }
 
@@ -187,7 +212,7 @@ namespace Ephemera.MidiLibEx
 
             if (chunkSize != 6)
             {
-                throw new NotSupportedException("Unexpected header chunk length");
+                throw new InvalidOperationException("Unexpected header chunk length");
             }
 
             MidiFileType = (int)ReadStream(br, 2);
@@ -199,212 +224,156 @@ namespace Ephemera.MidiLibEx
         /// Read a midi track chunk.
         /// </summary>
         /// <param name="br"></param>
+        /// <param name="track"></param>
+        /// <param name="includeNoisy">Include events like controller changes, pitch wheel, ...</param>
         /// <returns></returns>
-        int ReadMTrk(BinaryReader br)
+        int ReadMTrk(BinaryReader br, Track track, bool includeNoisy)
         {
             uint chunkSize = ReadStream(br, 4);
             long startPos = br.BaseStream.Position;
             int absoluteTime = 0;
 
+            bool foundEndTrack = false;
+
             // Read all midi events.
-            MidiEvent? me = null; // current event
+            MidiEvent me = new(0, 16, 0); // current event
             while (br.BaseStream.Position < startPos + chunkSize)
             {
-                //_lastStreamPos = br.BaseStream.Position;
+                if (foundEndTrack) { throw new InvalidOperationException("Events past end of track"); }
 
                 me = MidiEvent.ReadNextEvent(br, me);
                 absoluteTime += me.DeltaTime;
                 me.AbsoluteTime = absoluteTime;
 
-                // Style file patterns:
-                // - nameless has: tempo, time signature, copyright. 
-                // - SFF1/SFF2 has: SequenceTrackName, ???.
-                // - SInt has: default patches, ???.
-                // Plain midi file has one only pattern - nameless.
-
                 switch (me)
                 {
                     ///// Standard midi events /////
                     case NoteOnEvent evt:
-                        AddMidiEvent(evt);
+                        AddMidiEventX(evt);
                         break;
 
                     case NoteEvent evt: // usually NoteOff
-                        AddMidiEvent(evt);
+                        AddMidiEventX(evt);
                         break;
 
                     case PatchChangeEvent evt:
-                        // Save the pattern patch.
-                        _currentPattern.SetChannelPatch(evt.Channel, evt.Patch);
-                        if (_currentPattern.PatternName == "SInt")
-                        {
-                            // Style file section - save to default pattern.
-                            GetPattern("").SetChannelPatch(evt.Channel, evt.Patch);
-                        }
-                        AddMidiEvent(evt);
+                        track.SetChannelPatch(evt.Channel, evt.Patch);
+                        AddMidiEventX(evt);
                         break;
 
-                    case ControlChangeEvent evt when _includeNoisy:
-                        AddMidiEvent(evt);
+                    case ControlChangeEvent evt when includeNoisy:
+                        AddMidiEventX(evt);
                         break;
 
-                    case PitchWheelChangeEvent evt when _includeNoisy:
-                        AddMidiEvent(evt);
+                    case PitchWheelChangeEvent evt when includeNoisy:
+                        AddMidiEventX(evt);
                         break;
 
-                    case SysexEvent evt when _includeNoisy:
-                        AddMidiEvent(evt);
+                    case SysexEvent evt when includeNoisy:
+                        AddMidiEventX(evt);
                         break;
 
                     ///// Meta events /////
-                    case TrackSequenceNumberEvent evt:
-                        AddMidiEvent(evt);
-                        break;
-
                     case TempoEvent evt:
                         var tempo = (int)Math.Round(evt.Tempo);
-                        _currentPattern.Tempo = tempo;
-                        if (_currentPattern.PatternName == "")
-                        {
-                            Tempo = tempo;
-                        }
-                        AddMidiEvent(evt);
+                        track.Tempo = tempo;
+                        AddMidiEventX(evt);
                         break;
 
                     case TimeSignatureEvent evt:
-                        _currentPattern.TimeSignature = (evt.Numerator, evt.Denominator);
-                        if (_currentPattern.PatternName == "")
-                        {
-                            TimeSignature = (evt.Numerator, evt.Denominator);
-                        }
-                        AddMidiEvent(evt);
+                        //1:1:0 0 TimeSignature 4 / 4 TicksInClick: 24 32ndsInQuarterNote: 8
+                        track.TimeSignature = (evt.Numerator, evt.Denominator);
+                        AddMidiEventX(evt);
                         break;
 
                     case KeySignatureEvent evt:
-                        AddMidiEvent(evt);
+                        //1:1:0 0 KeySignature C major
+                        track.SharpsFlats = evt.SharpsFlats;
+                        AddMidiEventX(evt);
                         break;
 
                     case TextEvent evt when evt.MetaEventType == MetaEventType.SequenceTrackName:
-                        AddMidiEvent(evt);
+                        track.Name = evt.Text;
+                        AddMidiEventX(evt);
                         break;
 
                     case TextEvent evt when evt.MetaEventType == MetaEventType.Marker:
-                        // This optional event is used to label points within a sequence, e.g. rehearsal letters, loop points, or section
-                        // names (such as 'First verse'). For a format 1 MIDI file, Marker Meta events should only occur within the first MTrk chunk.
-
-                        if (IsStyleFile)
+                        // This optional event is used to label points within a sequence, e.g. rehearsal letters,
+                        // loop points, or section names (such as 'First verse'). For a format 1 MIDI file,
+                        // Marker Meta events should only occur within the first MTrk chunk.
+                        if (IsStyleFile && _patterns.Count == 0)
                         {
-                            // Indicates start of a new midi pattern. Save current.
-                            _patterns.Add(_currentPattern);
+                            //The midi section is midi type 0, which means that there is one midi track.
 
-                            // Start a new pattern.
-                            _currentPattern = new PatternInfo(evt.Text, DeltaTicksPerQuarterNote) {  Tempo = Tempo };
-                            absoluteTime = 0;
-                            AddMidiEvent(evt);
+
+                            //In the first measure there is a marker event which informs about the version of the style file
+                            //format.Currently there are two different marker values:
+                            //• SFF1
+                            //• SFF2 New format introduced with the Tyros 3 keyboard(Sept. 2008).
+                            //Also named “SFF GE”.
+                            //The only difference is the new “Cbt2” sctructure described in chapter 4.6.3.2
+                            //SFF1 format files that are loaded into instruments that support SFF2 are automatically
+                            //converted to SFF2.
+
+                            //The following midi data has to be completed in the first measure of the midi data.Usually all
+                            //events are on measure 1, beat 1, tick 0(1:01:000).It is important that they are located in the
+                            //file in the sequence as mentioned below.
+                            //Initial data: The first commands after the midi track header are usually time signature, tempo
+                            //and copyright(optional). Time Signature is used to determine the metronome behavior and
+                            //perhaps the score display; its value does not affect the play back of the note events. This is
+                            //determined by the time values associated with the note on-off events.The tempo sets the
+                            //default tempo of the instrument.
+                            //SFF1 or SFF2: This marker must come before the SInt marker. It is followed by the
+                            //StyleName, which is a Meta Event identified by ID = 3(see Table 6).The length of meta text
+                            //events(except copyright) usually is limited in practice to a size which fits in a PSR display
+                            //field.In factory styles, StyleName is generally followed by sysex events that define the style
+                            //(see Table 30).The importance of these sysex is not understood.
+
+                            //SInt: The SInt marker must be after the above data and is generally followed by Midi On,
+                            //Controller and Program Change Midi Events necessary to initialize the midi channels and
+                            //sysex to set up the DSP
+
+                            //???????????
+                            //// Indicates start of a new midi pattern. Save current.
+                            //if (_currentTrack is not null)
+                            //{
+                            //    _currentPattern.AddTrack(_currentTrack);
+                            //    _currentTrack = null;
+                            //}
+                            //_patterns.Add(_currentPattern);
+
+                            //// Start a new pattern.
+                            //_currentPattern = new Pattern(evt.Text, DeltaTicksPerQuarterNote);// {  Tempo = Tempo };
+                            //absoluteTime = 0;
+
+                            //AddMidiEvent(evt);
                         }
                         else
                         {
                             // Simple add if one only pattern.
-                            AddMidiEvent(evt);
+                            //AddMidiEvent(evt);
                         }
-                        break;
-
-                    case TextEvent evt when evt.MetaEventType == MetaEventType.TextEvent:
-                        AddMidiEvent(evt);
                         break;
 
                     case MetaEvent evt when evt.MetaEventType == MetaEventType.EndTrack:
                         // Indicates end of current midi track.
-                        AddMidiEvent(evt);
-                        break;
-
-                    case MetaEvent evt:
-                        // Other meta?
-                        Console.WriteLine($"MetaEvent:{evt}");
+                        AddMidiEventX(evt);
+                        foundEndTrack = true;
                         break;
 
                     default:
-                        // Add to taste.
+                        // Other? Add to taste.
                         break;
                 }
             }
 
             ///// Local function. /////
-            void AddMidiEvent(MidiEvent evt)
+            void AddMidiEventX(MidiEvent evt)
             {
-                _currentPattern.AddEvent(evt);
+                track.AddEvent(evt);
             }
 
             return absoluteTime;
-        }
-
-        /// <summary>
-        /// Read the CASM section of a style file.
-        /// </summary>
-        /// <param name="br"></param>
-        void ReadCASM(BinaryReader br)
-        {
-            /*uint chunkSize =*/ ReadStream(br, 4);
-        }
-
-        /// <summary>
-        /// Read the CSEG section of a style file.
-        /// </summary>
-        /// <param name="br"></param>
-        void ReadCSEG(BinaryReader br)
-        {
-            /*uint chunkSize =*/ ReadStream(br, 4);
-        }
-
-        /// <summary>
-        /// Read the Sdec section of a style file.
-        /// </summary>
-        /// <param name="br"></param>
-        void ReadSdec(BinaryReader br)
-        {
-            uint chunkSize = ReadStream(br, 4);
-            br.ReadBytes((int)chunkSize);
-        }
-
-        /// <summary>
-        /// Read the Ctab section of a style file.
-        /// </summary>
-        /// <param name="br"></param>
-        void ReadCtab(BinaryReader br)
-        {
-            // Has some key and chord info.
-            uint chunkSize = ReadStream(br, 4);
-            br.ReadBytes((int)chunkSize);
-        }
-
-        /// <summary>
-        /// Read the Cntt section of a style file.
-        /// </summary>
-        /// <param name="br"></param>
-        void ReadCntt(BinaryReader br)
-        {
-            uint chunkSize = ReadStream(br, 4);
-            br.ReadBytes((int)chunkSize);
-        }
-
-        /// <summary>
-        /// Read the OTSc section of a style file.
-        /// </summary>
-        /// <param name="br"></param>
-        void ReadOTSc(BinaryReader br)
-        {
-            uint chunkSize = ReadStream(br, 4);
-            br.ReadBytes((int)chunkSize);
-        }
-
-        /// <summary>
-        /// Read the FNRc section of a style file.
-        /// </summary>
-        /// <param name="br"></param>
-        void ReadFNRc(BinaryReader br)
-        {
-            uint chunkSize = ReadStream(br, 4);
-            br.ReadBytes((int)chunkSize);
         }
         #endregion
 
@@ -412,81 +381,81 @@ namespace Ephemera.MidiLibEx
         /// <summary>
         /// Fill in any missing pattern info using defaults.
         /// </summary>
-        void CleanUpPatterns()
+        void CleanUpPatterns() // TODO1 needed???
         {
             // TODO auto-determine which channel(s) have drums?
             // Drum channels will probably have the most notes. Also durations will be short.
             // Could also remember user's reassignments in the settings file.
 
-            var pdefault = GetPattern("");
+            //var pdefault = GetPattern("");
 
-            if (IsStyleFile)
-            {
-                // Get the always present nameless pattern.
+            //if (IsStyleFile)
+            //{
+            //    // Get the always present nameless pattern.
 
-                // Delete unneeded stuff.
-                List<PatternInfo> toRemove = [];
+            //    // Delete unneeded stuff.
+            //    List<Pattern> toRemove = [];
 
-                foreach (var p in _patterns)
-                {
-                    switch(p.PatternName)
-                    {
-                        case "SFF1":
-                        case "SFF2":
-                        case "SInt":
-                        case "":
-                            toRemove.Add(p);
-                            break;
+            //    foreach (var p in _patterns)
+            //    {
+            //        switch(p.Name)
+            //        {
+            //            case "SFF1":
+            //            case "SFF2":
+            //            case "SInt":
+            //            case "":
+            //                toRemove.Add(p);
+            //                break;
 
-                        default:
-                            // Update missing properties.
-                            if (p.Tempo == 0) // not specified.
-                            {
-                                p.Tempo = Tempo;
-                            }
+            //            default:
+            //                // Update missing properties.
+            //                if (p.Tempo == 0) // not specified.
+            //                {
+            //                    p.Tempo = Tempo;
+            //                }
 
-                            if (p.TimeSignature == (0, 0)) // not specified.
-                            {
-                                p.TimeSignature = TimeSignature;
-                            }
+            //                if (p.TimeSignature == (0, 0)) // not specified.
+            //                {
+            //                    p.TimeSignature = TimeSignature;
+            //                }
 
-                            // Make sure a patch is supplied.
-                            p.GetChannels(true, false).ForEach(vc =>
-                            {
-                                if (vc.patch == -1)
-                                {
-                                    var newp = pdefault.GetPatch(vc.chnum);
-                                    if(newp == -1)
-                                    {
-                                        pdefault.RemoveChannel(vc.chnum);
-                                    }
-                                    else
-                                    {
-                                        p.SetChannelPatch(vc.chnum, newp);
-                                    }
-                                }
-                            });
-                            break;
-                    }
-                }
+            //                // Make sure a patch is supplied.
+            //                p.GetChannels(true, false).ForEach(vc =>
+            //                {
+            //                    if (vc.patch == -1)
+            //                    {
+            //                        var newp = pdefault.GetPatch(vc.chnum);
+            //                        if(newp == -1)
+            //                        {
+            //                            pdefault.RemoveChannel(vc.chnum);
+            //                        }
+            //                        else
+            //                        {
+            //                            p.SetChannelPatch(vc.chnum, newp);
+            //                        }
+            //                    }
+            //                });
+            //                break;
+            //        }
+            //    }
 
-                toRemove.ForEach(p => _patterns.Remove(p));
-            }
-            else
-            {
-                // Simple midi file. Handle corner cases.
+            //    toRemove.ForEach(p => _patterns.Remove(p));
+            //}
+            //else
+            //{
+            //    // Simple midi file. Handle corner cases.
 
-                // Some files are missing patch info.
-                pdefault.GetChannels(true, false).ForEach(vc =>
-                {
-                    var newp = pdefault.GetPatch(vc.chnum);
-                    if (newp == -1)
-                    {
-                        // Force to default.
-                        pdefault.SetChannelPatch(vc.chnum, 0);
-                    }
-                });
-            }
+            //    // Some files are missing patch info.
+            //    pdefault.GetChannels(true, false).ForEach(vc =>
+            //    {
+            //        var newp = pdefault.GetPatch(vc.chnum);
+            //        if (newp == -1)
+            //        {
+            //            // Force to default.
+            //            pdefault.SetChannelPatch(vc.chnum, 0);
+            //        }
+            //    });
+            //}
         }
 
         /// <summary>
@@ -503,7 +472,7 @@ namespace Ephemera.MidiLibEx
             {
                 2 => MiscUtils.FixEndian(br.ReadUInt16()),
                 4 => MiscUtils.FixEndian(br.ReadUInt32()),
-                _ => throw new NotSupportedException("Unsupported read size"),
+                _ => throw new InvalidOperationException("Unsupported read size"),
             };
             return i;
         }

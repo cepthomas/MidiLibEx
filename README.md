@@ -44,13 +44,10 @@ a plain midi file.
 There's tons of styles and technical info at https://psrtutorial.com/. An overview taken from `StyleFileDescription_v21.pdf`:
 
 > A style is a special form of a type 0 midi file followed by several information sections.
-> 
-> Internally, a style starts by specifying the tempo, the time signature and the copyright followed by several sections that are defined
-> by marker events.
-> 
-> The first two sections, SFF1 (or SFF2) and SInt, occupying the first measure of the midi part, include a Midi On plus midi commands to
-> setup the default instruments.
-> 
+> Internally, a style starts by specifying the tempo, the time signature and the copyright followed by several sections
+> that are defined by marker events.
+> The first two sections, SFF1 (or SFF2) and SInt, occupying the first measure of the midi part, include a Midi On
+> plus midi commands to setup the default instruments.
 > Each of the other markers (Intro A, Main B, etc) defines musical patterns that are triggered by the keying chords.
 
 

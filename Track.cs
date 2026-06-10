@@ -13,20 +13,19 @@ using Ephemera.MidiLib;
 namespace Ephemera.MidiLibEx
 {
     /// <summary>
-    /// Represents the contents of a midi file pattern.
-    /// If it is a plain midi file (not style) there will be one only.
+    /// Represents the contents of a midi track.
     /// </summary>
-    public class PatternInfo
+    public class Track
     {
         #region Fields
         /// <summary>All the pattern midi events.</summary>
         readonly List<MidiEvent> _events = [];
 
-        /// <summary>All the pattern midi events, key is when to play (scaled/internal time).</summary>
-        readonly Dictionary<long, List<MidiEvent>> _eventsByTime = [];
+        ///// <summary>All the pattern midi events, key is when to play (scaled/internal time).</summary>
+        //readonly Dictionary<long, List<MidiEvent>> _eventsByTime = [];
 
-        /// <summary>For scaling midi ticks to internal.</summary>
-        readonly MidiTimeConverter _mt;
+        ///// <summary>For scaling midi ticks to internal.</summary>
+        //readonly MidiTimeConverter _mt;
 
         /// <summary>Collection of all channels in this pattern. Key is channel number, value is associated patch.</summary>
         readonly Dictionary<int, int> _channelPatches = [];
@@ -39,29 +38,32 @@ namespace Ephemera.MidiLibEx
         #endregion
 
         #region Properties
-        /// <summary>Pattern name. Empty indicates single pattern aka plain midi file.</summary>
-        public string PatternName { get; init; } = "";
+        /// <summary>Track name.</summary>
+        public string Name { get; set; } = "";
 
-        /// <summary>Tempo, if supplied by file. Default indicates invalid which will be filled in during read.</summary>
+        /// <summary>Tempo.</summary>
         public int Tempo { get; set; } = 0;
 
-        /// <summary>Time signature, if supplied by file.</summary>
+        /// <summary>Key signature.</summary>
+        public int SharpsFlats { get; set; } = -1;
+
+        /// <summary>Time signature.</summary>
         public (int num, int denom) TimeSignature { get; set; } = new();
 
-        /// <summary>Length of all sequences in scaled/internal time.</summary>
-        public int Length { get { return _mt.MidiToInternal(_maxTick, true); } }
+        ///// <summary>Length of all sequences in scaled/internal time.</summary>
+        //public int Length { get { return _mt.MidiToInternal(_maxTick, true); } }
         #endregion
 
-        /// <summary>
-        /// Normal constructor.
-        /// </summary>
-        /// <param name="name">Pattern name</param>
-        /// <param name="ppq">Resolution</param>
-        public PatternInfo(string name, int ppq)
-        {
-            PatternName = name;
-            _mt = new(ppq);
-        }
+        ///// <summary>
+        ///// Normal constructor.
+        ///// </summary>
+        ///// <param name="name">Track name</param>
+        ///// <param name="ppq">Resolution</param>
+        //public Track(string name, int ppq)
+        //{
+        //    Name = name;
+        //    _mt = new(ppq);
+        //}
 
         /// <summary>
         /// Add an event to the collection.
@@ -80,8 +82,9 @@ namespace Ephemera.MidiLibEx
 
             // Scale time and add to collections.
             _events.Add(evt); // all
-            int scTime = _mt!.MidiToInternal(evt.AbsoluteTime, true); 
-            _eventsByTime.Add(scTime, evt);
+
+            //int scTime = _mt!.MidiToInternal(evt.AbsoluteTime, true); 
+            //_eventsByTime.Add(scTime, evt);
 
             _maxTick = Math.Max(_maxTick, evt.AbsoluteTime);
         }
@@ -98,13 +101,13 @@ namespace Ephemera.MidiLibEx
         }
 
         /// <summary>
-        /// Get all events at a specific scaled time.
+        /// Get all events at a specific scaled time. <<<<<<<<<<<<<<<????????????????
         /// </summary>
         /// <param name="when"></param>
         /// <returns></returns>
         public IEnumerable<MidiEvent> GetEventsWhen(int when)
         {
-            List<MidiEvent> evts = _eventsByTime.ContainsKey(when) ? _eventsByTime[when] : [];
+            List<MidiEvent> evts = [];// _eventsByTime.ContainsKey(when) ? _eventsByTime[when] : [];
             return evts;
         }
 
@@ -172,8 +175,9 @@ namespace Ephemera.MidiLibEx
         /// <returns></returns>
         public override string ToString()
         {
-            var pname = PatternName == "" ? "nameless" : PatternName;
-            var s = $"{pname} tempo:{Tempo} timesig:{TimeSignature} channels:{_channelPatches.Count}";
+            var pname = Name == "" ? "nameless" : Name;
+            var s = $"{pname}";
+            //var s = $"{pname} tempo:{Tempo} timesig:{TimeSignature} channels:{_channelPatches.Count}";
             //ValidPatches.ForEach(p => content.Add($"Ch:{p.Key} Patch:{MidiDefs.GetInstrumentName(p.Value)}"));
 
             return s;
