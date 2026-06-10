@@ -104,32 +104,22 @@ namespace Ephemera.MidiLibEx.Test
             var pinfo = mdata.GetPattern("");
 
             // Get selected channels. 
-            List<int> all = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-            List<int> some = [2, 3];
 
-// mini copy/AsyncIteratorMethodBuilder for midi
+            // TODO1 mini copy script for midi
 
-            //var sdev = "nullout:test1";
-            //MidiManager.Instance.OpenOutputChannel(sdev, 2, "chan2", "RockOrgan");
-            //MidiManager.Instance.OpenOutputChannel(sdev, 3, "chan3", "VoiceOohs");
+            // Execute the export function.
+            var glob = mdata.GetGlobal();
 
-            // Execute the requested export function.
-            var newfn = Path.Join(Program.OutputDir, "simple_midi_all");
-          //  var newfn = MakeExportFileName(Common.OutPath, mdata.FileName, "all", "csv");
-            MidiExport.ExportCsv($"{newfn}.csv", pinfo, all, mdata.GetGlobal());
+            var fn1 = Path.Join(Program.OutputDir, "simple_midi_all");
+            List<int> chs1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+            MidiExport.ExportCsv($"{fn1}.csv", pinfo, chs1, glob);
+            MidiExport.ExportMidi($"{fn1}.mid", pinfo, chs1, glob);
 
-       //     newfn = MakeExportFileName(Program.OutputDir, mdata.FileName, "", "mid");
-            MidiExport.ExportMidi($"{newfn}.mid", pinfo, all, mdata.GetGlobal());
+            //var fn2 = Path.Join(Program.OutputDir, "simple_midi_some");
+            //List<int> chs2 = [1, 2, 3];
+            //MidiExport.ExportCsv($"{fn2}.csv", pinfo, chs2, glob);
+            //MidiExport.ExportMidi($"{fn2}.mid", pinfo, chs2, glob);
 
-            //string MakeExportFileName(string path, string baseFn, string mod, string ext)
-            //{
-            //    string name = Path.GetFileNameWithoutExtension(baseFn);
-            //    // Clean the file name.
-            //    name = name.Replace('.', '-').Replace(' ', '_');
-            //    mod = mod == "" ? "default" : mod.Replace(' ', '_');
-            //    var newfn = Path.Join(path, $"{name}_{mod}.{ext}");
-            //    return newfn;
-            //}
         }
     }
 

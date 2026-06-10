@@ -33,7 +33,7 @@ namespace Ephemera.MidiLibEx
         public const string MIDI_FILE_TYPES = "*.mid";
 
         /// <summary>Supported file types.</summary>
-        public const string STYLE_FILE_TYPES = "*.sty;*.pcs;*.sst;*.prs;*.bcs;*.yjz";
+        public const string STYLE_FILE_TYPES = "*.sty;*.fps;*.pcs;*.sst;*.pst;*.prs;*.bcs;*.yjz";
         #endregion
 
         #region Properties

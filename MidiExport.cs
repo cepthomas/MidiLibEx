@@ -123,6 +123,47 @@ namespace Ephemera.MidiLibEx
             MidiFile.Export(fn, outColl);
         }
 
+
+        public static void ExportMidi_orig(string outFileName, PatternInfo pattern, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
+        {
+            // Init output file contents.
+            int ppq = global["DeltaTicksPerQuarterNote"];
+            MidiEventCollection outColl = new(1, ppq);
+            IList<MidiEvent> outEvents = outColl.AddTrack();
+
+            List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
+
+            // Build the event collection.
+            outEvents.Add(new TempoEvent(0, 0) { Tempo = pattern.Tempo });
+            outEvents.Add(new TextEvent($"Export {pattern.PatternName}", MetaEventType.TextEvent, 0));
+
+            if (pattern.TimeSignature == (0, 0))
+            {
+                outEvents.Add(new TimeSignatureEvent(0, pattern.TimeSignature.num, pattern.TimeSignature.denom, 24, 8));
+            }
+
+            // Patches.
+            pattern.GetChannels(true, true).ForEach(p => { outEvents.Add(new PatchChangeEvent(0, p.chnum, p.patch)); });
+
+            // Gather the midi events for the pattern ordered by time.
+            var events = pattern.GetFilteredEvents(channelNumbers);
+            events?.ForEach(e => { outEvents.Add(e); });
+
+            // Add end track.
+            long ltime = outEvents.Last().AbsoluteTime;
+            var endt = new MetaEvent(MetaEventType.EndTrack, 0, ltime);
+            outEvents.Add(endt);
+
+            // Use NAudio function to create out file.
+            MidiFile.Export(outFileName, outColl);
+        }
+
+
+
+
+
+
+
         /// <summary>
         /// Export the contents as a text piano roll.
         /// </summary>
