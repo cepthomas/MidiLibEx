@@ -10,7 +10,6 @@ using Ephemera.NBagOfTricks;
 using Ephemera.MidiLib;
 
 
-
 namespace Ephemera.MidiLibEx
 {
     /// <summary>
@@ -24,87 +23,52 @@ namespace Ephemera.MidiLibEx
         /// <param name="fn">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>
         /// <param name="channels">Specific channnels.</param>
-        /// <param name="meta">File meta data to include.</param>
-        public static void ExportCsv(string fn, Pattern pattern, List<int> channels, Dictionary<string, int> meta)
+        /// <param name="header">File header data to include.</param>
+        public static void ExportCsv(string fn, Pattern pattern, List<int> channels, Header header)
         {
             // Collect output text.
-            List<string> contentText = ["AbsoluteTime,DeltaTime,Event,Channel,Content1,Content2"];
-
-            // Any globals. TODO1 client puts patch info in meta??
-            meta.ForEach(m => contentText.Add($"0,0,Global,0,{m.Key}:{m.Value},"));
-
-
-            // PATTERN =====>>>>>
-            // TRACK =====>>>>>
-            // 1:1:0 0 SequencerSpecific 00 00 41
-            // 1:1:0 0 TimeSignature 4/4 TicksInClick:24 32ndsInQuarterNote:8
-            // 1:1:0 0 KeySignature C major
-            // 1:1:0 0 SetTempo 100bpm (600000)
-            // 1:1:0 0 EndTrack
-            // TRACK =====>>>>>
-            // 1:1:0 0 MidiPort 00
-            // 1:1:0 0 SequenceTrackName BASS
-            // 1:1:0 0 PatchChange Ch: 1 Electric Bass(finger)
-            // 1:1:0 0 ControlChange Ch: 1 Controller MainVolume Value 127
-            // 1:1:0 0 ControlChange Ch: 1 Controller BankSelect Value 0
-            // 1:1:0 0 ControlChange Ch: 1 Controller 91 Value 127
-            // 1:1:0 0 ControlChange Ch: 1 Controller 93 Value 127
-            // 2:1:0 1536 NoteOn Ch: 1 B2 Vel:75 Len: 448
-            // .......
-            // 92:4:0 140928 NoteOn Ch: 1 E2 Vel:75 Len: 3176
-            // 94:4:104 144104 EndTrack
-            // TRACK =====>>>>>
-            // 1:1:0 0 MidiPort 00
-            // 1:1:0 0 SequenceTrackName CHIOR PAD
-            // 1:1:0 0 PatchChange Ch: 2 Synth Voice
-            // 1:1:0 0 ControlChange Ch: 2 Controller MainVolume Value 100
-            // 1:1:0 0 ControlChange Ch: 2 Controller BankSelect Value 0
-            // 1:1:0 0 ControlChange Ch: 2 Controller 91 Value 123
-            // 1:1:0 0 ControlChange Ch: 2 Controller 93 Value 74
-            // 2:1:0 1536 NoteOn Ch: 2 D5 Vel:100 Len: 1536
-            // .......
-            // 92:4:0 140928 NoteOn Ch: 2 G#4 Vel:100 Len: 3072
-            // 94:4:0 144000 EndTrack
+            List<string> contentText =
+            [
+                $"AbsoluteTime,DeltaTime,Event,Channel,Content1,Content2",
+                $"0,0,Header,0,MidiFileType,{header.MidiFileType}",
+                $"0,0,Header,0,NumTracks,{header.NumTracks}",
+                $"0,0,Header,0,DeltaTicksPerQuarterNote,{header.DeltaTicksPerQuarterNote}"
+            ];
 
             // Midi events.
-            var pname = pattern.Name == "" ? "NoName" : pattern.Name;
-            //contentText.Add($"0,0,Pattern,0,name:{pname},tempo:{pattern.Tempo}");
-            //contentText.Add($"0,0,Pattern,0,name:{pname},timesig:{pattern.TimeSignature}");
-            // channels.ForEach(ch => { contentText.Add($"0,0,Patch,0,{ch.Patch},{ch.PatchName}"); });
-
-            foreach (var track in pattern.Tracks)
+            for (int i = 0; i < pattern.Tracks.Count; i++)
             {
+                var track = pattern.Tracks[i];
+
+                // Don't include only-meta tracks except first.
+                if (track.NumStandard == 0 && i != 0) { continue; }
+
                 foreach (var mevt in track.GetFilteredEvents(channels))
                 {
                     // Boilerplate.
+                    var isMeta = mevt.CommandCode == MidiCommandCode.MetaEvent;
                     List<object> parts =
                     [
                         mevt.AbsoluteTime,
                         mevt.DeltaTime,
-                        mevt.CommandCode == MidiCommandCode.MetaEvent ? (mevt as MetaEvent)!.MetaEventType : mevt.CommandCode,
-                        mevt.Channel
+                        isMeta ? (mevt as MetaEvent)!.MetaEventType : mevt.CommandCode,
+                        isMeta ? 0 : mevt.Channel
                     ];
 
                     switch (mevt)
                     {
                         case NoteOnEvent evt: parts.AddRange([evt.NoteNumber, evt.Velocity]); break;
-                        case NoteEvent evt: parts.AddRange([evt.NoteNumber, ""]); break; // used for NoteOff
+                        case NoteEvent evt: parts.AddRange([evt.NoteNumber, ""]); break;
                         case TempoEvent evt: parts.AddRange([evt.Tempo, evt.MicrosecondsPerQuarterNote]); break;
                         case TimeSignatureEvent evt: parts.AddRange([evt.TimeSignature, ""]); break;
                         case KeySignatureEvent evt: parts.AddRange([evt.SharpsFlats, evt.MajorMinor]); break;
-                        case PatchChangeEvent evt: parts.AddRange([evt.Patch, "???"]); break; // TODO1 get patch name from channel
-                        case ControlChangeEvent evt: parts.AddRange([$"{(int)evt.Controller}:{MidiDefs.Controllers.GetName((int)evt.Controller)}", $"value:{evt.ControllerValue}"]); break;
+                        case PatchChangeEvent evt: parts.AddRange([evt.Patch, MidiDefs.Instruments.GetName(evt.Patch)]); break; // TODO doesn't handle alternate banks
+                        case ControlChangeEvent evt: parts.AddRange([evt.Controller, MidiDefs.Controllers.GetName((int)evt.Controller)]); break;
                         case PitchWheelChangeEvent evt: /*parts.AddRange([evt.Pitch, ""]);*/ break;
-                        case TextEvent evt: parts.AddRange([evt.Text, evt.Data.Length]); break;
-                        // Others as needed:
-                        // TrackSequenceNumberEvent
-                        // ChannelAfterTouchEvent
-                        // SysexEvent
-                        // MetaEvent
-                        // RawMetaEvent
-                        // SequencerSpecificEvent
-                        // SmpteOffsetEvent
-                        default: parts.AddRange(["other", ""]); break;
+                        case TextEvent evt: parts.AddRange([evt.Text, ""]); break;
+                        // Others as needed: TrackSequenceNumberEvent, ChannelAfterTouchEvent, SysexEvent,
+                        // MetaEvent, RawMetaEvent, SequencerSpecificEvent, SmpteOffsetEvent
+                        default: parts.AddRange(["", ""]); break;
                     }
                     var sparts = string.Join(",", parts);
                     contentText.Add(sparts);
@@ -120,84 +84,42 @@ namespace Ephemera.MidiLibEx
         /// <param name="fn">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>
         /// <param name="channels">Specific channnels.</param>
-        /// <param name="meta">File meta data to include.</param>
-        public static void ExportMidi(string fn, Pattern pattern, List<int> channels, Dictionary<string, int> meta)
+        /// <param name="header">File header data to include.</param>
+        public static void ExportMidi(string fn, Pattern pattern, List<int> channels, Header header)
         {
-            //// Init output file contents.
-            //int ppq = meta["DeltaTicksPerQuarterNote"];
-            //MidiEventCollection outColl = new(1, ppq);
-            //IList<MidiEvent> outEvents = outColl.AddTrack();
+            // Init output file contents.
+            int ppq = header.DeltaTicksPerQuarterNote;
+            MidiEventCollection outColl = new(1, ppq);
 
-            //// List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
+            for (int i = 0; i < pattern.Tracks.Count; i++)
+            {
+                var track = pattern.Tracks[i];
 
-            //// Build the event collection.
-            //outEvents.Add(new TempoEvent(0, 0) { Tempo = pattern.Tempo });
-            //outEvents.Add(new TextEvent($"Export {pattern.Name}", MetaEventType.TextEvent, 0));
+                // Don't include only-meta tracks except first.
+                if (track.NumStandard == 0 && i != 0) { continue; }
 
-            //if (pattern.TimeSignature != (0, 0))
-            //{
-            //    outEvents.Add(new TimeSignatureEvent(0, pattern.TimeSignature.num, pattern.TimeSignature.denom, 24, 8));
-            //}
+                // Build the event collection.
+                IList<MidiEvent> outEvents = outColl.AddTrack();
+                var events = track.GetFilteredEvents(channels);
+                events?.ForEach(e => { outEvents.Add(e); });
+                //// Add end track.
+                //long ltime = outEvents.Last().AbsoluteTime;
+                //var endt = new MetaEvent(MetaEventType.EndTrack, 0, ltime);
+                //outEvents.Add(endt);
+            }
 
-            //// // Patches.
-            //// pattern.GetChannels(true, true).ForEach(p => { outEvents.Add(new PatchChangeEvent(0, p.chnum, p.patch)); });
-
-            //// Gather the midi events for the pattern ordered by time.
-            //var events = pattern.GetFilteredEvents(channels);
-            //events?.ForEach(e => { outEvents.Add(e); });
-
-            //// Add end track.
-            //long ltime = outEvents.Last().AbsoluteTime;
-            //var endt = new MetaEvent(MetaEventType.EndTrack, 0, ltime);
-            //outEvents.Add(endt);
-
-            //// Use NAudio function to create out file.
-            //MidiFile.Export(fn, outColl);
+            // Use NAudio function to create out file.
+            MidiFile.Export(fn, outColl);
         }
 
-        //public static void ExportMidi_orig(string outFileName, Pattern pattern, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
-        //{
-        //    // Init output file contents.
-        //    int ppq = global["DeltaTicksPerQuarterNote"];
-        //    MidiEventCollection outColl = new(1, ppq);
-        //    IList<MidiEvent> outEvents = outColl.AddTrack();
-
-        //    List<int> channelNumbers = [.. channels.Select(cc => cc.ChannelNumber)];
-
-        //    // Build the event collection.
-        //    outEvents.Add(new TempoEvent(0, 0) { Tempo = pattern.Tempo });
-        //    outEvents.Add(new TextEvent($"Export {pattern.PatternName}", MetaEventType.TextEvent, 0));
-
-        //    if (pattern.TimeSignature == (0, 0))
-        //    {
-        //        outEvents.Add(new TimeSignatureEvent(0, pattern.TimeSignature.num, pattern.TimeSignature.denom, 24, 8));
-        //    }
-
-        //    // Patches.
-        //    pattern.GetChannels(true, true).ForEach(p => { outEvents.Add(new PatchChangeEvent(0, p.chnum, p.patch)); });
-
-        //    // Gather the midi events for the pattern ordered by time.
-        //    var events = pattern.GetFilteredEvents(channelNumbers);
-        //    events?.ForEach(e => { outEvents.Add(e); });
-
-        //    // Add end track.
-        //    long ltime = outEvents.Last().AbsoluteTime;
-        //    var endt = new MetaEvent(MetaEventType.EndTrack, 0, ltime);
-        //    outEvents.Add(endt);
-
-        //    // Use NAudio function to create out file.
-        //    MidiFile.Export(outFileName, outColl);
-        //}
-
-
         /// <summary>
-        /// Export the contents as a text piano roll.
+        /// Export the contents as a text piano roll. TODO1
         /// </summary>
         /// <param name="fn">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>
         /// <param name="channels">Specific channnels.</param>
-        /// <param name="meta">File meta data to include.</param>
-        public static void ExportPianoRoll(string fn, Pattern pattern, List<int> channels, Dictionary<string, int> meta)
+        /// <param name="header">File header data to include.</param>
+        public static void ExportPianoRoll(string fn, Pattern pattern, List<int> channels, Header header)
         {
 
             // /// Get all events at a specific scaled time.

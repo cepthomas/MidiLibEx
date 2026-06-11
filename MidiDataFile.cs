@@ -12,6 +12,23 @@ using Ephemera.NBagOfTricks;
 namespace Ephemera.MidiLibEx
 {
     /// <summary>
+    /// Contents of MThd section.
+    /// </summary>
+    public class Header
+    {
+        /// <summary>What midi type is it.</summary>
+        public int MidiFileType { get; set; } = 0;
+
+        /// <summary>How many tracks.</summary>
+        public int NumTracks { get; set; } = 0;
+
+        /// <summary>Original resolution for all events.</summary>
+        public int DeltaTicksPerQuarterNote { get; set; } = 0;
+
+        // >>>>> Format 1, Tracks 10, Delta Ticks Per Quarter Note 384
+    }
+
+    /// <summary>
     /// Represents one complete collection of midi events from a file - standard midi or yamaha style files.
     /// Writes subsets to various output formats.
     /// </summary>
@@ -34,15 +51,23 @@ namespace Ephemera.MidiLibEx
         /// <summary>It's a style file.</summary>
         public bool IsStyleFile { get; private set; } = false;
 
-        /// <summary>What midi type is it.</summary>
-        public int MidiFileType { get; private set; } = 0;
+        /// <summary>It's a style file.</summary>
+        public Header Header { get; private set; } = new();
 
-        /// <summary>How many tracks.</summary>
-        public int NumTracks { get; private set; } = 0;  // TODO1 Properly handle tracks from original files?
 
-        /// <summary>Original resolution for all events.</summary>
-        public int DeltaTicksPerQuarterNote { get; private set; } = 0;
+
+//////// TODO1 should these be in Pattern or MidiDataFile? see what style file does.
+// current state of parsing. not sure if useful or not...
+        /// <summary>Tempo if provided in file track.</summary>
+        public int Tempo { get; set; } = 0;
+
+        /// <summary>Key signature if provided in file track.</summary>
+        public int SharpsFlats { get; set; } = -1;
+
+        /// <summary>Time signature if provided in file track.</summary>
+        public (int num, int denom) TimeSignature { get; set; } = new();
         #endregion
+
 
         #region Public functions
         /// <summary>
@@ -82,7 +107,7 @@ namespace Ephemera.MidiLibEx
                     case "MThd":
                         ReadMThd(br);
                         // Always at least one pattern. Plain midi has just one, style has multiple.
-                        pattern = new("", DeltaTicksPerQuarterNote);
+                        pattern = new("", Header.DeltaTicksPerQuarterNote);
                         break;
 
                     case "MTrk": // start a track
@@ -107,7 +132,7 @@ namespace Ephemera.MidiLibEx
 
                     default:
                         //throw new InvalidOperationException($"Invalid section [{sectionName}]");
-                        //TODO1 sometimes other stuff at the end of the file.
+                        //TODO1 sometimes other stuff at the end of the file - ignoring. See WICKGAME.mid.
                         done = true;
                         break;
                 }
@@ -150,22 +175,6 @@ namespace Ephemera.MidiLibEx
             var names = _patterns.Select(p => p.Name).ToList();
             return names;
         }
-
-        /// <summary>
-        /// Get common midi file meta info.
-        /// </summary>
-        /// <returns></returns>
-        public Dictionary<string, int> GetGlobal()
-        {
-            Dictionary<string, int> global = new()
-            {
-                { nameof(MidiFileType), MidiFileType },
-                { nameof(DeltaTicksPerQuarterNote), DeltaTicksPerQuarterNote },
-                { nameof(NumTracks), NumTracks }
-            };
-
-            return global;
-        }
         #endregion
 
         #region Section readers
@@ -178,18 +187,17 @@ namespace Ephemera.MidiLibEx
             uint chunkSize = ReadStream(br, 4);
             if (chunkSize != 6) { throw new InvalidOperationException("Unexpected header chunk length"); }
 
-            MidiFileType = (int)ReadStream(br, 2);
-            NumTracks = (int)ReadStream(br, 2);
-            DeltaTicksPerQuarterNote = (int)ReadStream(br, 2);
+            Header.MidiFileType = (int)ReadStream(br, 2);
+            Header.NumTracks = (int)ReadStream(br, 2);
+            Header.DeltaTicksPerQuarterNote = (int)ReadStream(br, 2);
         }
 
         /// <summary>
         /// Read a midi track chunk.
         /// </summary>
         /// <param name="br"></param>
-        /// <param name="track"></param>
         /// <param name="includeNoisy">Include events like controller changes, pitch wheel, ...</param>
-        /// <returns></returns>
+        /// <returns>New tracks</returns>
         Track ReadMTrk(BinaryReader br, bool includeNoisy)
         {
             Track track = new();
@@ -240,19 +248,19 @@ namespace Ephemera.MidiLibEx
                     ///// Meta events /////
                     case TempoEvent evt:
                         var tempo = (int)Math.Round(evt.Tempo);
-                        track.Tempo = tempo;
+                        Tempo = tempo;
                         AddMidiEvent(evt);
                         break;
 
                     case TimeSignatureEvent evt:
                         // 1:1:0 0 TimeSignature 4 / 4 TicksInClick: 24 32ndsInQuarterNote: 8
-                        track.TimeSignature = (evt.Numerator, evt.Denominator);
+                        TimeSignature = (evt.Numerator, evt.Denominator);
                         AddMidiEvent(evt);
                         break;
 
                     case KeySignatureEvent evt:
                         // 1:1:0 0 KeySignature C major
-                        track.SharpsFlats = evt.SharpsFlats;
+                        SharpsFlats = evt.SharpsFlats;
                         AddMidiEvent(evt);
                         break;
 
@@ -321,7 +329,7 @@ namespace Ephemera.MidiLibEx
 
                     case MetaEvent evt when evt.MetaEventType == MetaEventType.EndTrack:
                         // Indicates end of current midi track.
-                        AddMidiEvent(evt);
+                         AddMidiEvent(evt);
                         foundEndTrack = true;
                         break;
 
@@ -332,7 +340,7 @@ namespace Ephemera.MidiLibEx
             }
 
             ///// Local function. /////
-            void AddMidiEvent(MidiEvent evt)
+            void AddMidiEvent(MidiEvent evt)//, bool meta)
             {
                 track.AddEvent(evt);
             }
@@ -351,15 +359,11 @@ namespace Ephemera.MidiLibEx
             // Drum channels will probably have the most notes. Also durations will be short.
             // Could also remember user's reassignments in the settings file.
 
-            //var pdefault = GetPattern("");
-
             //if (IsStyleFile)
             //{
             //    // Get the always present nameless pattern.
-
             //    // Delete unneeded stuff.
             //    List<Pattern> toRemove = [];
-
             //    foreach (var p in _patterns)
             //    {
             //        switch(p.Name)
@@ -370,19 +374,16 @@ namespace Ephemera.MidiLibEx
             //            case "":
             //                toRemove.Add(p);
             //                break;
-
             //            default:
             //                // Update missing properties.
             //                if (p.Tempo == 0) // not specified.
             //                {
             //                    p.Tempo = Tempo;
             //                }
-
             //                if (p.TimeSignature == (0, 0)) // not specified.
             //                {
             //                    p.TimeSignature = TimeSignature;
             //                }
-
             //                // Make sure a patch is supplied.
             //                p.GetChannels(true, false).ForEach(vc =>
             //                {
@@ -402,13 +403,11 @@ namespace Ephemera.MidiLibEx
             //                break;
             //        }
             //    }
-
             //    toRemove.ForEach(p => _patterns.Remove(p));
             //}
             //else
             //{
             //    // Simple midi file. Handle corner cases.
-
             //    // Some files are missing patch info.
             //    pdefault.GetChannels(true, false).ForEach(vc =>
             //    {
@@ -430,8 +429,6 @@ namespace Ephemera.MidiLibEx
         /// <returns></returns>
         uint ReadStream(BinaryReader br, int size)
         {
-            //_lastStreamPos = br.BaseStream.Position;
-
             var i = size switch
             {
                 2 => MiscUtils.FixEndian(br.ReadUInt16()),

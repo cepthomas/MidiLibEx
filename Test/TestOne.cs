@@ -32,7 +32,7 @@ namespace Ephemera.MidiLibEx.Test
             Assert(mdata is not null);
 
             // Load the new one.
-            long maxTick = 0;
+ //           long maxTick = 0;
             var pnames = mdata!.GetPatternNames();
             var pattern = mdata!.GetPattern("Main C");
             Assert(pattern is not null);
@@ -71,7 +71,7 @@ namespace Ephemera.MidiLibEx.Test
             var mdata = new MidiDataFile();
             mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"), false);
 
-            var numtr = mdata!.NumTracks; // 10
+            //var numtr = mdata!.NumTracks; // 10
             var pnames = mdata.GetPatternNames(); // one: ""
             var pinfo = mdata.GetPattern("");
 
@@ -80,17 +80,17 @@ namespace Ephemera.MidiLibEx.Test
             // TODO1 mini copy script for midi
 
             // Execute the export function.
-            var glob = mdata.GetGlobal();
+            var hdr = mdata.Header;
 
             var fn1 = Path.Join(Program.OutputDir, "simple_midi_all");
             List<int> chs1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-            MidiExport.ExportCsv($"{fn1}.csv", pinfo, chs1, glob);
-            MidiExport.ExportMidi($"{fn1}.mid", pinfo, chs1, glob);
+            MidiExport.ExportCsv($"{fn1}.csv", pinfo, chs1, hdr);
+            MidiExport.ExportMidi($"{fn1}.mid", pinfo, chs1, hdr);
 
             //var fn2 = Path.Join(Program.OutputDir, "simple_midi_some");
             //List<int> chs2 = [1, 2, 3];
-            //MidiExport.ExportCsv($"{fn2}.csv", pinfo, chs2, glob);
-            //MidiExport.ExportMidi($"{fn2}.mid", pinfo, chs2, glob);
+            //MidiExport.ExportCsv($"{fn2}.csv", pinfo, chs2, hdr);
+            //MidiExport.ExportMidi($"{fn2}.mid", pinfo, chs2, hdr);
 
         }
     }
@@ -102,58 +102,6 @@ namespace Ephemera.MidiLibEx.Test
         public override void RunSuite()
         {
             StopOnFail(true);
-
-            // public class MidiDataFile
-            //     public string FileName { get; private set; } = "";
-            //     public bool IsStyleFile { get; private set; } = false;
-            //     public int MidiFileType { get; private set; } = 0;
-            //     public int NumTracks { get; private set; } = 0;// Properly handle tracks from original files?
-            //     public int DeltaTicksPerQuarterNote { get; private set; } = 0;
-            //     public int Tempo { get; private set; } = 0;
-            //     public (int num, int denom) TimeSignature { get; set; } = (4, 2);
-            //
-            //     public void Read(string fn, int defaultTempo, bool includeNoisy)
-            //     public PatternInfo GetPattern(string name)
-            //     public List<string> GetPatternNames()
-            //     public Dictionary<string, int> GetGlobal()
-            //
-            // public class MidiEventDesc
-            //     public int ChannelNumber { get { return RawEvent.Channel; } }
-            //     public string ChannelName { get; }
-            //     public long AbsoluteTime { get { return RawEvent.AbsoluteTime; } }
-            //     public int ScaledTime { get; set; } = -1;
-            //     public MidiEvent RawEvent { get; init; }
-            //     public MidiEventDesc(MidiEvent evt, string channelName)
-            //     public override string ToString()
-            //
-            // public class PatternInfo
-            //     public string PatternName { get; init; } = "";
-            //     public int Tempo { get; set; } = 0;
-            //     public (int num, int denom) TimeSignature { get; set; } = new();
-            //     public PatternInfo(string name, int tempo, int ppq) : this()
-            //     public void AddEvent(MidiEventDesc evt)
-            //     public IEnumerable<MidiEventDesc> GetFilteredEvents(IEnumerable<int> channels)
-            //     public IEnumerable<MidiEventDesc> GetEventsWhen(int when)
-            //     public IEnumerable<(int chnum, int patch)> GetChannels(bool hasNotes, bool hasPatch)
-            //     public int GetPatch(int channel)
-            //     public void RemoveChannel(int channel)
-            //     public void SetChannelPatch(int channel, int patch)
-            //     public override string ToString()
-            //
-            // public class MidiTimeConverter
-            //     public MidiTimeConverter(int midiPpq, double tempo)
-            //     public long InternalToMidi(int t)
-            //     public int MidiToInternal(long t)
-            //     public double InternalToMsec(int t)
-            //     public double MidiToSec(int t)
-            //     public double MidiPeriod()
-            //     public double InternalPeriod()
-            //     public int RoundedInternalPeriod()
-            //
-            // public class MidiExport
-            //     public static void ExportCsv(string outFileName, IEnumerable<PatternInfo> patterns, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
-            //     public static void ExportMidi(string outFileName, PatternInfo pattern, IEnumerable<OutputChannel> channels, Dictionary<string, int> global)
-            //     static string Format(MidiEventDesc evtDesc, bool is-Drums)
         }
     }
 }

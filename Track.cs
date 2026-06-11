@@ -18,16 +18,10 @@ namespace Ephemera.MidiLibEx
     public class Track
     {
         #region Fields
-        /// <summary>All the pattern midi events.</summary>
+        /// <summary>All the track midi events.</summary>
         readonly List<MidiEvent> _events = [];
 
-        ///// <summary>All the pattern midi events, key is when to play (scaled/internal time).</summary>
-        //readonly Dictionary<long, List<MidiEvent>> _eventsByTime = [];
-
-        ///// <summary>For scaling midi ticks to internal.</summary>
-        //readonly MidiTimeConverter _mt;
-
-        /// <summary>Collection of all channels in this pattern. Key is channel number, value is associated patch.</summary>
+        /// <summary>Collection of all channels in this track. Key is channel number, value is associated patch.</summary>
         readonly Dictionary<int, int> _channelPatches = [];
 
         /// <summary>Channels with real notes.</summary>
@@ -41,17 +35,8 @@ namespace Ephemera.MidiLibEx
         /// <summary>Track name.</summary>
         public string Name { get; set; } = "";
 
-        /// <summary>Tempo.</summary>
-        public int Tempo { get; set; } = 0;
-
-        /// <summary>Key signature.</summary>
-        public int SharpsFlats { get; set; } = -1;
-
-        /// <summary>Time signature.</summary>
-        public (int num, int denom) TimeSignature { get; set; } = new();
-
-        ///// <summary>Length of all sequences in scaled/internal time.</summary>
-        //public int Length { get { return _mt.MidiToInternal(_maxTick, true); } }
+        /// <summary>Standard events - not meta.</summary>
+        public int NumStandard { get; private set; } = 0;
         #endregion
 
         /// <summary>
@@ -63,6 +48,11 @@ namespace Ephemera.MidiLibEx
             // Capture that this is a valid channel. Patch will get fixed later.
             SetChannelPatch(evt.Channel, -1);
 
+            if (evt is not MetaEvent)
+            {
+                NumStandard++;
+            }
+            
             // Cache channel note info.
             if (evt is NoteOnEvent)
             {
