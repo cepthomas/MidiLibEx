@@ -24,8 +24,6 @@ namespace Ephemera.MidiLibEx
 
         /// <summary>Original resolution for all events.</summary>
         public int DeltaTicksPerQuarterNote { get; set; } = 0;
-
-        // >>>>> Format 1, Tracks 10, Delta Ticks Per Quarter Note 384
     }
 
     /// <summary>
@@ -67,6 +65,12 @@ namespace Ephemera.MidiLibEx
         public (int num, int denom) TimeSignature { get; set; } = new();
         #endregion
 
+
+        // Currently collecting this pattern.
+        Pattern? _currentPattern = null;
+
+
+
         #region Public functions
         /// <summary>
         /// Read a file.
@@ -80,14 +84,15 @@ namespace Ephemera.MidiLibEx
 
             FileName = fn;
 
-            // Currently collecting this pattern.
-            Pattern? pattern = null;
-
             // Currently collecting this track.
             Track? track;
 
             IsStyleFile = STYLE_FILE_TYPES.Contains(Path.GetExtension(fn), StringComparison.CurrentCultureIgnoreCase);
             bool done = false;
+
+
+            IsStyleFile = false;
+
 
             using var br = new BinaryReader(File.OpenRead(fn));
 
@@ -107,15 +112,15 @@ namespace Ephemera.MidiLibEx
                     case "MThd":
                         ReadMThd(br);
                         // Always at least one pattern. Plain midi has just one, style has multiple.
-                        pattern = new("", Header.DeltaTicksPerQuarterNote);
+                        _currentPattern = new("TODO1", Header.DeltaTicksPerQuarterNote);
                         break;
 
                     case "MTrk": // start a track
-                        if (pattern is null) { throw new InvalidOperationException($"Missing MThd section"); }
+                        if (_currentPattern is null) { throw new InvalidOperationException($"Missing MThd section"); }
 
                         // Do new track.
                         track = ReadMTrk(br, includeNoisy);
-                        pattern.Tracks.Add(track);
+                        _currentPattern.Tracks.Add(track);
                         break;
 
                     case "CASM":
@@ -138,9 +143,9 @@ namespace Ephemera.MidiLibEx
             }
 
             // Save last one.
-            if (pattern is not null)
+            if (_currentPattern is not null)
             {
-                _patterns.Add(pattern);
+                _patterns.Add(_currentPattern);
             }
         }
 
@@ -225,6 +230,15 @@ namespace Ephemera.MidiLibEx
                         break;
 
                     case PatchChangeEvent evt:
+                        //////// original /////////
+                        // // Save the pattern patch.
+                        // _currentPattern.SetChannelPatch(evt.Channel, evt.Patch);
+                        // if (_currentPattern.PatternName == "SInt")
+                        // {
+                        //     // Style file section - save to default pattern.
+                        //     GetPattern("").SetChannelPatch(evt.Channel, evt.Patch);
+                        // }
+
                         track.SetPatch(evt.Channel, evt.Patch);
                         AddMidiEvent(evt);
                         break;
@@ -243,12 +257,27 @@ namespace Ephemera.MidiLibEx
 
                     ///// Meta events /////
                     case TempoEvent evt:
+                        //////// original /////////
+                        // var tempo = (int)Math.Round(evt.Tempo);
+                        // _currentPattern.Tempo = tempo;
+                        // if (_currentPattern.PatternName == "")
+                        // {
+                        //     Tempo = tempo;
+                        // }
+
                         var tempo = (int)Math.Round(evt.Tempo);
                         Tempo = tempo;
                         AddMidiEvent(evt);
                         break;
 
                     case TimeSignatureEvent evt:
+                        //////// original /////////
+                        // _currentPattern.TimeSignature = (evt.Numerator, evt.Denominator);
+                        // if (_currentPattern.PatternName == "")
+                        // {
+                        //     TimeSignature = (evt.Numerator, evt.Denominator);
+                        // }
+
                         // 1:1:0 0 TimeSignature 4 / 4 TicksInClick: 24 32ndsInQuarterNote: 8
                         TimeSignature = (evt.Numerator, evt.Denominator);
                         AddMidiEvent(evt);
@@ -267,8 +296,48 @@ namespace Ephemera.MidiLibEx
 
                     case TextEvent evt when evt.MetaEventType == MetaEventType.Marker:
                         // This optional event is used to label points within a sequence, e.g. rehearsal letters,
-                        // loop points, or section names (such as 'First verse'). For a format 1 MIDI file,
-                        // Marker Meta events should only occur within the first MTrk chunk.
+                        // loop points, or section names (such as 'First verse').
+                        // For a format 1 MIDI file, Marker Meta events should only occur within the first MTrk chunk.
+                        if (IsStyleFile)
+                        {
+                            // Indicates start of a new pattern. Save current.
+                            if (_currentPattern is null) { throw new InvalidOperationException($"Missing MThd section"); }
+
+                            _patterns.Add(_currentPattern);
+
+                            // Start a new pattern.
+                            _currentPattern = new Pattern(evt.Text, Header.DeltaTicksPerQuarterNote) { Tempo = Tempo };
+                            absoluteTime = 0;
+                            AddMidiEvent(evt);
+                        }
+                        else
+                        {
+                            // Simple add if one only pattern.
+                            AddMidiEvent(evt);
+                        }
+
+
+
+                        //////// original /////////
+                        // // This optional event is used to label points within a sequence, e.g. rehearsal letters, loop points, or section
+                        // // names (such as 'First verse'). For a format 1 MIDI file, Marker Meta events should only occur within the first MTrk chunk.
+                        // if (IsStyleFile)
+                        // {
+                        //     // Indicates start of a new midi pattern. Save current.
+                        //     _patterns.Add(_currentPattern);
+                        //     // Start a new pattern.
+                        //     _currentPattern = new PatternInfo(evt.Text, DeltaTicksPerQuarterNote) {  Tempo = Tempo };
+                        //     absoluteTime = 0;
+                        //     AddMidiEvent(evt);
+                        // }
+                        // else
+                        // {
+                        //     // Simple add if one only pattern.
+                        //     AddMidiEvent(evt);
+                        // }
+
+
+                        //////// new /////////
                         if (IsStyleFile && _patterns.Count == 0)
                         {
                             //The midi section is midi type 0, which means that there is one midi track.
@@ -346,76 +415,76 @@ namespace Ephemera.MidiLibEx
         #endregion
 
         #region Private functions
-        // /// <summary>
-        // /// Fill in any missing pattern info using defaults.
-        // /// </summary>
-        // void CleanUpPatterns() // TODO1 needed???
-        // {
-        //     // TODO auto-determine which channel(s) have drums?
-        //     // Drum channels will probably have the most notes. Also durations will be short.
-        //     // Could also remember user's reassignments in the settings file.
+        /// <summary>
+        /// Fill in any missing pattern info using defaults.
+        /// </summary>
+        void CleanUpPatterns() // TODO1 needed???
+        {
+            // TODO auto-determine which channel(s) have drums?
+            // Drum channels will probably have the most notes. Also durations will be short.
+            // Could also remember user's reassignments in the settings file.
 
-        //     if (IsStyleFile)
-        //     {
-        //        // Get the always present nameless pattern.
-        //        // Delete unneeded stuff.
-        //        List<Pattern> toRemove = [];
-        //        foreach (var p in _patterns)
-        //        {
-        //            switch(p.Name)
-        //            {
-        //                case "SFF1":
-        //                case "SFF2":
-        //                case "SInt":
-        //                case "":
-        //                    toRemove.Add(p);
-        //                    break;
-        //                default:
-        //                    // Update missing properties.
-        //                    if (p.Tempo == 0) // not specified.
-        //                    {
-        //                        p.Tempo = Tempo;
-        //                    }
-        //                    if (p.TimeSignature == (0, 0)) // not specified.
-        //                    {
-        //                        p.TimeSignature = TimeSignature;
-        //                    }
-        //                    // Make sure a patch is supplied.
-        //                    p.GetChannels(true, false).ForEach(vc =>
-        //                    {
-        //                        if (vc.patch == -1)
-        //                        {
-        //                            var newp = pdefault.GetPatch(vc.chnum);
-        //                            if (newp == -1)
-        //                            {
-        //                                pdefault.RemoveChannel(vc.chnum);
-        //                            }
-        //                            else
-        //                            {
-        //                                p.SetChannelPatch(vc.chnum, newp);
-        //                            }
-        //                        }
-        //                    });
-        //                    break;
-        //            }
-        //        }
-        //        toRemove.ForEach(p => _patterns.Remove(p));
-        //     }
-        //     else
-        //     {
-        //        // Simple midi file. Handle corner cases.
-        //        // Some files are missing patch info.
-        //        pdefault.GetChannels(true, false).ForEach(vc =>
-        //        {
-        //            var newp = pdefault.GetPatch(vc.chnum);
-        //            if (newp == -1)
-        //            {
-        //                // Force to default.
-        //                pdefault.SetChannelPatch(vc.chnum, 0);
-        //            }
-        //        });
-        //     }
-        // }
+            if (IsStyleFile)
+            {
+               // Get the always present nameless pattern.
+               // Delete unneeded stuff.
+               List<Pattern> toRemove = [];
+               foreach (var p in _patterns)
+               {
+                   switch(p.Name)
+                   {
+                       case "SFF1":
+                       case "SFF2":
+                       case "SInt":
+                       case "":
+                           toRemove.Add(p);
+                           break;
+                       default:
+                           // Update missing properties.
+                           if (p.Tempo == 0) // not specified.
+                           {
+                               p.Tempo = Tempo;
+                           }
+                           if (p.TimeSignature == (0, 0)) // not specified.
+                           {
+                               p.TimeSignature = TimeSignature;
+                           }
+                           //// Make sure a patch is supplied.
+                           //p.GetChannels(true, false).ForEach(vc =>
+                           //{
+                           //    if (vc.patch == -1)
+                           //    {
+                           //        var newp = pdefault.GetPatch(vc.chnum);
+                           //        if (newp == -1)
+                           //        {
+                           //            pdefault.RemoveChannel(vc.chnum);
+                           //        }
+                           //        else
+                           //        {
+                           //            p.SetChannelPatch(vc.chnum, newp);
+                           //        }
+                           //    }
+                           //});
+                           break;
+                   }
+               }
+               toRemove.ForEach(p => _patterns.Remove(p));
+            }
+            else
+            {
+               //// Simple midi file. Handle corner cases.
+               //// Some files are missing patch info.
+               //pdefault.GetChannels(true, false).ForEach(vc =>
+               //{
+               //    var newp = pdefault.GetPatch(vc.chnum);
+               //    if (newp == -1)
+               //    {
+               //        // Force to default.
+               //        pdefault.SetChannelPatch(vc.chnum, 0);
+               //    }
+               //});
+            }
+        }
 
         /// <summary>
         /// Read a number from stream and adjust endianess.
