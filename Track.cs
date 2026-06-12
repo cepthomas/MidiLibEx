@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using NAudio.Midi;
 using Ephemera.NBagOfTricks;
-using Ephemera.MidiLib;
+//using Ephemera.MidiLib;
 
 
 namespace Ephemera.MidiLibEx
@@ -25,7 +25,7 @@ namespace Ephemera.MidiLibEx
         readonly Dictionary<int, int> _channelPatches = [];
 
         /// <summary>Channels with real notes.</summary>
-        readonly HashSet<int> _hasNotes = [];
+        readonly HashSet<int> _channelsWithNotes = [];
 
         /// <summary>Max length of all sequences in midi ticks.</summary>
         long _maxTick = 0;
@@ -56,7 +56,7 @@ namespace Ephemera.MidiLibEx
             // Cache channel note info.
             if (evt is NoteOnEvent)
             {
-                _hasNotes.Add(evt.Channel);
+                _channelsWithNotes.Add(evt.Channel);
             }
 
             // Scale time and add to collections.
@@ -73,7 +73,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="channelNumbers">Specific channnels.</param>
         /// <returns>Enumerator sorted by absolute time.</returns>
-        public IEnumerable<MidiEvent> GetFilteredEvents(IEnumerable<int> channelNumbers)
+        public IEnumerable<MidiEvent> GetFilteredEvents_X(IEnumerable<int> channelNumbers)
         {
             IEnumerable<MidiEvent> descs = _events.Where(e => channelNumbers.Contains(e.Channel)) ?? [];
             return descs.OrderBy(e => e.AbsoluteTime);
@@ -84,7 +84,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="when"></param>
         /// <returns></returns>
-        public IEnumerable<MidiEvent> GetEventsWhen(int when)
+        public IEnumerable<MidiEvent> GetEventsWhen_X(int when)
         {
             List<MidiEvent> evts = [];// _eventsByTime.ContainsKey(when) ? _eventsByTime[when] : [];
             return evts;
@@ -96,7 +96,7 @@ namespace Ephemera.MidiLibEx
         /// <param name="hasNotes">Must have noteons.</param>
         /// <param name="hasPatch">Must have valid patch.</param>
         /// <returns></returns>
-        public IEnumerable<(int chnum, int patch)> GetChannels(bool hasNotes, bool hasPatch)
+        public IEnumerable<(int chnum, int patch)> GetChannels_X(bool hasNotes, bool hasPatch)
         {
             List<(int chnum, int patch)> ps = [];
             // Assemble results from filters.
@@ -105,7 +105,7 @@ namespace Ephemera.MidiLibEx
             {
                 _channelPatches
                     .Where(n => !hasPatch || n.Value != -1)
-                    .Where(n => _hasNotes.Contains(n.Key))
+                    .Where(n => _channelsWithNotes.Contains(n.Key))
                     .OrderBy(n => n.Key)
                     .ForEach(n => { ps.Add((n.Key, n.Value)); });
             }
@@ -118,7 +118,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="channel"></param>
         /// <returns>The patch or -1 if invalid channel</returns>
-        public int GetPatch(int channel)
+        public int GetPatch_X(int channel)
         {
             return _channelPatches.TryGetValue(channel, out int value) ? value : -1;
         }
@@ -127,7 +127,7 @@ namespace Ephemera.MidiLibEx
         /// Remove a channel from the channel/patches collection.
         /// </summary>
         /// <param name="channel"></param>
-        public void RemoveChannel(int channel)
+        public void RemoveChannel_X(int channel)
         {
             _channelPatches.Remove(channel);
         }
@@ -137,7 +137,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="channel">The channel number</param>
         /// <param name="patch">The patch. Can be default -1.</param>
-        public void SetChannelPatch(int channel, int patch)
+        public void SetChannelPatch_X(int channel, int patch)
         {
             if (!_channelPatches.TryAdd(channel, patch))
             {

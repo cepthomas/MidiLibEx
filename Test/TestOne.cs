@@ -10,9 +10,9 @@ using Ephemera.MidiLib;
 using System.Runtime.CompilerServices;
 
 
-// Useful files - from https://github.com/cepthomas/NTerm/TestAudioFiles:
+// Useful files - from https://github.com/cepthomas/TestAudioFiles:
 // Style file, full info: _LoveSong.S474.sty
-// Plain midi, full song: WICKGAME.MID
+// Plain midi, full song: WICKGAME.MID (has other stuff after the last track)
 // Plain midi, one instrument, no patch: bass_ch2.mid
 // Plain midi, drums on different channel: _drums_ch1.mid
 
@@ -32,7 +32,7 @@ namespace Ephemera.MidiLibEx.Test
             Assert(mdata is not null);
 
             // Load the new one.
- //           long maxTick = 0;
+            // long maxTick = 0;
             var pnames = mdata!.GetPatternNames();
             var pattern = mdata!.GetPattern("Main C");
             Assert(pattern is not null);

@@ -59,13 +59,13 @@ namespace Ephemera.MidiLibEx
 //////// TODO1 should these be in Pattern or MidiDataFile? see what style file does.
 // current state of parsing. not sure if useful or not...
         /// <summary>Tempo if provided in file track.</summary>
-        public int Tempo { get; set; } = 0;
+        /*public*/ int Tempo { get; set; } = 0;
 
         /// <summary>Key signature if provided in file track.</summary>
-        public int SharpsFlats { get; set; } = -1;
+        /*public*/ int SharpsFlats { get; set; } = -1;
 
         /// <summary>Time signature if provided in file track.</summary>
-        public (int num, int denom) TimeSignature { get; set; } = new();
+        /*public*/ (int num, int denom) TimeSignature { get; set; } = new();
         #endregion
 
 
