@@ -41,7 +41,7 @@ namespace Ephemera.MidiLibEx
 
         #region Constants
         /// <summary>Supported file types.</summary>
-        public const string MIDI_FILE_TYPES = "*.mid";
+        public const string MIDI_FILE_TYPES = "*.mid;*.midi";
 
         /// <summary>Supported file types.</summary>
         public const string STYLE_FILE_TYPES = "*.sty;*.fps;*.pcs;*.sst;*.pst;*.prs;*.bcs;*.yjz";
@@ -49,25 +49,23 @@ namespace Ephemera.MidiLibEx
 
         #region Properties
         /// <summary>It's a style file.</summary>
+        public string FileName { get; private set; } = "???";
+
+        /// <summary>It's a style file.</summary>
         public bool IsStyleFile { get; private set; } = false;
 
         /// <summary>It's a style file.</summary>
         public Header Header { get; private set; } = new();
 
-
-
-//////// TODO1 should these be in Pattern or MidiDataFile? see what style file does.
-// current state of parsing. not sure if useful or not...
         /// <summary>Tempo if provided in file track.</summary>
-        /*public*/ int Tempo { get; set; } = 0;
+        public int Tempo { get; set; } = 100;
 
         /// <summary>Key signature if provided in file track.</summary>
-        /*public*/ int SharpsFlats { get; set; } = -1;
+        public int SharpsFlats { get; set; } = 0;
 
         /// <summary>Time signature if provided in file track.</summary>
-        /*public*/ (int num, int denom) TimeSignature { get; set; } = new();
+        public (int num, int denom) TimeSignature { get; set; } = new();
         #endregion
-
 
         #region Public functions
         /// <summary>
@@ -79,6 +77,8 @@ namespace Ephemera.MidiLibEx
         {
             // Sanity checks.
             if (_patterns.Any()) { throw new InvalidOperationException($"Already processed - delete me first"); }
+
+            FileName = fn;
 
             // Currently collecting this pattern.
             Pattern? pattern = null;
@@ -115,7 +115,7 @@ namespace Ephemera.MidiLibEx
 
                         // Do new track.
                         track = ReadMTrk(br, includeNoisy);
-                        pattern.AddTrack(track);
+                        pattern.Tracks.Add(track);
                         break;
 
                     case "CASM":
@@ -131,8 +131,7 @@ namespace Ephemera.MidiLibEx
                         break;
 
                     default:
-                        //throw new InvalidOperationException($"Invalid section [{sectionName}]");
-                        //TODO1 sometimes other stuff at the end of the file - ignoring. See WICKGAME.mid.
+                        // Sometimes there's other stuff at the end of the file - ignore.
                         done = true;
                         break;
                 }
@@ -143,9 +142,6 @@ namespace Ephemera.MidiLibEx
             {
                 _patterns.Add(pattern);
             }
-
-            // Fix up gaps.
-            CleanUpPatterns();
         }
 
         /// <summary>
@@ -229,7 +225,7 @@ namespace Ephemera.MidiLibEx
                         break;
 
                     case PatchChangeEvent evt:
-                        track.SetChannelPatch(evt.Channel, evt.Patch);
+                        track.SetPatch(evt.Channel, evt.Patch);
                         AddMidiEvent(evt);
                         break;
 
@@ -350,76 +346,76 @@ namespace Ephemera.MidiLibEx
         #endregion
 
         #region Private functions
-        /// <summary>
-        /// Fill in any missing pattern info using defaults.
-        /// </summary>
-        void CleanUpPatterns() // TODO1 needed???
-        {
-            // TODO auto-determine which channel(s) have drums?
-            // Drum channels will probably have the most notes. Also durations will be short.
-            // Could also remember user's reassignments in the settings file.
+        // /// <summary>
+        // /// Fill in any missing pattern info using defaults.
+        // /// </summary>
+        // void CleanUpPatterns() // TODO1 needed???
+        // {
+        //     // TODO auto-determine which channel(s) have drums?
+        //     // Drum channels will probably have the most notes. Also durations will be short.
+        //     // Could also remember user's reassignments in the settings file.
 
-            //if (IsStyleFile)
-            //{
-            //    // Get the always present nameless pattern.
-            //    // Delete unneeded stuff.
-            //    List<Pattern> toRemove = [];
-            //    foreach (var p in _patterns)
-            //    {
-            //        switch(p.Name)
-            //        {
-            //            case "SFF1":
-            //            case "SFF2":
-            //            case "SInt":
-            //            case "":
-            //                toRemove.Add(p);
-            //                break;
-            //            default:
-            //                // Update missing properties.
-            //                if (p.Tempo == 0) // not specified.
-            //                {
-            //                    p.Tempo = Tempo;
-            //                }
-            //                if (p.TimeSignature == (0, 0)) // not specified.
-            //                {
-            //                    p.TimeSignature = TimeSignature;
-            //                }
-            //                // Make sure a patch is supplied.
-            //                p.GetChannels(true, false).ForEach(vc =>
-            //                {
-            //                    if (vc.patch == -1)
-            //                    {
-            //                        var newp = pdefault.GetPatch(vc.chnum);
-            //                        if (newp == -1)
-            //                        {
-            //                            pdefault.RemoveChannel(vc.chnum);
-            //                        }
-            //                        else
-            //                        {
-            //                            p.SetChannelPatch(vc.chnum, newp);
-            //                        }
-            //                    }
-            //                });
-            //                break;
-            //        }
-            //    }
-            //    toRemove.ForEach(p => _patterns.Remove(p));
-            //}
-            //else
-            //{
-            //    // Simple midi file. Handle corner cases.
-            //    // Some files are missing patch info.
-            //    pdefault.GetChannels(true, false).ForEach(vc =>
-            //    {
-            //        var newp = pdefault.GetPatch(vc.chnum);
-            //        if (newp == -1)
-            //        {
-            //            // Force to default.
-            //            pdefault.SetChannelPatch(vc.chnum, 0);
-            //        }
-            //    });
-            //}
-        }
+        //     if (IsStyleFile)
+        //     {
+        //        // Get the always present nameless pattern.
+        //        // Delete unneeded stuff.
+        //        List<Pattern> toRemove = [];
+        //        foreach (var p in _patterns)
+        //        {
+        //            switch(p.Name)
+        //            {
+        //                case "SFF1":
+        //                case "SFF2":
+        //                case "SInt":
+        //                case "":
+        //                    toRemove.Add(p);
+        //                    break;
+        //                default:
+        //                    // Update missing properties.
+        //                    if (p.Tempo == 0) // not specified.
+        //                    {
+        //                        p.Tempo = Tempo;
+        //                    }
+        //                    if (p.TimeSignature == (0, 0)) // not specified.
+        //                    {
+        //                        p.TimeSignature = TimeSignature;
+        //                    }
+        //                    // Make sure a patch is supplied.
+        //                    p.GetChannels(true, false).ForEach(vc =>
+        //                    {
+        //                        if (vc.patch == -1)
+        //                        {
+        //                            var newp = pdefault.GetPatch(vc.chnum);
+        //                            if (newp == -1)
+        //                            {
+        //                                pdefault.RemoveChannel(vc.chnum);
+        //                            }
+        //                            else
+        //                            {
+        //                                p.SetChannelPatch(vc.chnum, newp);
+        //                            }
+        //                        }
+        //                    });
+        //                    break;
+        //            }
+        //        }
+        //        toRemove.ForEach(p => _patterns.Remove(p));
+        //     }
+        //     else
+        //     {
+        //        // Simple midi file. Handle corner cases.
+        //        // Some files are missing patch info.
+        //        pdefault.GetChannels(true, false).ForEach(vc =>
+        //        {
+        //            var newp = pdefault.GetPatch(vc.chnum);
+        //            if (newp == -1)
+        //            {
+        //                // Force to default.
+        //                pdefault.SetChannelPatch(vc.chnum, 0);
+        //            }
+        //        });
+        //     }
+        // }
 
         /// <summary>
         /// Read a number from stream and adjust endianess.

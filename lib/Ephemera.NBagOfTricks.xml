@@ -469,7 +469,7 @@
             <param name="height">The height to resize to.</param>
             <returns>The resized image.</returns>
         </member>
-        <member name="M:Ephemera.NBagOfTricks.MiscUtils.Add``2(System.Collections.Generic.Dictionary{``0,System.Collections.Generic.List{``1}},``0,``1)">
+        <member name="M:Ephemera.NBagOfTricks.MiscUtils.AddLazy``2(System.Collections.Generic.Dictionary{``0,System.Collections.Generic.List{``1}},``0,``1)">
             <summary>
             Add a value to a list with key. If the list with key doesn't exist, it is added.
             </summary>

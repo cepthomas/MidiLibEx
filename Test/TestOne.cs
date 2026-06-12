@@ -3,11 +3,10 @@ using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfTricks.PNUT;
 using Ephemera.MidiLibEx;
-using Ephemera.MidiLib;
-using System.Runtime.CompilerServices;
 
 
 // Useful files - from https://github.com/cepthomas/TestAudioFiles:
@@ -75,10 +74,6 @@ namespace Ephemera.MidiLibEx.Test
             var pnames = mdata.GetPatternNames(); // one: ""
             var pinfo = mdata.GetPattern("");
 
-            // Get selected channels. 
-
-            // TODO1 mini copy script for midi
-
             // Execute the export function.
             var hdr = mdata.Header;
 
@@ -91,8 +86,7 @@ namespace Ephemera.MidiLibEx.Test
             //List<int> chs2 = [1, 2, 3];
             //MidiExport.ExportCsv($"{fn2}.csv", pinfo, chs2, hdr);
             //MidiExport.ExportMidi($"{fn2}.mid", pinfo, chs2, hdr);
-
-        }
+         }
     }
 
     //----------------------------------------------------------------

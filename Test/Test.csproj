@@ -29,7 +29,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\MidiLib\MidiLib.csproj" />
         <ProjectReference Include="..\MidiLibEx.csproj" />
     </ItemGroup>
 

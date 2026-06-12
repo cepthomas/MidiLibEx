@@ -30,7 +30,13 @@ namespace Ephemera.MidiLibEx
         /// <summary>Pattern name. Empty indicates single pattern aka plain midi file.</summary>
         public string Name { get; init; } = "";
 
-        /// <summary>All the tracks.</summary>
+        /// <summary>Tempo, if supplied by file. Default indicates invalid which will be filled in during read.</summary>
+        public int Tempo { get; set; } = 0;
+
+        /// <summary>Time signature, if supplied by file.</summary>
+        public (int num, int denom) TimeSignature { get; set; } = new();
+
+        /// <summary>All the tracks in the pattern.</summary>
         public List<Track> Tracks { get; init; } = [];
 
         // /// <summary>Length of all sequences in scaled/internal time.</summary>
@@ -46,11 +52,6 @@ namespace Ephemera.MidiLibEx
         {
             Name = name;
             _mt = new(ppq);
-        }
-
-        public void AddTrack(Track trk)
-        {
-            Tracks.Add(trk);
         }
 
         /// <summary>

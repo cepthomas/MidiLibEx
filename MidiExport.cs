@@ -102,10 +102,6 @@ namespace Ephemera.MidiLibEx
                 IList<MidiEvent> outEvents = outColl.AddTrack();
                 var events = track.GetFilteredEvents(channels);
                 events?.ForEach(e => { outEvents.Add(e); });
-                //// Add end track.
-                //long ltime = outEvents.Last().AbsoluteTime;
-                //var endt = new MetaEvent(MetaEventType.EndTrack, 0, ltime);
-                //outEvents.Add(endt);
             }
 
             // Use NAudio function to create out file.
