@@ -54,3 +54,76 @@ There's tons of styles and technical info at https://psrtutorial.com/. An overvi
 # External Components
 
 - [NAudio](https://github.com/naudio/NAudio) (MIT).
+
+
+# ======================= New stuff ============================
+
+- If it is a plain midi file there will be one only pattern, with one or more tracks, each with one or more channels.
+- If it is a midi style file there will be one or more patterns, each with a single track, each with one or more channels.
+
+- Plain - file has one or more MTrks (usually but not necessarily one per instrument)
+> ===== MTrk =====
+0 MidiPort 00
+0 SequenceTrackName BASS
+0 PatchChange Ch: 1 Electric Bass(finger)
+0 ControlChange Ch: 1 Controller MainVolume Value 127
+0 NoteOn Ch: 1 A2 Vel:75 Len: ?
+0 NoteOn Ch: 1 A2 Vel:0 (Note Off)
+0 NoteOn Ch: 1 A2 Vel:75 Len: ?
+XXX
+0 EndTrack
+
+- Style - one MTrk with one or more patterns identified by Marker
+    each pattern contains multipe channels and events starting at 0
+    convert each pattern into a track with SequenceTrackName set to Marker text
+
+## From doc
+----------------------------------------------
+The common order of the sections in the file is at follows:
+1. Midi section
+2. CASM section
+3. OTS (One Touch Setting) section
+4. MDB (Music Finder) section
+5. MH section
+
+>>>>>>>
+Section 1 is always a standard midi file structure of a midi type 0 file (one track). The general structure of this section is a little bit different than the structure of sections 2...4, which share the same common structure
+
+Structure of section 1 (midi section):
+Section Id (4 bytes)  "MThd"
+Some fix data (14 bytes) file format (0!), num tracks (1!), ppq (SFF1=any SFF2=1920?)  
+?? Section Length (4 bytes)
+?? Section Data (n bytes)
+            Header.MidiFileType = (int)ReadStream(br, 2);
+            Header.NumTracks = (int)ReadStream(br, 2);
+            Header.DeltaTicksPerQuarterNote = (int)ReadStream(br, 2);
+
+
+
+> first/only?? track section
+Section Id (4 bytes)  "MTrk"
+Section Length (4 bytes)
+Section Data (n bytes)
+
+The midi section of a style consists of some initial file related data (key, tempo, time, ...) , then two initializing markers SFF1/2 and SInt used to initialize the PSR/Tyros, set up instrument voices, and the markers used to delineate the midi patterns by the selected sections (e.g. Main A, Ending B).
+
+
+> other track sections?
+Section Id (4 bytes)  "MTrk"
+Section Length (4 bytes)
+Section Data (n bytes)
+
+etc...
+
+
+The midi section is midi type 0, which means that there is one midi track. In the first measure there is a marker event which informs about the version of the style file format.
+"SFF1" or "SFF2"
+
+
+> Common structure for sections optional 2 - 4:
+Section Id (4 bytes)  "NAME"
+Section Length (4 bytes)
+Section Data (n bytes)
+
+Optional CASM section (2) contains extended information for the keyboard how to interpret and control playing of the style section. (see 4.6)
+

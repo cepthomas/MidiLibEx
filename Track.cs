@@ -37,6 +37,8 @@ namespace Ephemera.MidiLibEx
         public record struct ChannelState(bool HasNotes, int Patch);
         #endregion
 
+
+
         /// <summary>
         /// Standard constructor.
         /// </summary>

@@ -80,6 +80,9 @@ namespace Ephemera.MidiLibEx
         public void Read(string fn, bool includeNoisy)
         {
             // Sanity checks.
+            //_patterns.Clear();
+            //_currentPattern = null;
+            // or
             if (_patterns.Any()) { throw new InvalidOperationException($"Already processed - delete me first"); }
 
             FileName = fn;
@@ -88,27 +91,53 @@ namespace Ephemera.MidiLibEx
             Track? track;
 
             IsStyleFile = STYLE_FILE_TYPES.Contains(Path.GetExtension(fn), StringComparison.CurrentCultureIgnoreCase);
-            bool done = false;
-
-            // IsStyleFile = false;
 
             using var br = new BinaryReader(File.OpenRead(fn));
-
+            bool done = false;
             while (!done)
             {
+                // Read next section.
                 var bytes = br.ReadBytes(4);
                 if (bytes.Length != 4)
                 {
                     done = true;
                     break;
                 }
-
                 var sectionName = Encoding.UTF8.GetString(bytes);
+
+                if (sectionName == "MThd") // common - first
+                {
+
+
+
+                }
+
+                if (sectionName == "MTrk") // common - second
+                {
+                    //===== MTrk =====
+                    //0 TimeSignature 4 / 4 TicksInClick: 24 32ndsInQuarterNote: 8
+                    //0 SetTempo 70bpm(857142)
+                    //0 KeySignature 0 0 ???
+                }
+
+
+
 
                 switch (sectionName)
                 {
                     case "MThd":
+                        // Read the midi header section.
                         ReadMThd(br);
+
+                        // Sanity check.
+                        if (IsStyleFile)
+                        {
+                            if (Header.MidiFileType != 0 || Header.NumTracks != 1)
+                            {
+                                throw new InvalidOperationException("Not a valid style file");
+                            }
+                        }
+
                         // Always at least one pattern. Plain midi has just one, style has multiple.
                         _currentPattern = new("TODO1", Header.DeltaTicksPerQuarterNote);
                         break;
@@ -130,8 +159,8 @@ namespace Ephemera.MidiLibEx
                     case "OTSc":
                     case "FNRc":
                         // Skip others for now.
-                        uint chunkSize = ReadStream(br, 4);
-                        br.ReadBytes((int)chunkSize);
+                        uint chunkSize2 = ReadStream(br, 4);
+                        br.ReadBytes((int)chunkSize2);
                         break;
 
                     default:
