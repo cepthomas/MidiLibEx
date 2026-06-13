@@ -61,7 +61,7 @@ namespace Ephemera.MidiLibEx
         /// <summary>Key signature if provided in file track.</summary>
         public int SharpsFlats { get; set; } = 0;
 
-        /// <summary>Time signature if provided in file track.</summary>
+        /// <summary>Time signature if provided in file track. Written is $"{num}/{denom*2}"</summary>
         public (int num, int denom) TimeSignature { get; set; } = new();
         #endregion
 
@@ -90,9 +90,7 @@ namespace Ephemera.MidiLibEx
             IsStyleFile = STYLE_FILE_TYPES.Contains(Path.GetExtension(fn), StringComparison.CurrentCultureIgnoreCase);
             bool done = false;
 
-
-            IsStyleFile = false;
-
+            // IsStyleFile = false;
 
             using var br = new BinaryReader(File.OpenRead(fn));
 
@@ -123,6 +121,7 @@ namespace Ephemera.MidiLibEx
                         _currentPattern.Tracks.Add(track);
                         break;
 
+                    // Style details.
                     case "CASM":
                     case "CSEG":
                     case "Sdec":
@@ -201,6 +200,7 @@ namespace Ephemera.MidiLibEx
         /// <returns>New tracks</returns>
         Track ReadMTrk(BinaryReader br, bool includeNoisy)
         {
+//Console.WriteLine("===== MTrk =====");
             Track track = new();
             uint chunkSize = ReadStream(br, 4);
             long startPos = br.BaseStream.Position;
@@ -215,6 +215,7 @@ namespace Ephemera.MidiLibEx
                 if (foundEndTrack) { throw new InvalidOperationException("Events past end of track"); }
 
                 me = MidiEvent.ReadNextEvent(br, me);
+//Console.WriteLine(me.ToString());
                 absoluteTime += me.DeltaTime;
                 me.AbsoluteTime = absoluteTime;
 

@@ -60,6 +60,24 @@ namespace Ephemera.MidiLibEx.Test
 
     //----------------------------------------------------------------
     /// <summary>Test export functions.</summary>
+    public class MLEX_SIMPLE : TestSuite
+    {
+        public override void RunSuite()
+        {
+            StopOnFail(true);
+
+            var mdata = new MidiDataFile();
+            mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"), false);
+
+            //var numtr = mdata!.NumTracks; // 10
+            var pnames = mdata.GetPatternNames(); // one: ""
+            //var pinfo = mdata.GetPattern("");
+
+        }
+    }
+
+    //----------------------------------------------------------------
+    /// <summary>Test export functions.</summary>
     public class MLEX_EXPORT : TestSuite
     {
         public override void RunSuite()
@@ -86,7 +104,7 @@ namespace Ephemera.MidiLibEx.Test
             //List<int> chs2 = [1, 2, 3];
             //MidiExport.ExportCsv($"{fn2}.csv", pinfo, chs2, hdr);
             //MidiExport.ExportMidi($"{fn2}.mid", pinfo, chs2, hdr);
-         }
+        }
     }
 
     //----------------------------------------------------------------
