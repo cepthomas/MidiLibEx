@@ -27,7 +27,7 @@ namespace Ephemera.MidiLibEx
 
         #region Properties
         /// <summary>Track name.</summary>
-        public string Name { get; set; } = "";
+        public string Name { get; set; } = "???";
 
         /// <summary>Standard events - not meta.</summary>
         public int NumStandard { get; private set; } = 0;

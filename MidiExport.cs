@@ -79,7 +79,7 @@ namespace Ephemera.MidiLibEx
         }
 
         /// <summary>
-        /// Export pattern parts to individual midi files. This is as the events appear in the original file.
+        /// Export pattern to midi file type 1. This is as the events appear in the original file.
         /// </summary>
         /// <param name="fn">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>

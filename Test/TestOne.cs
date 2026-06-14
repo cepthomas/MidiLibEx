@@ -27,7 +27,7 @@ namespace Ephemera.MidiLibEx.Test
 
             // Style file, full info:
             var mdata = new MidiDataFile();
-            mdata.Read(Path.Join(Program.InputDir, "_LoveSong.S474.sty"), false);
+            mdata.Read(Path.Join(Program.InputDir, "_LoveSong.S474.sty"));//, false);
             Assert(mdata is not null);
 
             // Load the new one.
@@ -67,12 +67,11 @@ namespace Ephemera.MidiLibEx.Test
             StopOnFail(true);
 
             var mdata = new MidiDataFile();
-            mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"), false);
+            mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"));//, false);
 
             //var numtr = mdata!.NumTracks; // 10
             var pnames = mdata.GetPatternNames(); // one: ""
             //var pinfo = mdata.GetPattern("");
-
         }
     }
 
@@ -86,7 +85,7 @@ namespace Ephemera.MidiLibEx.Test
 
             // Simple midi file:
             var mdata = new MidiDataFile();
-            mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"), false);
+            mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"));//, false);
 
             //var numtr = mdata!.NumTracks; // 10
             var pnames = mdata.GetPatternNames(); // one: ""
