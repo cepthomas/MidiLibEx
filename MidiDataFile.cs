@@ -31,6 +31,9 @@ namespace Ephemera.MidiLibEx
 
         /// <summary>Supported file types.</summary>
         public const string STYLE_FILE_TYPES = "*.sty;*.fps;*.pcs;*.sst;*.pst;*.prs;*.bcs;*.yjz";
+
+        /// <summary>System default.</summary>
+        public const int DEFAULT_TEMPO = 100;
         #endregion
 
         #region Properties
@@ -153,6 +156,8 @@ namespace Ephemera.MidiLibEx
             Header.MidiFileType = (int)ReadStream(br, 2);
             Header.NumTracks = (int)ReadStream(br, 2);
             Header.DeltaTicksPerQuarterNote = (int)ReadStream(br, 2);
+
+            Track.MTC = new(Header.DeltaTicksPerQuarterNote);
         }
 
         /// <summary>
@@ -162,7 +167,7 @@ namespace Ephemera.MidiLibEx
         /// <returns>New tracks</returns>
         Pattern ReadMTrkSimple(BinaryReader br)
         {
-            Pattern simplePattern = new(Header.DeltaTicksPerQuarterNote);
+            Pattern simplePattern = new();// Header.DeltaTicksPerQuarterNote);
 
             // Elements if provided in file track.
             TempoEvent? tempoEvt;
@@ -412,7 +417,12 @@ namespace Ephemera.MidiLibEx
                 if (currentTrack.NumStandard > 0)
                 {
                     // Finish up.
-                    var p = new Pattern(Header.DeltaTicksPerQuarterNote) { Name = currentTrack.Name };
+                    var p = new Pattern() // Header.DeltaTicksPerQuarterNote)
+                    {
+                        Name = currentTrack.Name,
+                        Tempo = tempoEvt is null ? DEFAULT_TEMPO : (int)Math.Round(tempoEvt.Tempo),
+                    };
+
                     var endEvent = new MetaEvent(MetaEventType.EndTrack, 0, absoluteTime);
 
                     // Insert track 0.

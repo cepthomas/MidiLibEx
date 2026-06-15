@@ -23,7 +23,7 @@ Requires VS2022 and .NET8.
   - Translates from raw file to internal representation.
   - Units are in ticks - scaled version of midi ticks.
 
-- PatternInfo
+- Pattern
   - Represents the contents of a midi file pattern.
   - If it is a plain midi file (not style) there will be one only.
 

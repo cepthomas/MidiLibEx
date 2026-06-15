@@ -18,17 +18,15 @@ namespace Ephemera.MidiLibEx
     /// <remarks>
     /// Normal constructor.
     /// </remarks>
-    /// <param name="ppq">Resolution</param>
-    public class Pattern(int ppq)
+//    /// <param name="ppq">Resolution</param>
+    public class Pattern()//int ppq)
     {
-        #region Fields
-        /// <summary>For scaling midi ticks to internal.</summary>
-        readonly MidiTimeConverter _mt = new(ppq);
-        #endregion
-
         #region Properties
         /// <summary>Pattern name. Empty indicates single pattern aka plain midi file.</summary>
         public string Name { get; set; } = MidiDataFile.UNNAMED;
+
+        /// <summary>Pattern default tempo.</summary>
+        public int Tempo { get; set; } = MidiDataFile.DEFAULT_TEMPO;
 
         /// <summary>All the tracks in the pattern.</summary>
         public List<Track> Tracks { get; set; } = [];
@@ -45,17 +43,25 @@ namespace Ephemera.MidiLibEx
     }
 
     /// <summary>
-    /// Represents the contents of a midi track.
+    /// The contents of a midi track.
     /// </summary>
     public class Track
     {
         #region Fields
-        /// <summary>All the track midi events.</summary>
+        /// <summary>All the original track midi events.</summary>
         readonly List<MidiEvent> _events = [];
+
+        /// <summary>All the track midi events, key is when to play (scaled/internal time).</summary>
+        readonly Dictionary<long, List<MidiEvent>> _eventsByTime = [];
 
         /// <summary>Max length of all sequences in midi ticks.</summary>
         long _maxTick = 0;
         #endregion
+
+
+        /// <summary>For scaling midi ticks to internal. Set this before adding events!</summary>
+        public static MidiTimeConverter MTC;
+
 
         #region Properties
         /// <summary>Track name.</summary>
@@ -64,7 +70,10 @@ namespace Ephemera.MidiLibEx
         /// <summary>Standard events - not meta.</summary>
         public int NumStandard { get; private set; } = 0;
 
-        /// <summary>Channels and patches in this track.</summary>
+        /// <summary>Length of all sequences in scaled/internal time.</summary>
+        public int Length { get { return MTC.MidiToInternal(_maxTick, true); } }
+
+        /// <summary>Channels and patches in this track. Index is channel number-1.</summary>
         public ChannelState[] ChannelStates { get; set; } = new ChannelState[MidiDefs.NUM_CHANNELS];
         public record struct ChannelState(bool HasNotes, int Patch);
         #endregion
@@ -74,7 +83,11 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         public Track()
         {
-            ChannelStates.ForEach(state => { state.HasNotes = false; state.Patch = -1; });
+            ChannelStates.ForEach(state =>
+            {
+                state.HasNotes = false;
+                state.Patch = -1;
+            });
         }
 
         /// <summary>
@@ -87,7 +100,7 @@ namespace Ephemera.MidiLibEx
             {
                 NumStandard++;
             }
-            
+
             // Cache channel note info.
             if (evt is NoteOnEvent)
             {
@@ -97,8 +110,8 @@ namespace Ephemera.MidiLibEx
             // Scale time and add to collections.
             _events.Add(evt); // all
 
-            //int scTime = _mt!.MidiToInternal(evt.AbsoluteTime, true); 
-            //_eventsByTime.Add(scTime, evt);
+            int scTime = MTC.MidiToInternal(evt.AbsoluteTime, true);
+            _eventsByTime.AddLazy(scTime, evt);
 
             _maxTick = Math.Max(_maxTick, evt.AbsoluteTime);
         }
@@ -112,6 +125,17 @@ namespace Ephemera.MidiLibEx
         {
             IEnumerable<MidiEvent> descs = _events.Where(e => channelNumbers.Contains(e.Channel)) ?? [];
             return descs.OrderBy(e => e.AbsoluteTime);
+        }
+
+        /// <summary>
+        /// Get all events at a specific scaled time.
+        /// </summary>
+        /// <param name="when"></param>
+        /// <returns></returns>
+        public IEnumerable<MidiEvent> GetEventsWhen(int when)
+        {
+            List<MidiEvent> evts = _eventsByTime.ContainsKey(when) ? _eventsByTime[when] : [];
+            return evts;
         }
 
         /// <summary>
