@@ -1,0 +1,156 @@
+
+MThd
+
+    MidiFileType = 1
+
+    NumTracks = 10
+
+    DeltaTicksPerQuarterNote = 384
+
+
+MTrk
+
+    0 SequencerSpecific 00 00 41
+
+    0 TimeSignature 4/4 TicksInClick:24 32ndsInQuarterNote:8
+
+    0 KeySignature 0 0
+
+    0 SetTempo 100bpm (600000)
+
+    0 EndTrack
+
+
+MTrk
+
+    0 MidiPort 00
+
+    0 SequenceTrackName BASS
+
+    0 PatchChange Ch: 1 Electric Bass(finger)
+
+    0 ControlChange Ch: 1 Controller MainVolume Value 127
+
+    0 NoteOn Ch: 1 A2 Vel:75 Len: ?
+
+    0 NoteOn Ch: 1 A2 Vel:0 (Note Off)
+
+    0 NoteOn Ch: 1 A2 Vel:75 Len: ?
+
+    ...
+
+    0 EndTrack
+
+
+MTrk
+
+    0 MidiPort 00
+
+    0 SequenceTrackName CHIOR PAD
+
+    0 PatchChange Ch: 2 Synth Voice
+
+    0 ControlChange Ch: 2 Controller MainVolume Value 100
+
+    0 NoteOn Ch: 2 D5 Vel:100 Len: ?
+
+    0 NoteOn Ch: 2 B4 Vel:100 Len: ?
+
+    ...
+
+    0 EndTrack
+
+
+MTrk
+
+    0 MidiPort 00
+
+    0 SequenceTrackName GUITAR
+
+    0 PatchChange Ch: 3 Electric Guitar(jazz)
+
+    0 PitchWheelChange Ch: 3 Pitch 192 (-8000)
+
+    0 NoteOn Ch: 3 F#5 Vel:91 Len: ?
+
+    0 PitchWheelChange Ch: 3 Pitch 0 (-8192)
+
+    0 PitchWheelChange Ch: 3 Pitch 128 (-8064)
+
+    0 PitchWheelChange Ch: 3 Pitch 256 (-7936)
+
+    ...
+
+    0 EndTrack
+
+
+MTrk
+
+    0 MidiPort 00
+
+    0 SequenceTrackName VERSE PAD
+
+    ...
+
+    0 EndTrack
+
+
+MTrk
+
+    0 MidiPort 00
+
+    0 SequenceTrackName DRUMS
+
+    0 PatchChange Ch: 10 Viola
+
+    0 ControlChange Ch: 10 Controller MainVolume Value 127
+
+    0 ControlChange Ch: 10 Controller BankSelect Value 0
+
+    0 NoteOn Ch: 10 Acoustic Bass Drum Vel:58 Len: ?
+
+    0 NoteOn Ch: 10 Ride Cymbal 1 Vel:58 Len: ?
+
+    ...
+
+    0 EndTrack
+
+
+MTrk
+
+    0 MidiPort 00
+
+    0 SequenceTrackName Wicked Game
+
+    0 EndTrack
+
+
+MTrk
+
+    0 MidiPort 00
+
+    0 SequenceTrackName Sequenced By
+
+    0 EndTrack
+
+
+MTrk
+
+    0 MidiPort 00
+
+    0 SequenceTrackName Todd Moore
+
+    0 EndTrack
+
+
+MTrk
+
+    0 MidiPort 00
+
+    0 SequenceTrackName tamoore@voyager.net
+
+    0 EndTrack
+
+
+=> then bunch of other stuff - ignored
+

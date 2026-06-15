@@ -25,7 +25,7 @@ namespace Ephemera.MidiLibEx.Test
 
             TestRunner runner = new(OutputFormat.Readable);
             //  MLEX_SIMPLE  MLEX_STYLE  MLEX_EXPORT  MLEX_API
-            var torun = new[] { "MLEX_SIMPLE" };
+            var torun = new[] { "MLEX_STYLE" };
             runner.RunSuites(torun);
 
             // File.WriteAllLines(Path.Join(MiscUtils.GetSourcePath(), "test.txt"), runner.Context.OutputLines);

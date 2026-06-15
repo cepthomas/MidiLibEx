@@ -19,6 +19,23 @@ using Ephemera.MidiLibEx;
 namespace Ephemera.MidiLibEx.Test
 {
     //----------------------------------------------------------------
+    /// <summary>Test export functions.</summary>
+    public class MLEX_SIMPLE : TestSuite
+    {
+        public override void RunSuite()
+        {
+            StopOnFail(true);
+
+            var mfd = new MidiDataFile();
+            mfd.Read(Path.Join(Program.InputDir, "WICKGAME.MID"));
+
+            //var numtr = mfd!.NumTracks; // 10
+            var pnames = mfd.GetPatternNames();
+            var pinfo = mfd.GetPattern(MidiDataFile.UNNAMED);
+        }
+    }
+
+    //----------------------------------------------------------------
     public class MLEX_STYLE : TestSuite
     {
         public override void RunSuite()
@@ -26,14 +43,14 @@ namespace Ephemera.MidiLibEx.Test
             StopOnFail(true);
 
             // Style file, full info:
-            var mdata = new MidiDataFile();
-            mdata.Read(Path.Join(Program.InputDir, "_LoveSong.S474.sty"));//, false);
-            Assert(mdata is not null);
+            var mfd = new MidiDataFile();
+            mfd.Read(Path.Join(Program.InputDir, "_LoveSong.S474.sty"));;
+            Assert(mfd is not null);
 
             // Load the new one.
             // long maxTick = 0;
-            var pnames = mdata!.GetPatternNames();
-            var pattern = mdata!.GetPattern("Main C");
+            var pnames = mfd!.GetPatternNames();
+            var pattern = mfd!.GetPattern("Main C");
             Assert(pattern is not null);
 
             //TODO1 these:::
@@ -60,23 +77,6 @@ namespace Ephemera.MidiLibEx.Test
 
     //----------------------------------------------------------------
     /// <summary>Test export functions.</summary>
-    public class MLEX_SIMPLE : TestSuite
-    {
-        public override void RunSuite()
-        {
-            StopOnFail(true);
-
-            var mdata = new MidiDataFile();
-            mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"));//, false);
-
-            //var numtr = mdata!.NumTracks; // 10
-            var pnames = mdata.GetPatternNames(); // one: ""
-            //var pinfo = mdata.GetPattern("");
-        }
-    }
-
-    //----------------------------------------------------------------
-    /// <summary>Test export functions.</summary>
     public class MLEX_EXPORT : TestSuite
     {
         public override void RunSuite()
@@ -84,15 +84,15 @@ namespace Ephemera.MidiLibEx.Test
             StopOnFail(true);
 
             // Simple midi file:
-            var mdata = new MidiDataFile();
-            mdata.Read(Path.Join(Program.InputDir, "WICKGAME.MID"));//, false);
+            var mfd = new MidiDataFile();
+            mfd.Read(Path.Join(Program.InputDir, "WICKGAME.MID"));
 
-            //var numtr = mdata!.NumTracks; // 10
-            var pnames = mdata.GetPatternNames(); // one: ""
-            var pinfo = mdata.GetPattern("");
+            //var numtr = mfd!.NumTracks; // 10
+            var pnames = mfd.GetPatternNames();
+            var pinfo = mfd.GetPattern(MidiDataFile.UNNAMED);
 
             // Execute the export function.
-            var hdr = mdata.Header;
+            var hdr = mfd.Header;
 
             var fn1 = Path.Join(Program.OutputDir, "simple_midi_all");
             List<int> chs1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];

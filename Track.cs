@@ -27,7 +27,7 @@ namespace Ephemera.MidiLibEx
 
         #region Properties
         /// <summary>Track name.</summary>
-        public string Name { get; set; } = "???";
+        public string Name { get; set; } = MidiDataFile.UNNAMED;
 
         /// <summary>Standard events - not meta.</summary>
         public int NumStandard { get; private set; } = 0;
@@ -36,8 +36,6 @@ namespace Ephemera.MidiLibEx
         public ChannelState[] ChannelStates { get; set; } = new ChannelState[MidiDefs.NUM_CHANNELS];
         public record struct ChannelState(bool HasNotes, int Patch);
         #endregion
-
-
 
         /// <summary>
         /// Standard constructor.
@@ -94,86 +92,13 @@ namespace Ephemera.MidiLibEx
             ChannelStates[channel - 1].Patch = patch;
         }
 
-        ///// <summary>
-        ///// Get all events at a specific scaled time. TODO1 - client?
-        ///// </summary>
-        ///// <param name="when"></param>
-        ///// <returns></returns>
-        //public IEnumerable<MidiEvent> GetEventsWhen_X(int when)
-        //{
-        //    List<MidiEvent> evts = [];// _eventsByTime.ContainsKey(when) ? _eventsByTime[when] : [];
-        //    return evts;
-        //}
-
-        ///// <summary>
-        ///// Get an ordered list of channels and their patches. TODO1
-        ///// </summary>
-        ///// <param name="hasNotes">Must have noteons.</param>
-        ///// <param name="hasPatch">Must have valid patch.</param>
-        ///// <returns></returns>
-        //public IEnumerable<(int chnum, int patch)> GetChannels_X(bool hasNotes, bool hasPatch)
-        //{
-        //    List<(int chnum, int patch)> ps = [];
-        //    // Assemble results from filters.
-        //    bool any = hasNotes ? _events.Where(e => e is NoteOnEvent).Any() : _events.Any();
-        //    if (any)
-        //    {
-        //        _channelPatches_X
-        //            .Where(n => !hasPatch || n.Value != -1)
-        //            .Where(n => _channelsWithNotes.Contains(n.Key))
-        //            .OrderBy(n => n.Key)
-        //            .ForEach(n => { ps.Add((n.Key, n.Value)); });
-        //    }
-
-        //    return ps;
-        //}
-
-        ///// <summary>
-        ///// Get the patch associated with the channel.
-        ///// </summary>
-        ///// <param name="channel"></param>
-        ///// <returns>The patch or -1 if invalid channel</returns>
-        //public int GetPatch_X(int channel)
-        //{
-        //    return _channelPatches_X.TryGetValue(channel, out int value) ? value : -1;
-        //}
-
-        ///// <summary>
-        ///// Remove a channel from the channel/patches collection.
-        ///// </summary>
-        ///// <param name="channel"></param>
-        //public void RemoveChannel_X(int channel)
-        //{
-        //    _channelPatches_X.Remove(channel);
-        //}
-
-        ///// <summary>
-        ///// Safely add/update info.
-        ///// </summary>
-        ///// <param name="channel">The channel number</param>
-        ///// <param name="patch">The patch. Can be default -1.</param>
-        //public void SetChannelPatch_X(int channel, int patch)
-        //{
-        //    if (!_channelPatches_X.TryAdd(channel, patch))
-        //    {
-        //        if (patch != -1)
-        //        {
-        //            _channelPatches_X[channel] = patch;
-        //        }
-        //    }
-        //}
-
         /// <summary>
         /// Readable version.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            var pname = Name;// == "" ? "nameless" : Name;
-            var s = $"{pname}";
-            //var s = $"{pname} tempo:{Tempo} timesig:{TimeSignature} channels:{_channelPatches.Count}";
-            //ValidPatches.ForEach(p => content.Add($"Ch:{p.Key} Patch:{MidiDefs.GetInstrumentName(p.Value)}"));
-
+            var s = $"{Name} Events:{_events.Count}";
             return s;
         }
     }
