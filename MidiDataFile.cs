@@ -81,6 +81,8 @@ namespace Ephemera.MidiLibEx
                         // Read the midi header section.
                         ReadMThd(br);
 
+                        Dump($"{Header}");
+
                         // Sanity check.
                         if (isStyleFile && (Header.MidiFileType != 0 || Header.NumTracks != 1))
                         {
@@ -156,8 +158,6 @@ namespace Ephemera.MidiLibEx
             Header.MidiFileType = (int)ReadStream(br, 2);
             Header.NumTracks = (int)ReadStream(br, 2);
             Header.DeltaTicksPerQuarterNote = (int)ReadStream(br, 2);
-
-            Track.MTC = new(Header.DeltaTicksPerQuarterNote);
         }
 
         /// <summary>
@@ -167,14 +167,8 @@ namespace Ephemera.MidiLibEx
         /// <returns>New tracks</returns>
         Pattern ReadMTrkSimple(BinaryReader br)
         {
-            Pattern simplePattern = new();// Header.DeltaTicksPerQuarterNote);
-
-            // Elements if provided in file track.
-            TempoEvent? tempoEvt;
-            KeySignatureEvent? keySigEvt;
-            TimeSignatureEvent? timeSigEvt;
-
-            Track currentTrack = new();
+            Pattern simplePattern = new();
+            Track currentTrack = new(Header.DeltaTicksPerQuarterNote);
 
             // Stepping through file.
             uint chunkSize;
@@ -190,7 +184,7 @@ namespace Ephemera.MidiLibEx
                 me = MidiEvent.ReadNextEvent(br, me);
                 absoluteTime += me.DeltaTime;
                 me.AbsoluteTime = absoluteTime;
-                Dump($"Next event {me}");
+                Dump($"Next event {me} [{me.DeltaTime}]");
 
                 switch (me)
                 {
@@ -216,23 +210,20 @@ namespace Ephemera.MidiLibEx
                         currentTrack.AddEvent(evt);
                         break;
 
-                    case SysexEvent evt when IncludeNoisy:
-                        //currentTrack.AddEvent(evt);
-                        break;
+                    //case SysexEvent evt when IncludeNoisy:
+                    //    currentTrack.AddEvent(evt);
+                    //    break;
 
                     ///// Meta events /////
                     case TempoEvent evt:
-                        tempoEvt = evt;
                         currentTrack.AddEvent(evt);
                         break;
 
                     case TimeSignatureEvent evt:
-                        timeSigEvt = evt;
                         currentTrack.AddEvent(evt);
                         break;
 
                     case KeySignatureEvent evt:
-                        keySigEvt = evt;
                         currentTrack.AddEvent(evt);
                         break;
 
@@ -253,7 +244,7 @@ namespace Ephemera.MidiLibEx
                         if (sectionName == "MTrk")
                         {
                             // One mo time.
-                            currentTrack = new();
+                            currentTrack = new(Header.DeltaTicksPerQuarterNote);
                             ResetState();
                         }
                         else
@@ -264,6 +255,7 @@ namespace Ephemera.MidiLibEx
                         break;
 
                     default:
+                        // Ignore others.
                         break;
                 }
             }
@@ -295,7 +287,7 @@ namespace Ephemera.MidiLibEx
             TimeSignatureEvent? timeSigEvt = null;
 
             string _currentMarker = "";
-            Track currentTrack = new();
+            Track currentTrack = new(Header.DeltaTicksPerQuarterNote);
 
             // SInt events for initializing tracks.
             List<MidiEvent> _initEvents = [];
@@ -426,7 +418,7 @@ namespace Ephemera.MidiLibEx
                     var endEvent = new MetaEvent(MetaEventType.EndTrack, 0, absoluteTime);
 
                     // Insert track 0.
-                    var trk0 = new Track();
+                    var trk0 = new Track(Header.DeltaTicksPerQuarterNote);
                     if (timeSigEvt is not null) { trk0.AddEvent(timeSigEvt); }
                     if (keySigEvt is not null) { trk0.AddEvent(keySigEvt); }
                     if (tempoEvt is not null) { trk0.AddEvent(tempoEvt); }
@@ -441,7 +433,7 @@ namespace Ephemera.MidiLibEx
                 }
 
                 // Reset, start new.
-                currentTrack = new() { Name = _currentMarker };
+                currentTrack = new(Header.DeltaTicksPerQuarterNote) { Name = _currentMarker };
                 _initEvents.ForEach(evt => currentTrack.AddEvent(evt));
                 absoluteTime = 0;
             }
@@ -474,7 +466,7 @@ namespace Ephemera.MidiLibEx
         /// <param name="msg"></param>
         void Dump(string msg)
         {
-            //Console.WriteLine(msg);
+            Console.WriteLine(msg);
         }
         #endregion
     }

@@ -18,8 +18,7 @@ namespace Ephemera.MidiLibEx
     /// <remarks>
     /// Normal constructor.
     /// </remarks>
-//    /// <param name="ppq">Resolution</param>
-    public class Pattern()//int ppq)
+    public class Pattern()
     {
         #region Properties
         /// <summary>Pattern name. Empty indicates single pattern aka plain midi file.</summary>
@@ -56,12 +55,10 @@ namespace Ephemera.MidiLibEx
 
         /// <summary>Max length of all sequences in midi ticks.</summary>
         long _maxTick = 0;
-        #endregion
-
 
         /// <summary>For scaling midi ticks to internal. Set this before adding events!</summary>
-        public static MidiTimeConverter MTC;
-
+        readonly MidiTimeConverter _mtc;
+        #endregion
 
         #region Properties
         /// <summary>Track name.</summary>
@@ -71,18 +68,22 @@ namespace Ephemera.MidiLibEx
         public int NumStandard { get; private set; } = 0;
 
         /// <summary>Length of all sequences in scaled/internal time.</summary>
-        public int Length { get { return MTC.MidiToInternal(_maxTick, true); } }
+        public int Length { get { return _mtc.MidiToInternal(_maxTick, true); } }
 
         /// <summary>Channels and patches in this track. Index is channel number-1.</summary>
         public ChannelState[] ChannelStates { get; set; } = new ChannelState[MidiDefs.NUM_CHANNELS];
         public record struct ChannelState(bool HasNotes, int Patch);
         #endregion
 
+        #region Functions
         /// <summary>
         /// Standard constructor.
         /// </summary>
-        public Track()
+        /// <param name="ppq">Resolution</param>
+        public Track(int ppq)
         {
+            _mtc = new(ppq);
+
             ChannelStates.ForEach(state =>
             {
                 state.HasNotes = false;
@@ -110,7 +111,7 @@ namespace Ephemera.MidiLibEx
             // Scale time and add to collections.
             _events.Add(evt); // all
 
-            int scTime = MTC.MidiToInternal(evt.AbsoluteTime, true);
+            int scTime = _mtc.MidiToInternal(evt.AbsoluteTime, true);
             _eventsByTime.AddLazy(scTime, evt);
 
             _maxTick = Math.Max(_maxTick, evt.AbsoluteTime);
@@ -123,7 +124,9 @@ namespace Ephemera.MidiLibEx
         /// <returns>Enumerator sorted by absolute time.</returns>
         public IEnumerable<MidiEvent> GetFilteredEvents(IEnumerable<int> channelNumbers)
         {
-            IEnumerable<MidiEvent> descs = _events.Where(e => channelNumbers.Contains(e.Channel)) ?? [];
+            IEnumerable<MidiEvent> descs = channelNumbers.Count() > 0 ?
+                _events.Where(e => channelNumbers.Contains(e.Channel)) ?? [] :
+                _events.AsEnumerable();
             return descs.OrderBy(e => e.AbsoluteTime);
         }
 
@@ -157,6 +160,7 @@ namespace Ephemera.MidiLibEx
             var s = $"{Name} Events:{_events.Count}";
             return s;
         }
+        #endregion
     }
 
     /// <summary>
@@ -172,5 +176,14 @@ namespace Ephemera.MidiLibEx
 
         /// <summary>Original resolution for all events.</summary>
         public int DeltaTicksPerQuarterNote { get; set; } = 0;
+
+        /// <summary>
+        /// Readable version.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"MidiFileType:{MidiFileType} NumTracks: {NumTracks} PPQ: {DeltaTicksPerQuarterNote}";
+        }
     }
 }

@@ -26,12 +26,32 @@ namespace Ephemera.MidiLibEx.Test
         {
             StopOnFail(true);
 
-            var mfd = new MidiDataFile();
+            MidiDataFile mfd = new();
             mfd.Read(Path.Join(Program.InputDir, "WICKGAME.MID"));
 
             //var numtr = mfd!.NumTracks; // 10
             var pnames = mfd.GetPatternNames();
-            var pinfo = mfd.GetPattern(MidiDataFile.UNNAMED);
+            Assert(pnames.Count == 1);
+
+            // Execute the export functions.
+            var exThrown = ThrowsNot(() =>
+            {
+                var pattern = mfd.GetPattern(MidiDataFile.UNNAMED);
+
+                var hdr = mfd.Header;
+
+                var fn1 = Path.Join(Program.OutputDir, "simple_midi_all");
+                List<int> chs1 = [];
+                MidiExport.ExportCsv($"{fn1}.csv", pattern, chs1, hdr);
+                MidiExport.ExportMidi($"{fn1}.mid", pattern, chs1, hdr);
+
+                var fn2 = Path.Join(Program.OutputDir, "simple_midi_some");
+                List<int> chs2 = [1, 2, 3];
+                MidiExport.ExportCsv($"{fn2}.csv", pattern, chs2, hdr);
+                MidiExport.ExportMidi($"{fn2}.mid", pattern, chs2, hdr);
+            });
+            Assert(exThrown == null);
+
         }
     }
 
@@ -50,69 +70,38 @@ namespace Ephemera.MidiLibEx.Test
             // Load the new one.
             // long maxTick = 0;
             var pnames = mfd!.GetPatternNames();
-            var pattern = mfd!.GetPattern("Main C");
-            Assert(pattern is not null);
+            Assert(pnames.Count == 15);
 
-            //TODO1 these:::
+            // Execute the export functions.
+            var exThrown = ThrowsNot(() =>
+            {
+                var pattern = mfd.GetPattern("Main C");
+
+                var hdr = mfd.Header;
+
+                var fn1 = Path.Join(Program.OutputDir, "style_Main_C");
+                List<int> chs1 = [];
+                MidiExport.ExportCsv($"{fn1}.csv", pattern, chs1, hdr);
+                MidiExport.ExportMidi($"{fn1}.mid", pattern, chs1, hdr);
+            });
+            Assert(exThrown == null);
+
+            //TODO? these:::
             //foreach (var (chnum, patch) in pattern!.GetChannels(true, true))
             //{
             //    // Get events for the channel.
             //    var channelEvents = pattern.GetFilteredEvents([chnum]);
             //    maxTick = Math.Max(channelEvents.Last().AbsoluteTime, maxTick);
-
             //    Info($"chnum:{chnum} patch:{patch} events:{channelEvents.Count()}");
             //}
-
             //Info($"maxTick:{maxTick}");
 
             //int now = 22;
             //var events = pattern.GetEventsWhen(now);
-
             //foreach (var mevt in events)
             //{
             //    // tests???...
             //}
-        }
-    }
-
-    //----------------------------------------------------------------
-    /// <summary>Test export functions.</summary>
-    public class MLEX_EXPORT : TestSuite
-    {
-        public override void RunSuite()
-        {
-            StopOnFail(true);
-
-            // Simple midi file:
-            var mfd = new MidiDataFile();
-            mfd.Read(Path.Join(Program.InputDir, "WICKGAME.MID"));
-
-            //var numtr = mfd!.NumTracks; // 10
-            var pnames = mfd.GetPatternNames();
-            var pinfo = mfd.GetPattern(MidiDataFile.UNNAMED);
-
-            // Execute the export function.
-            var hdr = mfd.Header;
-
-            var fn1 = Path.Join(Program.OutputDir, "simple_midi_all");
-            List<int> chs1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-            MidiExport.ExportCsv($"{fn1}.csv", pinfo, chs1, hdr);
-            MidiExport.ExportMidi($"{fn1}.mid", pinfo, chs1, hdr);
-
-            //var fn2 = Path.Join(Program.OutputDir, "simple_midi_some");
-            //List<int> chs2 = [1, 2, 3];
-            //MidiExport.ExportCsv($"{fn2}.csv", pinfo, chs2, hdr);
-            //MidiExport.ExportMidi($"{fn2}.mid", pinfo, chs2, hdr);
-        }
-    }
-
-    //----------------------------------------------------------------
-    /// <summary>Test all api.</summary>
-    public class MLEX_API : TestSuite // more tests as needed
-    {
-        public override void RunSuite()
-        {
-            StopOnFail(true);
         }
     }
 }

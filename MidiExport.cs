@@ -22,7 +22,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="fn">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>
-        /// <param name="channels">Specific channnels.</param>
+        /// <param name="channels">Specific channnels or all if empty.</param>
         /// <param name="header">File header data to include.</param>
         public static void ExportCsv(string fn, Pattern pattern, List<int> channels, Header header)
         {
@@ -83,7 +83,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="fn">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>
-        /// <param name="channels">Specific channnels.</param>
+        /// <param name="channels">Specific channnels or all if empty.</param>
         /// <param name="header">File header data to include.</param>
         public static void ExportMidi(string fn, Pattern pattern, List<int> channels, Header header)
         {
@@ -113,7 +113,7 @@ namespace Ephemera.MidiLibEx
         /// </summary>
         /// <param name="fn">Where to boss?</param>
         /// <param name="pattern">Specific pattern.</param>
-        /// <param name="channels">Specific channnels.</param>
+        /// <param name="channels">Specific channnels or all if empty.</param>
         /// <param name="header">File header data to include.</param>
         public static void ExportPianoRoll(string fn, Pattern pattern, List<int> channels, Header header)
         {
