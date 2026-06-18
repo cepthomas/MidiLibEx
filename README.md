@@ -1,5 +1,7 @@
 # MidiLibEx
 
+============================= Relocating this to Midifrier =============================
+
 This library adds higher level functionality to that provided by [MidiLib](https://github.com/cepthomas/MidiLib).
 - Reading and playing midi files.
 - Reading and playing the patterns in Yamaha style files.
