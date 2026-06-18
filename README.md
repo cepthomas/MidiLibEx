@@ -1,4 +1,4 @@
-# MidiLibEx TODO1 clean up or migrate
+# MidiLibEx
 
 This library adds higher level functionality to that provided by [MidiLib](https://github.com/cepthomas/MidiLib).
 - Reading and playing midi files.
